@@ -1,0 +1,32 @@
+# - filename: fake_unemployment.csv
+#   year_column_header: Year
+#   source: "I made it up, literally"
+#   data_columns: 
+#     - header: Annual
+#       noun: "fake unemployment"
+#       type: numeric
+- filename: unemployment.csv
+  year_column_header: Year
+  source: "http://data.bls.gov/timeseries/LNU04000000?years_option=all_years&periods_option=specific_periods&periods=Annual+Data"
+  data_columns: 
+    - header: Annual
+      noun: unemployment
+      type: numeric
+- filename: atlantic_hurricanes.csv
+  year_column_header: Year
+  source: http://www.wunderground.com/hurricane/hurrarchive.asp
+  data_columns: 
+    - header: Storms
+      noun: Atlantic tropical storms
+    - header: Hurricanes
+      type: numeric
+      noun: Atlantic hurricanes
+    - header: Deaths
+      type: numeric
+      noun: Atlantic tropical storm-related deaths
+    - header: "Damage (millions USD)"
+      noun: Atlantic tropical storm-related damage
+      type: numeric
+    - header: Retired Names
+      noun: the number of retired Atlantic Hurricane names
+      type: numeric
