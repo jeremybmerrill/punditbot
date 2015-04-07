@@ -72,6 +72,24 @@
   #   - something that gets resolved at a later stage (like Verbs)
   # probably better to hold off for now though!
 
+######
+#
+# "Since <start_year>, the <party> <time_phrase_1> <politics_verb_phrase> <time_phrase_2> in which <data_claim><ending>[.;]",
+# "Since <start_year>, <time_phrase_2> <data_claim>, the <party> <time_phrase_1> <politics_verb_phrase><ending>[.;]",
+# "The <party> <time_phrase_1> <politics_verb_phrase> <time_phrase_2> since <start_year> in which <data_claim><ending>[.;]",
+# "<time_phrase_2> since <start_year> when <data_claim>, the <party> <time_phrase_1> <politics_verb_phrase><ending>[.;]"
+#
+#
+#
+#
+#
+#
+#
+#
+#
+
+
+
   def capitalize!
     @prediction = @prediction[0].capitalize + @prediction[1..-1]
   end
