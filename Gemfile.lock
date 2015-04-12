@@ -1,0 +1,14 @@
+PATH
+  remote: ../simplernlg
+  specs:
+    simplernlg (0.0.1-java)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+
+PLATFORMS
+  java
+
+DEPENDENCIES
+  simplernlg!

@@ -115,3 +115,71 @@
     raise JeremyMessedUpError, joined_prediction if joined_prediction.include?("<") || joined_prediction.include?("[")
     "#{joined_prediction} (#{joined_prediction.size} chars)"
   end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  class Verb
+  # it's what you do
+  def initialize(i)
+    if i.size == 2
+      raise ArgumentError unless i.all?{|p| p.size == 3}
+      @by_number = i.map{|frag| VerbFragment.new(frag)}
+      @by_person = i.transpose.map{|frag| VerbFragment.new(frag)}
+    elsif i.size == 3
+      raise ArgumentError unless i.all?{|n| n.size == 2}
+      @by_person = i.map{|frag| VerbFragment.new(frag)}
+      @by_number = i.transpose.map{|frag| VerbFragment.new(frag)}
+    else 
+      raise ArgumentError, "ur verbin wrong"
+    end
+  end
+
+  def +(str)
+    self.class.new(@by_person.map{|frag| (frag + str).to_a })
+  end
+
+  def person(p)
+    raise ArgumentError, "#{p}th person doesn't exist in English" unless [1,2,3].include?(p)
+    @by_person[p-1]
+  end
+  def number(n) # like I have seven swans, call number(7)
+    raise ArgumentError, "there is no grammatical number `#{n}'" unless n.is_a?(Fixnum) || n.is_a?(Float)
+    @by_number[n == 1 ? 0 : 1]
+  end
+
+  def to_s
+    person(3).number(1) # TODO, fix later.
+  end
+end
+
+class VerbFragment < Verb
+  def initialize(i)
+    raise ArgumentError, "#{i.inspect} must be one-dimensional" unless i.all?{|q| q.respond_to? :gsub}
+    @by_person = @by_number = i
+  end
+  def +(str)
+    self.class.new(@by_person.map{|n| n + str })
+  end
+  def to_a
+    @by_number
+  end
+end
+
+# TODO: this verb system is broken
+# fix it.
+# probably needs a VerbFragment class that, if number() or person() is called, returns a string
+

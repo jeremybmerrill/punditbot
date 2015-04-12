@@ -1,3 +1,3 @@
 source "https://rubygems.org"
 
-gem 'simplenlg', :git => 'https://github.com/jeremybmerrill/simplernlg.git', :platform => "jruby"
+gem 'simplernlg', :platform => "jruby", :path => "../simplernlg" # :git => 'https://github.com/jeremybmerrill/simplernlg.git'

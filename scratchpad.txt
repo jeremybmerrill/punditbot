@@ -1,0 +1,27 @@
+In any year since 1992 when Atlantic tropical storm-related deaths ended in an odd number, the G.O.P. has not won the presidency, except 1996.
+
+phrase = nlg.phrase(s: "The G.O.P.", v: "win", tense: "present", perfect: true, o: "the presidency", negated: true)
+
+NPPhraseSpec place = nlgFactory.createNounPhrase("park");
+place.setDeterminer("the");
+PPPhraseSpec pp = nlgFactory.createPrepositionPhrase();
+pp.addComplement(place);
+pp.setPreposition("in");
+phrase.addComplement(pp);
+
+  ,
+
+main_vp = ["<party> <time_phrase_1> <politics_verb_phrase>"]
+complements = [""Since <start_year>",  "<time_phrase_2> in which <data_claim>", "<ending>"]
+
+
+
+Since 1992, the Republican Party has not won the White House in any year in which Atlantic tropical storm-related damage started with an odd number, save 2008
+The Republicans has not won the presidency in any year since 1976 in which unemployment's digits add up to an odd number, save 1992
+Since 1976, in any year unemployment's digits add up to an odd number, the Republicans has not won the White House, save 1992
+In every year since 1980 when the number of retired Atlantic Hurricane names is an even number, the G.O.P. has won the White House, except 2000.
+The Republicans has not won the presidency in any year since 1980 in which the number of retired Atlantic Hurricane names's digits add up to an odd number, save 2000
+Since 1980, the G.O.P. has not won the presidency in any year in which the number of retired Atlantic Hurricane names's digits add up to an odd number, save 2000.
+Since 1976, the Republican Party has not won the presidency in any year in which unemployment's digits add up to an odd number, save 1992.
+Since 1976, in any year unemployment's digits add up to an even number, the Democratic Party has not won the presidency, except 1992
+The Democratic Party has not won the presidency in any year since 1992 in which Atlantic tropical storm-related deaths is an even number, except 1996.

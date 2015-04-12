@@ -1,22 +1,32 @@
 require 'csv'
 require 'yaml'
+require 'simplernlg' if RUBY_PLATFORM == 'java'
+puts "Warning, this only works on JRuby" if RUBY_PLATFORM != 'java'
+
 class JeremyMessedUpError < StandardError; end
 #TODO: pre-parse templates, phrases into rearrangeable VPs, PPs, (e.g. Without Iowa, GOP hasn't won the White House since 1948 vs. Since 1948, GOP hasn't won the White House.)
-#TODO: use a "microplanner" or other NLG techniques for managing capitalization, inflection, etc.
 
 datasets = [] # maybe these are rails models?
 
 
-TEMPLATES = [
-  "Since <start_year>, the <party> <time_phrase_1> <politics_verb_phrase> <time_phrase_2> in which <data_claim><ending>[.;]",
-  "Since <start_year>, <time_phrase_2> <data_claim>, the <party> <time_phrase_1> <politics_verb_phrase><ending>[.;]",
-  "The <party> <time_phrase_1> <politics_verb_phrase> <time_phrase_2> since <start_year> in which <data_claim><ending>[.;]",
-  "<time_phrase_2> since <start_year> when <data_claim>, the <party> <time_phrase_1> <politics_verb_phrase><ending>[.;]"
-]
+# TEMPLATES = [
+#   "Since <start_year>, the <party> <time_phrase_1> <politics_verb_phrase> <time_phrase_2> in which <data_claim><ending>[.;]",
+#   "Since <start_year>, <time_phrase_2> <data_claim>, the <party> <time_phrase_1> <politics_verb_phrase><ending>[.;]",
+#   "The <party> <time_phrase_1> <politics_verb_phrase> <time_phrase_2> since <start_year> in which <data_claim><ending>[.;]",
+#   "<time_phrase_2> since <start_year> when <data_claim>, the <party> <time_phrase_1> <politics_verb_phrase><ending>[.;]"
+# ]
 POLARITIES = [true, false]
 TOO_RECENT_TO_CARE_CUTOFF = 1992 #if the claim is false twice after (including) 1992, then skip the correlation
  
-POLITICS_VERB_PHRASES = { "won the [White House; presidency]" => {race: :pres, won: false, change: false},
+POLITICS_VERB_PHRASES = [
+  {
+      race: :pres, 
+      control: false, # if after the election, the chosen party/person controls the object
+      change: false,  # if the election caused a change in control of the object
+      object: ["White House", "Presidency"] 
+  }
+
+                        # },
                           # "hasn't controlled the Senate" => {},
                           # "hasn't controlled the House" => {},
                           # "has kept or won control of Senate/House" => {},
@@ -26,21 +36,25 @@ POLITICS_VERB_PHRASES = { "won the [White House; presidency]" => {race: :pres, w
                           #TODO: "hasn't won <state>'s electoral votes"
                           #TODO: "hasn't won both of <state>'s Senate seats"
                           #TODO: "hasn't won the White House without <state>",
-                        }
+                        ]
 
-class Subj
+class Noun
   attr_reader :word
   def initialize(word, number)
     @word = word
     @number = number
   end
 
+  def number
+    plural? ? :plural : :singular
+  end
+
   def plural?
-    @number != 0
+    @number != 1
   end
 
   def singular?
-    @number == 0
+    @number == 1
   end
 
   def to_s
@@ -48,77 +62,22 @@ class Subj
   end
 end
 
-class Verb
-  # it's what you do
-  def initialize(i)
-    if i.size == 2
-      raise ArgumentError unless i.all?{|p| p.size == 3}
-      @by_number = i.map{|frag| VerbFragment.new(frag)}
-      @by_person = i.transpose.map{|frag| VerbFragment.new(frag)}
-    elsif i.size == 3
-      raise ArgumentError unless i.all?{|n| n.size == 2}
-      @by_person = i.map{|frag| VerbFragment.new(frag)}
-      @by_number = i.transpose.map{|frag| VerbFragment.new(frag)}
-    else 
-      raise ArgumentError, "ur verbin wrong"
-    end
-  end
-
-  def +(str)
-    self.class.new(@by_person.map{|frag| (frag + str).to_a })
-  end
-
-  def person(p)
-    raise ArgumentError, "#{p}th person doesn't exist in English" unless [1,2,3].include?(p)
-    @by_person[p-1]
-  end
-  def number(n) # like I have seven swans, call number(7)
-    raise ArgumentError, "there is no grammatical number `#{n}'" unless n.is_a?(Fixnum) || n.is_a?(Float)
-    @by_number[n == 1 ? 0 : 1]
-  end
-
-  def to_s
-    person(3).number(1) # TODO, fix later.
-  end
-end
-
-class VerbFragment < Verb
-  def initialize(i)
-    raise ArgumentError, "#{i.inspect} must be one-dimensional" unless i.all?{|q| q.respond_to? :gsub}
-    @by_person = @by_number = i
-  end
-  def +(str)
-    self.class.new(@by_person.map{|n| n + str })
-  end
-  def to_a
-    @by_number
-  end
-end
-
-# TODO: this verb system is broken
-# fix it.
-# probably needs a VerbFragment class that, if number() or person() is called, returns a string
-
-VERBS = {
-  'has' => Verb.new([['have', 'have'], ['have', 'have'], ['has', 'have']]) #LOLOLOL
-}
-
 class Party
   attr_reader :name, :alt_names, :wikipedia_symbol
   def initialize(name, alt_names, wikipedia_symbol)
-    @name = name
-    @alt_names = alt_names
+    @name = name.first
+    @alt_names = ([name] + alt_names).map{|name, num| Noun.new(name, num) }
     @wikipedia_symbol = wikipedia_symbol
   end
 
-  def names
-    "[#{(alt_names + [name]).join(';')}]"
+  def sample
+    @alt_names.sample
   end
 end
 
 PARTIES = [
-  Party.new(Subj.new("Democratic Party", 1), [Subj.new("Dems", 2), Subj.new("Democrats", 0)], 'D'), 
-  Party.new(Subj.new("Republican Party", 1), [Subj.new("G.O.P.", 1), Subj.new("Republicans", 1)], 'R')
+  Party.new(["Democratic Party", 1], [["Dems", 2], ["Democrats", 2]], 'D'), 
+  Party.new(["Republican Party", 1], [["G.O.P.", 1], ["Republicans", 2]], 'R')
 ]
 
 class Dataset
@@ -151,7 +110,7 @@ class Dataset
     return @data unless @data.nil?
     column = @data_columns.sample
     puts column.inspect
-    @noun  = column["noun"]
+    @noun = Noun.new(column["noun"], column["noun_number"])
     type = column["type"] || "numeric"
     @data = Hash[*@csv.map{|row| [row[@year_column_header], cleaners[type].call(row[column["header"]])] }.flatten]
   end
@@ -159,49 +118,95 @@ end
 
 class Prediction
   attr_reader :prediction, :template
-  attr_accessor :data
-  def initialize(template)
-    @prediction = template
-    @template = template
-    @data = {}
+  attr_accessor :complements
+  # PHRASE_TYPES = [:s, :v, :o, :c, ]
+  MODIFIERS = [:add_post_modifier, :add_pre_modifier, :add_front_modifier]
+
+  def initialize()
+    @prediction_meta = {
+    }
+    @complements = []
+  end
+
+  def set(key, val=nil)
+    @prediction_meta[key] = val
   end
 
   def templatize!
-    @template.scan(/<([a-zA-Z0-9_]+)>/).map(&:first).each do |template_phrase|
-      puts "Missing key: #{template_phrase}" unless @data.has_key? template_phrase
-      puts @data[template_phrase].to_s.inspect
-      @prediction.gsub!("<#{template_phrase}>", @data[template_phrase].to_s)
+    # if it's an array, sample it 
+    # TODO: be 140 characters aware
+    # to do this, realize the sentence with the shortest options and the longest option
+    # to find how much extra space we have (and fail if the shortest length is > 140)
+    # then shuffle up all the options and settle randomly, subtracting the difference between the chosen option
+    # and the shortest option from the margin. Reject and re-sample if the margin would go below 0.
+    # perhaps this should use LexicalVariants
+    puts @prediction_meta.inspect
+    @prediction_meta.each do |k, v|
+      @prediction_meta[k] = v.sample if v.respond_to? :sample
     end
-  end
+    puts @prediction_meta.inspect
 
-  def resolve_options!
-    # N.B. a rephrase can be empty if the phrase is optional.
+    nlg = SimplerNLG::NLG
 
-    #TODO: figure out how to do rephrases in a way that's smart about 140 chars
-    @prediction.scan(/\[([^\]]*)\]/).map(&:first).each do |rephrases|
-      rephrase = rephrases.split(';', -1).map(&:strip).sample
-      @prediction.gsub!("[#{rephrases}]", rephrase)
+    #TODO: maybe nlg.phrase should understand nested phrases, render them automatically as complements
+    # so that they're specified as :complements => []
+    # which then automatically randomizes post/pre/front
+
+    # create main phrase
+    # e.g. "the Republicans have won the Presidency"
+    main_clause = {
+      :s => nlg.factory.create_noun_phrase('the', @prediction_meta[:party].word), 
+      :number => @prediction_meta[:party].number,
+      #TODO rename to get rid of the word "verb prhase"
+      # TODO make politics verb phrases also an object, so I can just call #verb on it, so it responds to sample
+      :v => @prediction_meta[:politics_verb_phrase][:change] ? (@prediction_meta[:politics_verb_phrase][:control] ? 'gain' : 'lose') : (@prediction_meta[:politics_verb_phrase][:control] ? 'win' : 'lose' ), 
+      :perfect => true,
+      :tense => :present,
+      :o => nlg.factory.create_noun_phrase('the', @prediction_meta[:politics_verb_phrase][:object].sample) #TODO sample above
+    }
+    sentence = nlg.phrase(main_clause)
+
+    complement_subject_noun = @prediction_meta[:data_claim].delete(:s) # the data noun, e.g. unemployment
+    year_polarity = @prediction_meta[:claim_polarity]
+    comp_subj = nlg.factory.create_noun_phrase(complement_subject_noun.word)
+    comp_subj.set_feature nlg::Feature::NUMBER, complement_subject_noun.singular? ? nlg::NumberAgreement::SINGULAR : nlg::NumberAgreement::PLURAL
+    comp = nlg.phrase({
+        :s => comp_subj,
+        :v => @prediction_meta[:data_claim].delete(:v),
+        :o => @prediction_meta[:data_claim].delete(:o),
+        :c => @prediction_meta[:data_claim].delete(:c),
+        :tense => @prediction_meta[:data_claim].delete(:tense),
+        :perfect => @prediction_meta[:data_claim].delete(:perfect)
+    })
+    since_pp = nlg.factory.create_preposition_phrase(['since', 'after'].sample, nlg.factory.create_noun_phrase(@prediction_meta[:start_year]))
+    if (exceptional_year = @prediction_meta.delete(:exceptional_year))
+      pp = nlg.factory.create_preposition_phrase('in', nlg.factory.create_noun_phrase(year_polarity ? 'every' : 'any', 'year'))
+      pp.add_post_modifier(comp)
+      pp.send(MODIFIERS.sample, since_pp)
+      sentence.send(MODIFIERS.sample,  pp)
+      sentence.send(MODIFIERS.sample,  nlg.phrase({:p => ['save', 'except'].sample, :d => nil, :n => exceptional_year}))
+    else
+      sentence.add_pre_modifier(year_polarity ? 'always' : 'never')
+      pp = nlg.factory.create_preposition_phrase('when', comp)
+      pp.send(MODIFIERS.sample, since_pp)
+      sentence.send(MODIFIERS.sample, pp)
     end
+
+    @prediction = nlg.realizer.realise_sentence(sentence) 
   end
 
-  def capitalize!
-    @prediction = @prediction[0].capitalize + @prediction[1..-1]
-  end
+  # def resolve_options!
+  #   # N.B. a rephrase can be empty if the phrase is optional.
 
-  def verify!
-    raise JeremyMessedUpError, @prediction if @prediction.include?("<") || @prediction.include?("[")
-  end
-
+  #   #TODO: figure out how to do rephrases in a way that's smart about 140 chars
+  # end
 
   def to_s
-    capitalize!
-    verify!
-    @prediction
+    @prediction || templatize!
   end
 
   def inspect
-    capitalize!
-    verify!
+    @prediction || templatize!
     "\"#{@prediction} (#{@prediction.size} chars)\""
   end
 end
@@ -212,20 +217,19 @@ class PunditBot
     @parties = PARTIES
     @datasets = YAML.load_file('data/correlates.yml')
   end
-  def vectorize_politics_verb_phrase(politics_verb_phrase, party)
-    phrase_meta =  POLITICS_VERB_PHRASES[politics_verb_phrase]
+  def vectorize_politics_verb_phrase(phrase_meta, party)
     state  = phrase_meta[:state] || "USA"
     race   =  phrase_meta[:race] || :pres
     won    =  phrase_meta[:race] || :pres
     change =  phrase_meta[:race] || :pres
     victors = @elections[race][state]
     tf_vector = Hash[*@election_years.map{|year| [year, victors[year].match(/[A-Z]+/).to_s == party.wikipedia_symbol]}.flatten]
-    puts "tf_vector: #{tf_vector}"
+    # puts "tf_vector: #{tf_vector}"
     tf_vector 
   end
 
   def get_a_dataset!
-    @dataset = Dataset.new(@datasets.sample)
+    @dataset = Dataset.new(@datasets.select{|y| y["filename"] }.sample)
     @dataset.get_data!
   end
 
@@ -240,45 +244,98 @@ class PunditBot
 
     trues, falses = @dataset.data.to_a.partition.each_with_index{|val, idx| hash_of_results[val[0]] } #TODO: factor out; but something like it is used in predicates
     # predicates need a lambda and an English template
+
+    # TODO: predicates need to be divied into types:
+    #   those those apply to numbers themselves ('the number of atlantic hurricane deaths was an odd number' for noun 'atlantic hurricane deaths')
+    #   those that apply to changes in numbers as the noun itself ('atlantic hurricane deaths decreased')
+    #   those that apply to categorical data ('an AFC team won the World Series')
     predicates = [
       { l: lambda{|x, _|  x > trues.map{|a, b| b}.min }, 
-        phrase: "<noun> was greater than #{trues.map{|a, b| b}.min}" }, # obvi true for trues; if true for all of falses, unemployment was less than trues.min all the time,
+        phrase: {
+          :v => 'be',
+          :tense => :past,
+          :o => "greater than #{trues.map{|a, b| b}.min}" # obvi true for trues; if true for all of falses, unemployment was less than trues.min all the time,
+        }
+      },
       
       { l: lambda{|x, _| x < trues.map{|a, b| b}.max }, 
-        phrase: "<noun> was less than #{trues.map{|a, b| b}.max}" }, # obvi true for trues; if true for all of falses, unemployment was less than trues.min all the time,
-
-
-      { l: lambda{|x, _| x/10 > 0 && x.to_s.chars.last.to_i.even? }, 
-        phrase: "<noun> ended in an even number",
+        phrase: {
+          :v => 'be',
+          :tense => :past,
+          :o => "less than #{trues.map{|a, b| b}.max}" # obvi true for trues; if true for all of falses, unemployment was less than trues.min all the time,
+        }
+      },
+      { l: lambda{|x, _| x/10 > 0 && x.to_s.chars.to_a.last.to_i.even? }, 
+        phrase: {
+          :v => 'end',
+          :tense => :past,
+          # TODO: this is actually a complement
+          :c => "in an even number"
+        }
       }, 
-      { l: lambda{|x, _| x/10 > 0 && x.to_s.chars.last.to_i.odd? }, #TODO: figure out how to get rid of these dupes (odd/even)
-        phrase: "<noun> ended in an odd number",
+      { l: lambda{|x, _| x/10 > 0 && x.to_s.chars.to_a.last.to_i.odd? }, #TODO: figure out how to get rid of these dupes (odd/even)
+        phrase: {
+          :v => 'end',
+          :tense => :past,
+          # TODO: this is actually a complement
+          :c => "in an odd number"
+        }
       }, 
-      { l: lambda{|x, _| x/10 > 0 && x.to_s.chars.first.to_i.even? }, 
-        phrase: "<noun> started with an even number",
+      { l: lambda{|x, _| x/10 > 0 && x.to_s.chars.to_a.first.to_i.even? }, 
+        phrase: {
+          :v => 'start',
+          :tense => :past,
+          # TODO: this is actually a complement
+          :c => "with an even number"
+        }
       }, 
-      { l: lambda{|x, _| x/10 > 0 && x.to_s.chars.first.to_i.odd? }, 
-        phrase: "<noun> started with an odd number",
+      { l: lambda{|x, _| x/10 > 0 && x.to_s.chars.to_a.first.to_i.odd? }, 
+        phrase: {
+          :v => 'start',
+          :tense => :past,
+          # TODO: this is actually a complement
+          :c => "with an odd number"
+        }
       }, 
       { l: lambda{|x, _| x.even? }, 
-        phrase: "<noun> is an even number",
+        phrase: {
+          :v => 'be',
+          :tense => :past,
+          # TODO: this is actually a complement
+          :c => "an even number"
+        }
       }, 
       { l: lambda{|x, _| x.odd? }, 
-        phrase: "<noun> is an odd number",
+        phrase: {
+          :v => 'be',
+          :tense => :past,
+          # TODO: this is actually a complement
+          :c => "an odd number"
+        }
       }, 
 
-
-      { l: lambda{|x, _| x.to_s.chars.map(&:to_i).reduce(&:+).even? }, 
-        phrase: "<noun>'s digits add up to an even number",
-      }, 
-      { l: lambda{|x, _| x.to_s.chars.map(&:to_i).reduce(&:+).odd? }, 
-        phrase: "<noun>'s digits add up to an odd number",
-      }, 
+      #TODO: figure out how to handle these
+      # { l: lambda{|x, _| x.to_s.chars.map(&:to_i).reduce(&:+).even? }, 
+      #   phrase: "<noun>'s digits add up to an even number",
+      # }, 
+      # { l: lambda{|x, _| x.to_s.chars.map(&:to_i).reduce(&:+).odd? }, 
+      #   phrase: "<noun>'s digits add up to an odd number",
+      # }, 
       { l: lambda{|x, yr| x > @dataset.data[(yr.to_i-1).to_s] }, 
-        phrase: "<noun> grew from the previous year",
+        phrase: {
+          :v => 'grow',
+          :tense => :past,
+          # TODO: this is actually a complement
+          :c => "from the previous year"
+        }
       }, 
       { l: lambda{|x, yr| x < @dataset.data[(yr.to_i-1).to_s] }, 
-        phrase: "<noun> declined from the previous year",
+        phrase: {
+          :v => 'decline',
+          :tense => :past,
+          # TODO: this is actually a complement
+          :c => "from the previous year"
+        }
       }, 
     ]
 
@@ -301,28 +358,28 @@ class PunditBot
         end
       end
       start_year = @dataset.min_year if start_year.nil?
-      puts "Start year: #{start_year}"
       if start_year > TOO_RECENT_TO_CARE_CUTOFF.to_s
         false
       else
+        puts "pred: #{pred.inspect}"
         result_needs_better_name = {
-          data_claim: pred[:phrase].gsub('<noun>', @dataset.noun),
+          data_claim: pred[:phrase].clone.merge({s: @dataset.noun}),
           start_year: start_year, #never nil
           exceptional_year: exceptional_year, # maybe nil
-          polarity: polarity #TODO: make this depend on the predicate
+          polarity: polarity
         }
         break
       end
     end
 
-    puts "Results: #{result_needs_better_name}"
+    puts "Results: #{result_needs_better_name}" unless result_needs_better_name.nil?
     result_needs_better_name
   end
 
   def generate_prediction
-    prediction = Prediction.new(TEMPLATES.sample) # cloned by prediction
-    prediction.data["party"] = (party = @parties.sample).names
-    politics_verb_phrase = prediction.data["politics_verb_phrase"] = POLITICS_VERB_PHRASES.keys.sample
+    prediction = Prediction.new
+    prediction.set(:party, party = @parties.sample) # TODO: party is our subj
+    politics_verb_phrase = POLITICS_VERB_PHRASES.sample
     party_wins_vector = vectorize_politics_verb_phrase(politics_verb_phrase, party)
 
     data = find_data(party_wins_vector)
@@ -331,22 +388,13 @@ class PunditBot
     # e.g. * in every year fake unemployment ended in an even number, the Republican Party has always won the white house.
     # e.g.   when fake unemployment ended in an even number, the Republican Party has always won the white house.
     return nil if data.nil?
-    if data[:exceptional_year]
-      prediction.data['ending'] = ", [except; save] #{data[:exceptional_year]}" #note initial space
-      prediction.data['time_phrase_1'] = VERBS['has'] + "#{data[:polarity] ? '' : ' not'}"
-      prediction.data['time_phrase_2'] = "in #{data[:polarity] ? 'every' : 'any'} year"
-    else
-      prediction.data['ending'] = ''
-      prediction.data['time_phrase_1'] = VERBS['has'] + " #{data[:polarity] ? 'always' : 'never'}"
-      prediction.data['time_phrase_2'] = "in #{data[:polarity] ? 'every' : 'any'} year"
-    end
-    prediction.data['start_year'] = data[:start_year]
-    prediction.data['data_claim'] = data[:data_claim]
-    puts prediction.data.inspect
+    prediction.set(:data_claim, data[:data_claim])
+    prediction.set(:start_year, data[:start_year])
+    prediction.set(:exceptional_year, data[:exceptional_year])
+    prediction.set(:claim_polarity, data[:polarity])
+    prediction.set(:politics_verb_phrase, politics_verb_phrase)
 
     prediction.templatize!
-    prediction.resolve_options!
-    prediction.capitalize!
 
     prediction
     ## TODO: if there's room, replace [] things, otherwise, erase them
@@ -370,11 +418,12 @@ class PunditBot
   end
 end
 
-puts (10.times.to_a.map do |i|
+z = 10.times.to_a.map do |i|
   pundit = PunditBot.new
   prediction = pundit.generate_prediction
-  prediction
-end.compact.map(&:to_s).uniq)
+  prediction.inspect
+end.compact.map(&:to_s).uniq
+puts z
 
 # Since 1975, in every year fake unemployment had declined over the past year, the GOP has  won the presidency save 2012.
 # Since 1975, in any year fake unemployment was greater than 2.2, the Republicans has never won the White House.

@@ -12,21 +12,28 @@
     - header: Annual
       noun: unemployment
       type: numeric
+      noun_number: 1
 - filename: atlantic_hurricanes.csv
   year_column_header: Year
   source: http://www.wunderground.com/hurricane/hurrarchive.asp
   data_columns: 
     - header: Storms
-      noun: Atlantic tropical storms
+      noun: the number of Atlantic tropical storms
+      noun_number: 1
     - header: Hurricanes
       type: numeric
-      noun: Atlantic hurricanes
+      noun: the number of Atlantic hurricanes
+      noun_number: 1
     - header: Deaths
       type: numeric
       noun: Atlantic tropical storm-related deaths
+      noun_number: 2
     - header: "Damage (millions USD)"
       noun: Atlantic tropical storm-related damage
       type: numeric
+      noun_number: 1
     - header: Retired Names
       noun: the number of retired Atlantic Hurricane names
       type: numeric
+      noun_number: 1
+- source: http://www.flmnh.ufl.edu/fish/sharks/statistics/statsus.htm
