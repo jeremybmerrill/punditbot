@@ -13,3 +13,4 @@ TODO:
   - add support for candidate based exceptoins ("Without a Clinton on the ballot, ")
   - ensure NLG system generates all varieties that were templated out.
   - remove linguistics stuff from everything NLG parts (so there's no "verb phrase" in constants)
+  - commas
