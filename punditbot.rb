@@ -2,11 +2,10 @@ require 'csv'
 require 'yaml'
 require 'simplernlg' if RUBY_PLATFORM == 'java'
 puts "Warning, this only works on JRuby but you can check for syntax errors more easily in MRE" if RUBY_PLATFORM != 'java'
-
-#TODO: unverbosify the constant use of SimplerNLG::NLG. maybe just include SimplerNLG if htat doesn't pollute the global namespace too much? Or just NLG = SimplerNLG::NLG
+NLG = SimplerNLG::NLG
 
 class JeremyMessedUpError < StandardError; end
-def with(instance, &block) # gimme some syntactic sugar, I am your neighbor
+def with(instance, &block) # ♫ gimme some syntactic sugar, I am your neighbor ♫
   instance.instance_eval(&block)
   instance
 end
@@ -62,6 +61,24 @@ POLITICS_CONDITIONS = [
       race: :pres, 
       control: false, # if after the election, the chosen party/person controls the object
       change: false,  # if the election caused a change in control of the object
+      objects: [Noun.new("White House", 1), Noun.new("presidency", 1)] 
+  ),
+  PoliticsCondition.new(
+      race: :pres, 
+      control: true, # if after the election, the chosen party/person controls the object
+      change: false,  # if the election caused a change in control of the object
+      objects: [Noun.new("White House", 1), Noun.new("presidency", 1)] 
+  )
+  PoliticsCondition.new(
+      race: :pres, 
+      control: false, # if after the election, the chosen party/person controls the object
+      change: true,  # if the election caused a change in control of the object
+      objects: [Noun.new("White House", 1), Noun.new("presidency", 1)] 
+  )
+  PoliticsCondition.new(
+      race: :pres, 
+      control: true, # if after the election, the chosen party/person controls the object
+      change: true,  # if the election caused a change in control of the object
       objects: [Noun.new("White House", 1), Noun.new("presidency", 1)] 
   )
 
@@ -133,10 +150,10 @@ class DataClaim
     if !@template[:n].nil?
       complement_subject = @template[:n].call(complement_subject_noun)
     else
-      complement_subject = SimplerNLG::NLG.factory.create_noun_phrase(complement_subject_noun.word)
-      complement_subject.set_feature SimplerNLG::NLG::Feature::NUMBER, complement_subject_noun.singular? ? SimplerNLG::NLG::NumberAgreement::SINGULAR : SimplerNLG::NLG::NumberAgreement::PLURAL
+      complement_subject = NLG.factory.create_noun_phrase(complement_subject_noun.word)
+      complement_subject.set_feature NLG::Feature::NUMBER, complement_subject_noun.singular? ? NLG::NumberAgreement::SINGULAR : NLG::NumberAgreement::PLURAL
     end
-    SimplerNLG::NLG.phrase(@template.merge({
+    NLG.phrase(@template.merge({
         :s => complement_subject,
     }))
   end
@@ -218,26 +235,26 @@ class Prediction
     # create main phrase
     # e.g. "the Republicans have won the Presidency"
     party_word = @prediction_meta[:party].alt_names.sample
-    subj = SimplerNLG::NLG.factory.create_noun_phrase('the', party_word.word)
+    subj = NLG.factory.create_noun_phrase('the', party_word.word)
     main_clause = {
       :s => subj,
       :number => party_word.number,
       :v => @prediction_meta[:politics_condition].verb, 
       :perfect => true,
       :tense => :present,
-      :o => SimplerNLG::NLG.factory.create_noun_phrase('the', @prediction_meta[:politics_condition].objects.sample.word) #TODO sample above
+      :o => NLG.factory.create_noun_phrase('the', @prediction_meta[:politics_condition].objects.sample.word) #TODO sample above
     }
-    sentence = SimplerNLG::NLG.phrase(main_clause)
+    sentence = NLG.phrase(main_clause)
     year_polarity = @prediction_meta[:claim_polarity]
 
     data_phrase = @prediction_meta[:data_claim].phrase(@prediction_meta[:correlate_noun])
-    since_pp = SimplerNLG::NLG.factory.create_preposition_phrase(['since', 'after'].sample, SimplerNLG::NLG.factory.create_noun_phrase(@prediction_meta[:start_year]))
+    since_pp = NLG.factory.create_preposition_phrase(['since', 'after'].sample, NLG.factory.create_noun_phrase(@prediction_meta[:start_year]))
     #TODO choose between when ... always/never
     # and                in every/no ... (nothing)
     # e.g. * in every year fake unemployment ended in an even number, the Republican Party has always won the white house.
     # e.g.   when fake unemployment ended in an even number, the Republican Party has always won the white house.
     if (exceptional_year = @prediction_meta.delete(:exceptional_year))
-      pp = SimplerNLG::NLG.factory.create_preposition_phrase('in', SimplerNLG::NLG.factory.create_noun_phrase(year_polarity ? 'every' : 'any', 'year')) # TODO: make 'year' rephraseable to 'election'
+      pp = NLG.factory.create_preposition_phrase('in', NLG.factory.create_noun_phrase(year_polarity ? 'every' : 'any', 'year')) # TODO: make 'year' rephraseable to 'election'
       pp.add_post_modifier(data_phrase)
       with MODIFIERS.sample do |modifier_position|
         if modifier_position == :add_front_modifier
@@ -248,15 +265,15 @@ class Prediction
       end
 
       sentence.send(MODIFIERS.sample,  pp)
-      sentence.send(MODIFIERS.sample,  SimplerNLG::NLG.phrase({:p => ['save', 'except'].sample, :d => nil, :n => exceptional_year}))
+      sentence.send(MODIFIERS.sample,  NLG.phrase({:p => ['save', 'except'].sample, :d => nil, :n => exceptional_year}))
     else
       sentence.add_pre_modifier(year_polarity ? 'always' : 'never')
-      pp = SimplerNLG::NLG.factory.create_preposition_phrase('when', data_phrase)
+      pp = NLG.factory.create_preposition_phrase('when', data_phrase)
       pp.send(MODIFIERS.sample, since_pp)
       sentence.send(MODIFIERS.sample, pp)
     end
 
-    @prediction = SimplerNLG::NLG.realizer.realise_sentence(sentence) 
+    @prediction = NLG.realizer.realise_sentence(sentence) 
   end
 
   # def resolve_options!
@@ -379,11 +396,11 @@ class PunditBot
         # "<noun>'s digits add up to an even number",
         { 
           :n => lambda do |n| 
-                          np = SimplerNLG::NLG.factory.create_noun_phrase('digit') 
-                          np.set_feature SimplerNLG::NLG::Feature::NUMBER, SimplerNLG::NLG::NumberAgreement::PLURAL
-                          possessive = SimplerNLG::NLG.factory.create_noun_phrase(n.word) 
-                          possessive.set_feature SimplerNLG::NLG::Feature::NUMBER, n.singular? ? SimplerNLG::NLG::NumberAgreement::SINGULAR : SimplerNLG::NLG::NumberAgreement::PLURAL
-                          possessive.set_feature SimplerNLG::NLG::Feature::POSSESSIVE, true
+                          np = NLG.factory.create_noun_phrase('digit') 
+                          np.set_feature NLG::Feature::NUMBER, NLG::NumberAgreement::PLURAL
+                          possessive = NLG.factory.create_noun_phrase(n.word) 
+                          possessive.set_feature NLG::Feature::NUMBER, n.singular? ? NLG::NumberAgreement::SINGULAR : NLG::NumberAgreement::PLURAL
+                          possessive.set_feature NLG::Feature::POSSESSIVE, true
                           np.set_specifier(possessive)
                           np
                        end,
@@ -396,11 +413,11 @@ class PunditBot
         # "<noun>'s digits add up to an odd number",
         { 
           :n => lambda do |n| 
-                          np = SimplerNLG::NLG.factory.create_noun_phrase('digit') 
-                          np.set_feature SimplerNLG::NLG::Feature::NUMBER, SimplerNLG::NLG::NumberAgreement::PLURAL
-                          possessive = SimplerNLG::NLG.factory.create_noun_phrase(n.word) 
-                          possessive.set_feature SimplerNLG::NLG::Feature::NUMBER, n.singular? ? SimplerNLG::NLG::NumberAgreement::SINGULAR : SimplerNLG::NLG::NumberAgreement::PLURAL
-                          possessive.set_feature SimplerNLG::NLG::Feature::POSSESSIVE, true
+                          np = NLG.factory.create_noun_phrase('digit') 
+                          np.set_feature NLG::Feature::NUMBER, NLG::NumberAgreement::PLURAL
+                          possessive = NLG.factory.create_noun_phrase(n.word) 
+                          possessive.set_feature NLG::Feature::NUMBER, n.singular? ? NLG::NumberAgreement::SINGULAR : NLG::NumberAgreement::PLURAL
+                          possessive.set_feature NLG::Feature::POSSESSIVE, true
                           np.set_specifier(possessive)
                           np
                        end,
