@@ -36,4 +36,26 @@
       noun: the number of retired Atlantic Hurricane names
       type: numeric
       noun_number: 1
-- source: http://www.flmnh.ufl.edu/fish/sharks/statistics/statsus.htm
+- filename: super_bowl.csv
+  year_column_header: year
+  source: https://en.wikipedia.org/wiki/List_of_Super_Bowl_champions
+  data_columns:
+    - header: winning conference,
+      noun:
+      noun_number: 1,
+      type: categorical
+    # - Score,
+    - header: city
+      noun: 'Super Bowl host city'
+      noun_number: 1,
+      type: categorical
+    - header: state
+      noun: 'Super Bowl host state' # how can I get to "Super Bowl was hosted on the West Coast"
+      noun_number: 1,
+      type: categorical
+    - header: attendance
+      noun:
+      noun_number: 1,
+      type: numeric
+
+
