@@ -16,7 +16,7 @@ TOO_RECENT_TO_CARE_CUTOFF = 1992 #if the claim is false twice after (including) 
 
 class PoliticsCondition
   # was politics_verb_phrase
-  attr_reader :race, :jurisdiction, :objects
+  attr_reader :race, :jurisdiction, :objects, :change, :control
   def initialize(obj)
     @race = obj[:race]
     raise ArgumentError, "I don't know about the `#{race}' race" unless [:pres].include?(@race)
@@ -27,7 +27,7 @@ class PoliticsCondition
   end
   def verb
     # TODO: support other verbs, e.g. pick up seats
-    @change ? (@control ? 'gain' : 'lose') : (@control ? 'win' : 'lose')
+    @change ? (@control ? 'gain' : 'give up') : (@control ? 'win' : 'lose')
   end
 end
 
@@ -63,24 +63,24 @@ POLITICS_CONDITIONS = [
       change: false,  # if the election caused a change in control of the object
       objects: [Noun.new("White House", 1), Noun.new("presidency", 1)] 
   ),
-  PoliticsCondition.new(
-      race: :pres, 
-      control: true, # if after the election, the chosen party/person controls the object
-      change: false,  # if the election caused a change in control of the object
-      objects: [Noun.new("White House", 1), Noun.new("presidency", 1)] 
-  )
-  PoliticsCondition.new(
-      race: :pres, 
-      control: false, # if after the election, the chosen party/person controls the object
-      change: true,  # if the election caused a change in control of the object
-      objects: [Noun.new("White House", 1), Noun.new("presidency", 1)] 
-  )
-  PoliticsCondition.new(
-      race: :pres, 
-      control: true, # if after the election, the chosen party/person controls the object
-      change: true,  # if the election caused a change in control of the object
-      objects: [Noun.new("White House", 1), Noun.new("presidency", 1)] 
-  )
+  # PoliticsCondition.new(
+  #     race: :pres, 
+  #     control: true, # if after the election, the chosen party/person controls the object
+  #     change: false,  # if the election caused a change in control of the object
+  #     objects: [Noun.new("White House", 1), Noun.new("presidency", 1)] 
+  # )
+  # PoliticsCondition.new(
+  #     race: :pres, 
+  #     control: false, # if after the election, the chosen party/person controls the object
+  #     change: true,  # if the election caused a change in control of the object
+  #     objects: [Noun.new("White House", 1), Noun.new("presidency", 1)] 
+  # )
+  # PoliticsCondition.new(
+  #     race: :pres, 
+  #     control: true, # if after the election, the chosen party/person controls the object
+  #     change: true,  # if the election caused a change in control of the object
+  #     objects: [Noun.new("White House", 1), Noun.new("presidency", 1)] 
+  # )
 
                         # },
                           # "hasn't controlled the Senate" => {},
@@ -161,7 +161,7 @@ end
 
 
 class Dataset
-  attr_reader :name, :noun, :min_year, :data, :source
+  attr_reader :name, :noun, :min_year, :data, :source, :data_type
   def initialize(obj) 
     # create a dataset object from it
     # Notably: only one dataset object per spreadsheet
@@ -179,8 +179,9 @@ class Dataset
 
   def cleaners
     { 
-      "numeric"     => lambda{|n| n.gsub(/[^\d]/, '').to_i },
-      "categorical" => lambda{|x| x}
+      :integral     => lambda{|n| n.gsub(/[^\d]/, '').to_i },  #removes dots, so only suitable for claims ABOUT numbers, like 'digits add up an even number'
+      :numeric     =>  lambda{|n| n.gsub(/[^\d\.]/, '').to_i }, 
+      :categorical =>  lambda{|x| x}
     }
   end
 
@@ -188,10 +189,9 @@ class Dataset
     #randomly give a column's data
     return @data unless @data.nil?
     column = @data_columns.sample
-    puts column.inspect
     @noun = Noun.new(column["noun"], column["noun_number"])
-    type = column["type"] || "numeric"
-    @data = Hash[*@csv.map{|row| [row[@year_column_header], cleaners[type].call(row[column["header"]])] }.flatten]
+    @data_type = (column["type"] || "numeric").to_sym
+    @data = Hash[*@csv.map{|row| [row[@year_column_header], cleaners[@data_type].call(row[column["header"]])] }.flatten]
   end
 end
 
@@ -236,16 +236,17 @@ class Prediction
     # e.g. "the Republicans have won the Presidency"
     party_word = @prediction_meta[:party].alt_names.sample
     subj = NLG.factory.create_noun_phrase('the', party_word.word)
+    claim_polarity = @prediction_meta[:claim_polarity]
     main_clause = {
       :s => subj,
       :number => party_word.number,
       :v => @prediction_meta[:politics_condition].verb, 
       :perfect => true,
       :tense => :present,
-      :o => NLG.factory.create_noun_phrase('the', @prediction_meta[:politics_condition].objects.sample.word) #TODO sample above
+      :o => NLG.factory.create_noun_phrase('the', @prediction_meta[:politics_condition].objects.sample.word), #TODO sample abov
+      :negation => !claim_polarity
     }
     sentence = NLG.phrase(main_clause)
-    year_polarity = @prediction_meta[:claim_polarity]
 
     data_phrase = @prediction_meta[:data_claim].phrase(@prediction_meta[:correlate_noun])
     since_pp = NLG.factory.create_preposition_phrase(['since', 'after'].sample, NLG.factory.create_noun_phrase(@prediction_meta[:start_year]))
@@ -254,7 +255,7 @@ class Prediction
     # e.g. * in every year fake unemployment ended in an even number, the Republican Party has always won the white house.
     # e.g.   when fake unemployment ended in an even number, the Republican Party has always won the white house.
     if (exceptional_year = @prediction_meta.delete(:exceptional_year))
-      pp = NLG.factory.create_preposition_phrase('in', NLG.factory.create_noun_phrase(year_polarity ? 'every' : 'any', 'year')) # TODO: make 'year' rephraseable to 'election'
+      pp = NLG.factory.create_preposition_phrase('in', NLG.factory.create_noun_phrase(claim_polarity ? 'every' : 'any', 'year')) # TODO: make 'year' rephraseable to 'election'
       pp.add_post_modifier(data_phrase)
       with MODIFIERS.sample do |modifier_position|
         if modifier_position == :add_front_modifier
@@ -265,9 +266,10 @@ class Prediction
       end
 
       sentence.send(MODIFIERS.sample,  pp)
-      sentence.send(MODIFIERS.sample,  NLG.phrase({:p => ['save', 'except'].sample, :d => nil, :n => exceptional_year}))
+      save_except_phrase = NLG.factory.create_preposition_phrase(['save', 'except'].sample, NLG.factory.create_noun_phrase(exceptional_year) )
+      sentence.send(MODIFIERS.sample, save_except_phrase)
     else
-      sentence.add_pre_modifier(year_polarity ? 'always' : 'never')
+      sentence.add_pre_modifier(claim_polarity ? 'always' : 'never')
       pp = NLG.factory.create_preposition_phrase('when', data_phrase)
       pp.send(MODIFIERS.sample, since_pp)
       sentence.send(MODIFIERS.sample, pp)
@@ -275,12 +277,6 @@ class Prediction
 
     @prediction = NLG.realizer.realise_sentence(sentence) 
   end
-
-  # def resolve_options!
-  #   # N.B. a rephrase can be empty if the phrase is optional.
-
-  #   #TODO: figure out how to do rephrases in a way that's smart about 140 chars
-  # end
 
   def to_s
     @prediction || templatize!
@@ -300,7 +296,17 @@ class PunditBot
   end
   def vectorize_politics_condition(politics_condition, party)
     victors = @elections[politics_condition.race][politics_condition.jurisdiction]
-    tf_vector = Hash[*@election_years.map{|year| [year, victors[year].match(/[A-Z]+/).to_s == party.wikipedia_symbol]}.flatten]
+    tf_vector = Hash[*@election_years.each_with_index.map do |year, index| 
+      if politics_condition.change
+        [year, (politics_condition.control == (victors[year].match(/[A-Z]+/).to_s == party.wikipedia_symbol)) && 
+          ((index != 0) && (victors[year].match(/[A-Z]+/).to_s != victors[@election_years[index-1]].match(/[A-Z]+/).to_s)) ]
+      else
+        # puts [year, 
+        #       politics_condition.control == (victors[year].match(/[A-Z]+/).to_s == party.wikipedia_symbol), 
+        #       victors[year].match(/[A-Z]+/).to_s == party.wikipedia_symbol, victors[year].match(/[A-Z]+/).to_s, party.wikipedia_symbol].inspect
+        [year, politics_condition.control == (victors[year].match(/[A-Z]+/).to_s == party.wikipedia_symbol)]
+      end
+    end.flatten]
     # puts "tf_vector: #{tf_vector}"
     tf_vector 
   end
@@ -326,126 +332,154 @@ class PunditBot
     #   those those apply to numbers themselves ('the number of atlantic hurricane deaths was an odd number' for noun 'atlantic hurricane deaths')
     #   those that apply to changes in numbers as the noun itself ('atlantic hurricane deaths decreased')
     #   those that apply to categorical data ('an AFC team won the World Series')
-    data_claims = [
-      DataClaim.new( lambda{|x, _|  x > trues.map{|a, b| b}.min }, 
-        phrase: {
-          :v => 'be',
-          :tense => :past,
-          :o => "greater than #{trues.map{|a, b| b}.min}" # obvi true for trues; if true for all of falses, unemployment was less than trues.min all the time,
-        }
-      ),
-      
-      DataClaim.new( lambda{|x, _| x < trues.map{|a, b| b}.max }, 
-        {
-          :v => 'be',
-          :tense => :past,
-          :o => "less than #{trues.map{|a, b| b}.max}" # obvi true for trues; if true for all of falses, unemployment was less than trues.min all the time,
-        }
-      ),
-      DataClaim.new( lambda{|x, _| x/10 > 0 && x.to_s.chars.to_a.last.to_i.even? }, 
-        {
-          :v => 'end',
-          :tense => :past,
-          # TODO: this is actually a complement
-          :c => "in an even number"
-        }
-      ), 
-      DataClaim.new( lambda{|x, _| x/10 > 0 && x.to_s.chars.to_a.last.to_i.odd? }, #TODO: figure out how to get rid of these dupes (odd/even)
-        {
-          :v => 'end',
-          :tense => :past,
-          # TODO: this is actually a complement
-          :c => "in an odd number"
-        }
-      ), 
-      DataClaim.new( lambda{|x, _| x/10 > 0 && x.to_s.chars.to_a.first.to_i.even? }, 
-        {
-          :v => 'start',
-          :tense => :past,
-          # TODO: this is actually a complement
-          :c => "with an even number"
-        }
-      ), 
-      DataClaim.new( lambda{|x, _| x/10 > 0 && x.to_s.chars.to_a.first.to_i.odd? }, 
-        {
-          :v => 'start',
-          :tense => :past,
-          # TODO: this is actually a complement
-          :c => "with an odd number"
-        }
-      ), 
-      DataClaim.new( lambda{|x, _| x.even? }, 
-        {
-          :v => 'be',
-          :tense => :past,
-          # TODO: this is actually a complement
-          :c => "an even number"
-        }
-      ), 
-      DataClaim.new( lambda{|x, _| x.odd? }, 
-        {
-          :v => 'be',
-          :tense => :past,
-          # TODO: this is actually a complement
-          :c => "an odd number"
-        }
-      ), 
+    data_claims = {
+      # claims that apply to changes in numbers as the noun itself ('atlantic hurricane deaths decreased')
+      :numeric => [
+        DataClaim.new( lambda{|x, _|  x > trues.map{|a, b| b}.min }, 
+          phrase: {
+            :v => 'be',
+            :tense => :past,
+            :o => "greater than #{trues.map{|a, b| b}.min}" # obvi true for trues; if true for all of falses, unemployment was less than trues.min all the time,
+          }
+        ),
+        
+        DataClaim.new( lambda{|x, _| x < trues.map{|a, b| b}.max }, 
+          {
+            :v => 'be',
+            :tense => :past,
+            :o => "less than #{trues.map{|a, b| b}.max}" # obvi true for trues; if true for all of falses, unemployment was less than trues.min all the time,
+          }
+        ),
 
-      # TODO: figure out how to handle these
-      DataClaim.new( lambda{|x, _| x.to_s.chars.map(&:to_i).reduce(&:+).even? }, 
-        # "<noun>'s digits add up to an even number",
-        { 
-          :n => lambda do |n| 
-                          np = NLG.factory.create_noun_phrase('digit') 
-                          np.set_feature NLG::Feature::NUMBER, NLG::NumberAgreement::PLURAL
-                          possessive = NLG.factory.create_noun_phrase(n.word) 
-                          possessive.set_feature NLG::Feature::NUMBER, n.singular? ? NLG::NumberAgreement::SINGULAR : NLG::NumberAgreement::PLURAL
-                          possessive.set_feature NLG::Feature::POSSESSIVE, true
-                          np.set_specifier(possessive)
-                          np
-                       end,
-          :v => 'add up',
-          :tense => :present,
-          :c => 'an even number'
-        }
-      ), 
-      DataClaim.new( lambda{|x, _| x.to_s.chars.map(&:to_i).reduce(&:+).odd? }, 
-        # "<noun>'s digits add up to an odd number",
-        { 
-          :n => lambda do |n| 
-                          np = NLG.factory.create_noun_phrase('digit') 
-                          np.set_feature NLG::Feature::NUMBER, NLG::NumberAgreement::PLURAL
-                          possessive = NLG.factory.create_noun_phrase(n.word) 
-                          possessive.set_feature NLG::Feature::NUMBER, n.singular? ? NLG::NumberAgreement::SINGULAR : NLG::NumberAgreement::PLURAL
-                          possessive.set_feature NLG::Feature::POSSESSIVE, true
-                          np.set_specifier(possessive)
-                          np
-                       end,
-          :v => 'add up',
-          :tense => :present,
-          :c => 'an odd number'
-        }
-      ), 
-      DataClaim.new( lambda{|x, yr| x > @dataset.data[(yr.to_i-1).to_s] }, 
-        {
-          :v => 'grow',
-          :tense => :past,
-          # TODO: this is actually a complement
-          :c => "from the previous year"
-        }
-      ), 
-      DataClaim.new( lambda{|x, yr| x < @dataset.data[(yr.to_i-1).to_s] }, 
-        {
-          :v => 'decline',
-          :tense => :past,
-          # TODO: this is actually a complement
-          :c => "from the previous year"
-        }
-      ), 
-    ]
+        DataClaim.new( lambda{|x, yr| x > @dataset.data[(yr.to_i-1).to_s] }, 
+          {
+            :v => 'grow',
+            :tense => :past,
+            # TODO: this is actually a complement
+            :c => "from the previous year"
+          }
+        ), 
+        DataClaim.new( lambda{|x, yr| x < @dataset.data[(yr.to_i-1).to_s] }, 
+          {
+            :v => 'decline',
+            :tense => :past,
+            # TODO: this is actually a complement
+            :c => "from the previous year"
+          }
+        ), 
+        DataClaim.new( lambda{|x, yr| x > @dataset.data[(yr.to_i-4).to_s] }, 
+          {
+            :v => 'grow',
+            :tense => :past,
+            # TODO: this is actually a complement
+            :c => "from the previous election year"
+          }
+        ), 
+        DataClaim.new( lambda{|x, yr| x < @dataset.data[(yr.to_i-4).to_s] }, 
+          {
+            :v => 'decline',
+            :tense => :past,
+            # TODO: this is actually a complement
+            :c => "from the previous election year"
+          }
+        ), 
+      ],
+
+    # for categorial data
+    :categorical => [
+      
+    ],
+
+    # "integral" data claims are about the numbers qua numbers, e.g. odd, even. 
+    :integral => [
+        DataClaim.new( lambda{|x, _| x.to_s.chars.map(&:to_i).reduce(&:+).even? }, 
+          # "<noun>'s digits add up to an even number",
+          { 
+            :n => lambda do |n| 
+                            np = NLG.factory.create_noun_phrase('digit') 
+                            np.set_feature NLG::Feature::NUMBER, NLG::NumberAgreement::PLURAL
+                            possessive = NLG.factory.create_noun_phrase(n.word) 
+                            possessive.set_feature NLG::Feature::NUMBER, n.singular? ? NLG::NumberAgreement::SINGULAR : NLG::NumberAgreement::PLURAL
+                            possessive.set_feature NLG::Feature::POSSESSIVE, true
+                            np.set_specifier(possessive)
+                            np
+                         end,
+            :v => 'add up',
+            :tense => :present,
+            :c => 'to an even number'
+          }
+        ), 
+        DataClaim.new( lambda{|x, _| x.to_s.chars.map(&:to_i).reduce(&:+).odd? }, 
+          # "<noun>'s digits add up to an odd number",
+          { 
+            :n => lambda do |n| 
+                            np = NLG.factory.create_noun_phrase('digit') 
+                            np.set_feature NLG::Feature::NUMBER, NLG::NumberAgreement::PLURAL
+                            possessive = NLG.factory.create_noun_phrase(n.word) 
+                            possessive.set_feature NLG::Feature::NUMBER, n.singular? ? NLG::NumberAgreement::SINGULAR : NLG::NumberAgreement::PLURAL
+                            possessive.set_feature NLG::Feature::POSSESSIVE, true
+                            np.set_specifier(possessive)
+                            np
+                         end,
+            :v => 'add up',
+            :tense => :present,
+            :c => 'to an odd number'
+          }
+        ), 
+        DataClaim.new( lambda{|x, _| x/10 > 0 && x.to_s.chars.to_a.last.to_i.even? }, 
+          {
+            :v => 'end',
+            :tense => :past,
+            # TODO: this is actually a complement
+            :c => "in an even number"
+          }
+        ), 
+        DataClaim.new( lambda{|x, _| x/10 > 0 && x.to_s.chars.to_a.last.to_i.odd? }, #TODO: figure out how to get rid of these dupes (odd/even)
+          {
+            :v => 'end',
+            :tense => :past,
+            # TODO: this is actually a complement
+            :c => "in an odd number"
+          }
+        ), 
+        DataClaim.new( lambda{|x, _| x/10 > 0 && x.to_s.chars.to_a.first.to_i.even? }, 
+          {
+            :v => 'start',
+            :tense => :past,
+            # TODO: this is actually a complement
+            :c => "with an even number"
+          }
+        ), 
+        DataClaim.new( lambda{|x, _| x/10 > 0 && x.to_s.chars.to_a.first.to_i.odd? }, 
+          {
+            :v => 'start',
+            :tense => :past,
+            # TODO: this is actually a complement
+            :c => "with an odd number"
+          }
+        ), 
+        DataClaim.new( lambda{|x, _| x.even? }, 
+          {
+            :v => 'be',
+            :tense => :past,
+            # TODO: this is actually a complement
+            :c => "an even number"
+          }
+        ), 
+        DataClaim.new( lambda{|x, _| x.odd? }, 
+          {
+            :v => 'be',
+            :tense => :past,
+            # TODO: this is actually a complement
+            :c => "an odd number"
+          }
+        ), 
+
+      ],
+    }
 
     result_needs_better_name = nil
-    data_claims.product(POLARITIES).shuffle.find do |data_claim, polarity|
+    data_claims[@dataset.data_type || "numeric"].product(POLARITIES).shuffle.find do |data_claim, polarity|
       # find the most recent two years where the pattern is broken
       exceptional_year = nil
       start_year = nil
@@ -455,14 +489,22 @@ class PunditBot
         # find the second year for which the pattern doesn't fit
         if data_claim.condition.call(@dataset.data[yr], yr) == (hash_of_results[yr] == polarity) # if this year matches the pattern
           # do nothing
+          puts "match: #{yr},  #{data_claim.condition.call(@dataset.data[yr], yr)}, #{@dataset.data[yr]}"
         elsif exceptional_year.nil? # if this is the first year that doesn't match the pattern
           exceptional_year = yr
+          puts "exceptional_year: #{yr},  #{data_claim.condition.call(@dataset.data[yr], yr)}, #{@dataset.data[yr]}"
         else #this is the second year that doesn't match the pattern
-          start_year = yr
+          start_year = (yr.to_i + 4).to_s 
           break
         end
       end
       start_year = @dataset.min_year if start_year.nil?
+      # uncomment and test this! it's meant to be a guard against saying
+      # since 1996, except 2000, X has occured,
+      # if exceptional_year.to_i - start_year.to_i == 4
+      #   start_year = exceptional_year
+      #   exceptional_year = nil
+      # end
       if start_year > TOO_RECENT_TO_CARE_CUTOFF.to_s
         false
       else
@@ -485,9 +527,9 @@ class PunditBot
     prediction = Prediction.new
     prediction.set(:party, party = @parties.sample) # TODO: party is our subj
     politics_condition = POLITICS_CONDITIONS.sample
-    party_wins_vector = vectorize_politics_condition(politics_condition, party)
+    politics_claim_truth_vector = vectorize_politics_condition(politics_condition, party)
 
-    data = find_data(party_wins_vector)
+    data = find_data(politics_claim_truth_vector)
     return nil if data.nil?
     prediction.set(:data_claim, data[:data_claim])
     prediction.set(:correlate_noun, data[:correlate_noun])
@@ -527,7 +569,7 @@ loop do
   predictions << prediction.inspect
   predictions.compact!
   predictions.uniq!
-  break if predictions.size >= 10
+  break if predictions.size >= 10 # was 10
 end
 puts predictions
 
