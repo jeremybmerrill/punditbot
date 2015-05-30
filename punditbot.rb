@@ -191,7 +191,15 @@ class Dataset
     column = @data_columns.sample
     @noun = Noun.new(column["noun"], column["noun_number"])
     @data_type = (column["type"] || "numeric").to_sym
-    @data = Hash[*@csv.map{|row| [row[@year_column_header], cleaners[@data_type].call(row[column["header"]])] }.flatten]
+    @data = Hash[*@csv.map{|row| [row[@year_column_header], 
+      begin 
+        cleaners[@data_type].call(row[column["header"]])
+      rescue NoMethodError => e
+        puts row.headers.inspect
+        puts column["header"]
+        raise e
+      end
+    ] }.flatten]
   end
 end
 
@@ -293,6 +301,16 @@ class PunditBot
     process_csv!
     @parties = PARTIES
     @datasets = YAML.load_file('data/correlates.yml')
+    # @datasets.each do |dataset|
+    #   dataset["data_columns"].reduce(dataset["data_columns"]) do |memo, col| 
+    #     if col["type"] == "numeric"
+    #       new_col = col.clone; 
+    #       new_col["type"] = "integral"
+    #       memo << new_col
+    #     end
+    #     memo
+    #   end
+    # end
   end
   def vectorize_politics_condition(politics_condition, party)
     victors = @elections[politics_condition.race][politics_condition.jurisdiction]
@@ -386,8 +404,19 @@ class PunditBot
       ],
 
     # for categorial data
+    # TODO: write this.
+    # but what does it look like?
+    # when the AFC won the Super Bowl?
+    # when an NFC team was the Super Bowl winner
     :categorical => [
-      
+        DataClaim.new( lambda{|x, yr| }, 
+          {
+            :v => 'be',
+            :tense => :past,
+            :o => "asfd asdf TK"
+            # TODO: this is actually a complement
+          }
+        ), 
     ],
 
     # "integral" data claims are about the numbers qua numbers, e.g. odd, even. 
