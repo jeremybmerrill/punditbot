@@ -10,9 +10,15 @@ def with(instance, &block) # ♫ gimme some syntactic sugar, I am your neighbor 
   instance
 end
 
+class Array
+  def rephrase
+    sample
+  end
+end
+
 POLARITIES = [true, false]
 TOO_RECENT_TO_CARE_CUTOFF = 1992 #if the claim is false twice after (including) 1992, then skip the correlation
- 
+MAX_OUTPUT_LENGTH = 140
 
 class PoliticsCondition
   # was politics_verb_phrase
@@ -52,6 +58,10 @@ class Noun
 
   def to_s
     "Noun: #{@word}"
+  end
+
+  def size
+    word.size
   end
 end
 
@@ -105,10 +115,16 @@ class Party
     @wikipedia_symbol = wikipedia_symbol
   end
 
-  # def sample
-  #   @alt_names.sample
-  #   self
-  # end
+  def rephrase
+    @name = @alt_names.sample
+    self
+  end
+  def max_by &blk
+    @alt_names.max_by(&blk)
+  end
+  def min_by &blk
+    @alt_names.min_by(&blk)
+  end
 end
 
 PARTIES = [
@@ -188,7 +204,7 @@ class Dataset
   def get_data!
     #randomly give a column's data
     return @data unless @data.nil?
-    column = @data_columns.sample
+    column = @data_columns.reject{|column| cleaners[(column["type"] || "numeric").to_sym].nil? }.sample
     @noun = Noun.new(column["noun"], column["noun_number"])
     @data_type = (column["type"] || "numeric").to_sym
     @data = Hash[*@csv.map{|row| [row[@year_column_header], 
@@ -219,30 +235,14 @@ class Prediction
     @prediction_meta[key] = val
   end
 
-  def templatize!
-    # if it's an array, sample it 
-    # TODO: be 140 characters aware
-    # to do this, realize the sentence with the shortest options and the longest option
-    # to find how much extra space we have (and fail if the shortest length is > 140)
-    # then shuffle up all the options and settle randomly, subtracting the difference between the chosen option
-    # and the shortest option from the margin. Reject and re-sample if the margin would go below 0.
-    # perhaps this should use LexicalVariants
-    # this also needs to cope with rephraseable objects like Party.
-    # which perhaps should implement a Rephraseable interface so they can have min_len, max_len objects
-    # as well as allowing persistent choices
-    puts @prediction_meta.inspect
-    @prediction_meta.each do |k, v|
-      @prediction_meta[k] = v.sample if v.respond_to? :sample
-    end
-    puts @prediction_meta.inspect
-
-    #TODO: maybe nlg.phrase should understand nested phrases, render them automatically as complements
+  def _realize_sentence(rephraseables)
+        #TODO: maybe nlg.phrase should understand nested phrases, render them automatically as complements
     # so that they're specified as :complements => []
     # which then automatically randomizes post/pre/front
 
     # create main phrase
     # e.g. "the Republicans have won the Presidency"
-    party_word = @prediction_meta[:party].alt_names.sample
+    party_word = rephraseables[:party].first
     subj = NLG.factory.create_noun_phrase('the', party_word.word)
     claim_polarity = @prediction_meta[:claim_polarity]
     main_clause = {
@@ -251,39 +251,105 @@ class Prediction
       :v => @prediction_meta[:politics_condition].verb, 
       :perfect => true,
       :tense => :present,
-      :o => NLG.factory.create_noun_phrase('the', @prediction_meta[:politics_condition].objects.sample.word), #TODO sample abov
+      :o => NLG.factory.create_noun_phrase('the', rephraseables[:politics_condition_object].first.word),
       :negation => !claim_polarity
     }
     sentence = NLG.phrase(main_clause)
 
-    data_phrase = @prediction_meta[:data_claim].phrase(@prediction_meta[:correlate_noun])
-    since_pp = NLG.factory.create_preposition_phrase(['since', 'after'].sample, NLG.factory.create_noun_phrase(@prediction_meta[:start_year]))
+    data_phrase = @prediction_meta[:data_claim].phrase(@prediction_meta[:correlate_noun]) #TODO correlate_noun should be rephraseable
+    data_phrase.set_feature(NLG::Feature::SUPRESSED_COMPLEMENTISER, true)
+    since_pp = NLG.factory.create_preposition_phrase(rephraseables[:since_after].first, NLG.factory.create_noun_phrase(@prediction_meta[:start_year]))
     #TODO choose between when ... always/never
     # and                in every/no ... (nothing)
     # e.g. * in every year fake unemployment ended in an even number, the Republican Party has always won the white house.
     # e.g.   when fake unemployment ended in an even number, the Republican Party has always won the white house.
-    if (exceptional_year = @prediction_meta.delete(:exceptional_year))
-      pp = NLG.factory.create_preposition_phrase('in', NLG.factory.create_noun_phrase(claim_polarity ? 'every' : 'any', 'year')) # TODO: make 'year' rephraseable to 'election'
-      pp.add_post_modifier(data_phrase)
+    if (exceptional_year = @prediction_meta[:exceptional_year])
+
+      prep_phrase = NLG.factory.create_preposition_phrase('in', NLG.factory.create_noun_phrase(claim_polarity ? 'every' : 'any', rephraseables[:year_election].first ))
       with MODIFIERS.sample do |modifier_position|
         if modifier_position == :add_front_modifier
           sentence.send(modifier_position, since_pp)
         else
-          pp.send(modifier_position, since_pp )
+          since_pp.set_feature(NLG::Feature::APPOSITIVE, true)
+          [sentence, prep_phrase].sample.send(modifier_position, since_pp)
         end
       end
+      except_phrase = NLG.factory.create_preposition_phrase(rephraseables[:except].first, NLG.factory.create_noun_phrase(exceptional_year) )
+      with  [[sentence,(MODIFIERS - [:add_pre_modifier] ).sample], [prep_phrase, :add_post_modifier]].sample do |modified, method|
+       modified.send(method, except_phrase)#TODO: get pre_modifiers working with commas
+     end
+      prep_phrase.add_post_modifier(data_phrase)
 
-      sentence.send(MODIFIERS.sample,  pp)
-      save_except_phrase = NLG.factory.create_preposition_phrase(['save', 'except'].sample, NLG.factory.create_noun_phrase(exceptional_year) )
-      sentence.send(MODIFIERS.sample, save_except_phrase)
+      sentence.send((MODIFIERS - [:add_pre_modifier] ).sample,  prep_phrase) #TODO: get pre_modifiers working with commas (right now it's "SUBJ has, PREPOSITION whatever VERBed OBJ", lacking the second comma)
     else
       sentence.add_pre_modifier(claim_polarity ? 'always' : 'never')
-      pp = NLG.factory.create_preposition_phrase('when', data_phrase)
-      pp.send(MODIFIERS.sample, since_pp)
-      sentence.send(MODIFIERS.sample, pp)
+      sentence.set_feature(NLG::Feature::NEGATED, false) if !claim_polarity
+      prep_phrase = NLG.factory.create_preposition_phrase(rephraseables[:when].first, data_phrase)
+      prep_phrase.send( (MODIFIERS - [:add_front_modifier]).sample, since_pp) # TODO why does :add_front_modifier not work here?
+      sentence.send((MODIFIERS - [:add_pre_modifier] ).sample, prep_phrase) #TODO: get pre_modifiers working with commas (right now it's "SUBJ has, PREPOSITION whatever VERBed OBJ", lacking the second comma)
+    end
+    NLG.realizer.setCommaSepCuephrase(true) # for "front modifier" sentences, puts a comma after the modifier.
+    NLG.realizer.setCommaSepPremodifiers(true) # for pre-modifier sentences
+    # puts sentence
+    NLG.realizer.realise_sentence(sentence) 
+  end
+
+  def templatize!
+
+    # this is mostly 140-char awareness
+    # to do this, we realize the sentence with the shortest option for each "rephraseable" piece of the sentence
+    # to find how much extra space we have (and fail if the shortest possible length is > 140).
+    # the "margin" -- the extra characters we have to distribute between rephrase options
+    #  -- is the difference between the sum of the shortest and sum of the longest rephraseables
+    # or the difference between the length of the shortest possible sentence and 140, whichever is less.
+    # then, for each rephraseable, we shuffle up all the options and pick one randomly, 
+    # subtracting the difference between the chosen option and the shortest option from the margin. 
+    # Reject and re-sample if the margin would go below 0.
+    # rephraseable objects like Party are also handled here.
+    # which perhaps should implement a Rephraseable mix-in so they can have min_by, max_by
+
+    rephraseables = {}
+    rephraseables[:politics_condition_object] = @prediction_meta[:politics_condition].objects.dup
+    rephraseables[:party] = @prediction_meta[:party].alt_names.dup
+    rephraseables[:since_after] = ['since', 'after']
+    rephraseables[:except] = ['except', 'besides'] 
+    rephraseables[:when] = ['when', 'in years when', 'whenever', 'in every year']
+    rephraseables[:year_election] = ["year", "election year"]
+    # collect all the rephraseable elements
+
+    min_rephraseable_length = 0
+    max_rephraseable_length = 0
+    unrephraseable_length = 0 
+    rephraseables.each do |k, v|
+      if v.respond_to? :rephrase
+        max_rephraseable_length += v.max_by(&:size).size # +1 for spaces
+        min_rephraseable_length += v.min_by(&:size).size # +1 for spaces
+      end
     end
 
-    @prediction = NLG.realizer.realise_sentence(sentence) 
+    # render sentence!
+    shortest_rephrase_options = {}
+    rephraseables.each do |k, v|
+      shortest_rephrase_options[k] = [v.min_by(&:size)]
+    end
+    shortest_possible_sentence_length = _realize_sentence(shortest_rephrase_options).size
+    return nil if MAX_OUTPUT_LENGTH < shortest_possible_sentence_length
+    buffer = MAX_OUTPUT_LENGTH - shortest_possible_sentence_length # [max_rephraseable_length - min_rephraseable_length, MAX_OUTPUT_LENGTH - shortest_possible_sentence_length].min
+    # puts "Buffer: #{buffer}"
+
+    rephraseables.to_a.shuffle.each do |k, v|
+
+      weighted = v.reduce([]){|memo, nxt| memo += [nxt] * nxt.size }
+      weighted.shuffle!
+      #TODO: rather than choosing randomly, should prefer longer versions
+      chosen_word = weighted.first
+      # puts "Buffer: #{buffer.to_s.size == 1 ? ' ' : ''}#{buffer}, chose '#{chosen_word}' from #{v}"
+      redo if buffer - (chosen_word.size - weighted.min_by(&:size).size) < 0 # I think this is bad. I think this'll never end.
+      rephraseables[k] = [chosen_word]
+      buffer -= (chosen_word.size - weighted.min_by(&:size).size)
+    end
+
+    @prediction = _realize_sentence(rephraseables)
   end
 
   def to_s
@@ -292,7 +358,7 @@ class Prediction
 
   def inspect
     @prediction || templatize!
-    "\"#{@prediction} (#{@prediction.size} chars)\""
+    @prediction.nil? ? nil : "#{@prediction.size} chars: \"#{@prediction}\""
   end
 end
 
@@ -301,16 +367,6 @@ class PunditBot
     process_csv!
     @parties = PARTIES
     @datasets = YAML.load_file('data/correlates.yml')
-    # @datasets.each do |dataset|
-    #   dataset["data_columns"].reduce(dataset["data_columns"]) do |memo, col| 
-    #     if col["type"] == "numeric"
-    #       new_col = col.clone; 
-    #       new_col["type"] = "integral"
-    #       memo << new_col
-    #     end
-    #     memo
-    #   end
-    # end
   end
   def vectorize_politics_condition(politics_condition, party)
     victors = @elections[politics_condition.race][politics_condition.jurisdiction]
@@ -319,13 +375,9 @@ class PunditBot
         [year, (politics_condition.control == (victors[year].match(/[A-Z]+/).to_s == party.wikipedia_symbol)) && 
           ((index != 0) && (victors[year].match(/[A-Z]+/).to_s != victors[@election_years[index-1]].match(/[A-Z]+/).to_s)) ]
       else
-        # puts [year, 
-        #       politics_condition.control == (victors[year].match(/[A-Z]+/).to_s == party.wikipedia_symbol), 
-        #       victors[year].match(/[A-Z]+/).to_s == party.wikipedia_symbol, victors[year].match(/[A-Z]+/).to_s, party.wikipedia_symbol].inspect
         [year, politics_condition.control == (victors[year].match(/[A-Z]+/).to_s == party.wikipedia_symbol)]
       end
     end.flatten]
-    # puts "tf_vector: #{tf_vector}"
     tf_vector 
   end
 
@@ -518,10 +570,10 @@ class PunditBot
         # find the second year for which the pattern doesn't fit
         if data_claim.condition.call(@dataset.data[yr], yr) == (hash_of_results[yr] == polarity) # if this year matches the pattern
           # do nothing
-          puts "match: #{yr},  #{data_claim.condition.call(@dataset.data[yr], yr)}, #{@dataset.data[yr]}"
+          # puts "match: #{yr},  #{data_claim.condition.call(@dataset.data[yr], yr)}, #{@dataset.data[yr]}"
         elsif exceptional_year.nil? # if this is the first year that doesn't match the pattern
           exceptional_year = yr
-          puts "exceptional_year: #{yr},  #{data_claim.condition.call(@dataset.data[yr], yr)}, #{@dataset.data[yr]}"
+          # puts "exceptional_year: #{yr},  #{data_claim.condition.call(@dataset.data[yr], yr)}, #{@dataset.data[yr]}"
         else #this is the second year that doesn't match the pattern
           start_year = (yr.to_i + 4).to_s 
           break
