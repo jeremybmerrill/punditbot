@@ -101,7 +101,10 @@ class Prediction
     rephraseables[:except] = ['except', 'besides'] 
     rephraseables[:when] = ['when', 'in years when', 'whenever', 'in every year']
     rephraseables[:year_election] = ["year", "election year"]
+    rephraseables[:prediction_meta_data_claim_o] = @prediction_meta[:data_claim].template.has_key?(:o) ? @prediction_meta[:data_claim].template[:o] : nil
     # collect all the rephraseable elements
+    # rephraseables[:data_claim_object] = [] if [].respond_to?(:rephrase)
+    rephraseables.compact!
 
     min_rephraseable_length = 0
     max_rephraseable_length = 0

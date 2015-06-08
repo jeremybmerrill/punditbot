@@ -11,6 +11,18 @@ class Array
     sample
   end
 end
+class Hash
+  def compact!
+    each do |k, v|
+      delete(k) if v.nil?
+    end
+  end
+  def compact
+    z = self.dup
+    z.compact!
+    z
+  end
+end
 
 module PunditBot
 MAX_OUTPUT_LENGTH = 140

@@ -5,58 +5,63 @@
 #     - header: Annual
 #       noun: "fake unemployment"
 #       type: numeric
-- filename: unemployment.csv
-  year_column_header: Year
-  source: "http://data.bls.gov/timeseries/LNU04000000?years_option=all_years&periods_option=specific_periods&periods=Annual+Data"
-  data_columns:
-    - header: Annual
-      noun: unemployment
-      type: numeric
-      noun_number: 1
-- filename: atlantic_hurricanes.csv
-  year_column_header: Year
-  source: http://www.wunderground.com/hurricane/hurrarchive.asp
-  data_columns:
-    - header: Storms
-      noun: the number of Atlantic tropical storms
-      noun_number: 1
-    - header: Hurricanes
-      type: numeric
-      noun: the number of Atlantic hurricanes
-      noun_number: 1
-    - header: Deaths
-      type: numeric
-      noun: Atlantic tropical storm-related deaths
-      noun_number: 2
-    - header: "Damage (millions USD)"
-      noun: Atlantic tropical storm-related damage
-      type: numeric
-      noun_number: 1
-    - header: Retired Names
-      noun: the number of retired Atlantic Hurricane names
-      type: numeric
-      noun_number: 1
-- filename: super_bowl.csv
-  year_column_header: year
-  source: https://en.wikipedia.org/wiki/List_of_Super_Bowl_champions
-  data_columns:
-    - header: winning conference,
-      noun: 'TK TODO'
-      noun_number: 1
-      type: categorical
-    # - Score,
-    - header: city
-      noun: 'Super Bowl host city'
-      noun_number: 1
-      type: categorical
-    - header: state
-      noun: 'Super Bowl host state' # how can I get to "Super Bowl was hosted on the West Coast"
-      noun_number: 1
-      type: categorical
-    - header: attendance
-      noun:
-      noun_number: 1
-      type: numeric
+# - filename: unemployment.csv
+#   year_column_header: Year
+#   source: "http://data.bls.gov/timeseries/LNU04000000?years_option=all_years&periods_option=specific_periods&periods=Annual+Data"
+#   data_columns:
+#     - header: Annual
+#       noun: unemployment
+#       type: numeric
+#       noun_number: 1
+#       units: 
+#         - percent
+#         - word: "%"
+#           direction: "suffix"
+#           include_space: false
+# - filename: atlantic_hurricanes.csv
+#   year_column_header: Year
+#   source: http://www.wunderground.com/hurricane/hurrarchive.asp
+#   data_columns:
+#     - header: Storms
+#       noun: the number of Atlantic tropical storms
+#       noun_number: 1
+#     - header: Hurricanes
+#       type: numeric
+#       noun: the number of Atlantic hurricanes
+#       noun_number: 1
+#     - header: Deaths
+#       type: numeric
+#       noun: Atlantic tropical storm-related deaths
+#       noun_number: 2
+#     - header: "Damage (millions USD)"
+#       noun: Atlantic tropical storm-related damage
+#       type: numeric
+#       noun_number: 1
+#     - header: Retired Names
+#       noun: the number of retired Atlantic Hurricane names
+#       type: numeric
+#       noun_number: 1
+# - filename: super_bowl.csv
+#   year_column_header: year
+#   source: https://en.wikipedia.org/wiki/List_of_Super_Bowl_champions
+#   data_columns:
+#     - header: winning conference,
+#       noun: 'TK TODO'
+#       noun_number: 1
+#       type: categorical
+#     # - Score,
+#     - header: city
+#       noun: 'Super Bowl host city'
+#       noun_number: 1
+#       type: categorical
+#     - header: state
+#       noun: 'Super Bowl host state' # how can I get to "Super Bowl was hosted on the West Coast"
+#       noun_number: 1
+#       type: categorical
+#     - header: attendance
+#       noun:
+#       noun_number: 1
+#       type: numeric
 - html_source: http://www.ers.usda.gov/data-products/vegetables-and-pulses-data/yearbook-tables.aspx
   source: http://www.ers.usda.gov/datafiles/Vegetable_and_Pulses_Yearbook_Tables/General/YRBK2015_Section%201_General.xlsx
   notes: I combined tables 1a-d.
@@ -64,196 +69,388 @@
   filename: vegetables.csv
   data_columns:
   - header: Asparagus
-    noun: "per-capita asparagus use"
+    noun: "asparagus use"
     noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
     type: numeric
   - header: Fresh asparagus
-    noun: "per-capita fresh asparagus use"
+    noun: "fresh asparagus use"
     noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
     type: numeric
   - header: Canning asparagus
-    noun: "per-capita canning asparagus use"
+    noun: "canning asparagus use"
     noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
     type: numeric
   - header: Freezing asparagus
-    noun: "per-capita freezing asparagus use"
+    noun: "freezing asparagus use"
     noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
     type: numeric
   - header: Snap/green beans
-    noun: "per-capita snap/green beans use"
+    noun: "snap/green beans use"
     noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
     type: numeric
   - header: Fresh snap/green beans
-    noun: "per-capita fresh snap/green beans use"
+    noun: "fresh snap/green beans use"
     noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
     type: numeric
   - header: Canning snap/green beans
-    noun: "per-capita canning snap/green beans use"
+    noun: "canning snap/green beans use"
     noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
     type: numeric
   - header: Freezing snap/green beans
-    noun: "per-capita freezing snap/green beans use"
+    noun: "freezing snap/green beans use"
     noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
     type: numeric
   - header: Broccoli
-    noun: "per-capita broccoli use"
+    noun: "broccoli use"
     noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
     type: numeric
   - header: Fresh broccoli
-    noun: "per-capita fresh broccoli use"
+    noun: "fresh broccoli use"
     noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
     type: numeric
   - header: Freezing broccoli
-    noun: "per-capita freezing broccoli use"
+    noun: "freezing broccoli use"
     noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
     type: numeric
   - header: Cabbage
-    noun: "per-capita cabbage use"
+    noun: "cabbage use"
     noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
     type: numeric
   - header: Fresh cabbage
-    noun: "per-capita fresh cabbage use"
+    noun: "fresh cabbage use"
     noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
     type: numeric
   - header: Canning (kraut) cabbage
-    noun: "per-capita canning (kraut) cabbage use"
+    noun: "canning (kraut) cabbage use"
     noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
     type: numeric
   - header: Carrots
-    noun: "per-capita carrots use"
+    noun: "carrots use"
     noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
     type: numeric
   - header: Fresh carrots
-    noun: "per-capita fresh carrots use"
+    noun: "fresh carrots use"
     noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
     type: numeric
   - header: Canning carrots
-    noun: "per-capita canning carrots use"
+    noun: "canning carrots use"
     noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
     type: numeric
   - header: Freezing carrots
-    noun: "per-capita freezing carrots use"
+    noun: "freezing carrots use"
     noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
     type: numeric
   - header: Cauliflower
-    noun: "per-capita cauliflower use"
+    noun: "cauliflower use"
     noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
     type: numeric
   - header: Fresh cauliflower
-    noun: "per-capita fresh cauliflower use"
+    noun: "fresh cauliflower use"
     noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
     type: numeric
   - header: Freezing cauliflower
-    noun: "per-capita freezing cauliflower use"
+    noun: "freezing cauliflower use"
     noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
     type: numeric
   - header: Celery
-    noun: "per-capita celery use"
+    noun: "celery use"
     noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
     type: numeric
   - header: Sweet corn
-    noun: "per-capita sweet corn use"
+    noun: "sweet corn use"
     noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
     type: numeric
   - header: Fresh sweet corn
-    noun: "per-capita fresh sweet corn use"
+    noun: "fresh sweet corn use"
     noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
     type: numeric
   - header: Canning sweet corn
-    noun: "per-capita canning sweet corn use"
+    noun: "canning sweet corn use"
     noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
     type: numeric
   - header: Freezing sweet corn
-    noun: "per-capita freezing sweet corn use"
+    noun: "freezing sweet corn use"
     noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
     type: numeric
   - header: Cucumbers
-    noun: "per-capita cucumbers use"
+    noun: "cucumbers use"
     noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
     type: numeric
   - header: Fresh cucumbers
-    noun: "per-capita fresh cucumbers use"
+    noun: "fresh cucumbers use"
     noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
     type: numeric
   - header: Pickling cucumbers
-    noun: "per-capita pickling cucumbers use"
+    noun: "pickling cucumbers use"
     noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
     type: numeric
   - header: Melons
-    noun: "per-capita melons use"
+    noun: "melons use"
     noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
     type: numeric
   - header: Watermelon
-    noun: "per-capita watermelon use"
+    noun: "watermelon use"
     noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
     type: numeric
   - header: Cantaloupe
-    noun: "per-capita cantaloupe use"
+    noun: "cantaloupe use"
     noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
     type: numeric
   - header: Honeydew
-    noun: "per-capita honeydew use"
+    noun: "honeydew use"
     noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
     type: numeric
   - header: Lettuce
-    noun: "per-capita lettuce use"
+    noun: "lettuce use"
     noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
     type: numeric
   - header: Head lettuce
-    noun: "per-capita head lettuce use"
+    noun: "head lettuce use"
     noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
     type: numeric
   - header: Romaine & leaf lettuce
-    noun: "per-capita romaine & leaf lettuce use"
+    noun: "romaine & leaf lettuce use"
     noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
     type: numeric
   - header: Onions
-    noun: "per-capita onions use"
+    noun: "onions use"
     noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
     type: numeric
   - header: Fresh onions
-    noun: "per-capita fresh onions use"
+    noun: "fresh onions use"
     noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
     type: numeric
   - header: Dehydrating onions
-    noun: "per-capita dehydrating onions use"
+    noun: "dehydrating onions use"
     noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
     type: numeric
   - header: Green peas
-    noun: "per-capita green peas use"
+    noun: "green peas use"
     noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
     type: numeric
   - header: Canning green peas
-    noun: "per-capita canning green peas use"
+    noun: "canning green peas use"
     noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
     type: numeric
   - header: Freezing green peas
-    noun: "per-capita freezing green peas use"
+    noun: "freezing green peas use"
     noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
     type: numeric
   - header: Peppers
-    noun: "per-capita peppers use"
+    noun: "peppers use"
     noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
     type: numeric
   - header: Bell peppers
-    noun: "per-capita bell peppers use"
+    noun: "bell peppers use"
     noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
     type: numeric
   - header: Chile peppers
-    noun: "per-capita chile peppers use"
+    noun: "chile peppers use"
     noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
     type: numeric
   - header: Tomatoes
-    noun: "per-capita tomatoes use"
+    noun: "tomatoes use"
     noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
     type: numeric
   - header: Fresh tomatoes
-    noun: "per-capita fresh tomatoes use"
+    noun: "fresh tomatoes use"
     noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
     type: numeric
   - header: Canning tomatoes
-    noun: "per-capita canning tomatoes use"
+    noun: "canning tomatoes use"
     noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
     type: numeric
 - html_source: http://www.census.gov/foreign-trade/statistics/historical/index.html
   source: http://www.census.gov/foreign-trade/statistics/historical/goods.xls
@@ -265,14 +462,32 @@
     noun: "U.S. balance of trade"
     noun_number: 1
     type: numeric
+    units:
+      - dollars
+      - USD
+      - word: "$"
+        direction: prefix
+        include_space: false
   - header: Exports BOP Basis
     noun: "U.S. exports"
     noun_number: 1
     type: numeric
+    units:
+      - dollars
+      - USD
+      - word: "$"
+        direction: prefix
+        include_space: false
   - header: Imports BOP Basis
     noun: "U.S. imports"
     noun_number: 1
     type: numeric
+    units:
+      - dollars
+      - USD
+      - word: "$"
+        direction: prefix
+        include_space: false
   - header: Trade Deficit?
     noun: "had a trade deficit"
     type: boolean
@@ -289,3 +504,8 @@
     noun: "average annual U.S. temperature"
     noun_number: 1
     type: numeric
+    units: 
+      - degrees
+      - word: "°"
+        direction: "suffix"
+        include_space: false

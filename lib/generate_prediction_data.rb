@@ -119,7 +119,7 @@ module PunditBot
   ]
 
   class DataClaim
-    attr_reader :condition
+    attr_reader :condition, :template
     def initialize(condition, template)
       @template = template
       raise ArgumentError, "DataClaim condition is not callable" unless condition.respond_to? :call
@@ -168,8 +168,11 @@ module PunditBot
       #randomly give a column's data
       return @data unless @data.nil?
       column = @data_columns.reject{|column| cleaners[(column["type"] || "numeric").to_sym].nil? }.sample
+      # TODO: implement multiple noun support (unit should be a sub-object of noun)
       @noun = Noun.new(column["noun"], column["noun_number"])
+
       @data_type = (column["type"] || "numeric").to_sym
+      @units = column["units"] || []
       @data = Hash[*@csv.map{|row| [row[@year_column_header], 
         begin 
           cleaners[@data_type].call(row[column["header"]])
@@ -180,6 +183,25 @@ module PunditBot
         end
       ] }.flatten]
     end
+    def add_units(intro, number)
+      @units.map do |unit|
+        unit = {"word" => unit} unless unit.respond_to?(:has_key?) && unit.has_key?("word")
+=begin
+    units: 
+      - degrees
+      - word: "°"
+        direction: "suffix"
+        include_space: false
+=end
+        if unit["direction"] == "prefix"
+          intro + " " + (unit["include_space"] == false ? '' : " ") + unit["word"] + number.to_s
+        else # suffix
+          intro + " " + number.to_s + (unit["include_space"] == false ? '' : " ") + unit["word"]
+        end
+      end
+    end
+
+
   end
 
   class PunditBot
@@ -229,7 +251,9 @@ module PunditBot
             phrase: {
               :v => 'be',
               :tense => :past,
-              :o => "greater than #{trues.map{|a, b| b}.min}" # obvi true for trues; if true for all of falses, unemployment was less than trues.min all the time,
+              :o => @dataset.add_units("greater than", trues.map{|a, b| b}.min) # obvi true for trues; if true for all of falses, unemployment was less than trues.min all the time,
+                    
+
             }
           ),
           
@@ -237,7 +261,7 @@ module PunditBot
             {
               :v => 'be',
               :tense => :past,
-              :o => "less than #{trues.map{|a, b| b}.max}" # obvi true for trues; if true for all of falses, unemployment was less than trues.min all the time,
+              :o => @dataset.add_units("less than", trues.map{|a, b| b}.max) # obvi true for trues; if true for all of falses, unemployment was less than trues.min all the time,
             }
           ),
 
