@@ -424,7 +424,7 @@ module PunditBot
           end
         end
         start_year = @dataset.min_year if start_year.nil?
-        # uncomment and test this! it's meant to be a guard against saying
+        # TODO: uncomment and test this! it's meant to be a guard against saying
         # since 1996, except 2000, X has occured,
         # if exceptional_year.to_i - start_year.to_i == 4
         #   start_year = exceptional_year

@@ -12,7 +12,6 @@ TODO:
   - how to make numeric claims drop down to integral
   - ensure NLG system generates all varieties that were templated out.
   - remove linguistics stuff from everything NLG parts (so there's no "verb phrase" in constants)
-  - MAYBE: add support for candidate based exceptoins ("Without a Clinton on the ballot, ")
   - make categories that react to previous years
   - uh oh: 95 chars: "When per-capita fresh snap/green beans use, the Republican Party has never lost the presidency.", 105 chars: "The Republican Party has never, in years when per-capita fresh snap/green beans use lost the White House."
   - add "Every year BUT 1992"
@@ -27,3 +26,5 @@ TODO:
 Leave this for later, focus on MVP:
     - add categorical data sets (how does this work??)
     - commas and dashes (fixed, but for bugs, e.g. https://github.com/simplenlg/simplenlg/issues/13 )
+    - state based "without winning Iowa or Pennsylvania"
+    - MAYBE: add support for candidate based exceptoins ("Without a Clinton on the ballot, ")
