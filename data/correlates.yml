@@ -76,436 +76,436 @@
       - pounds per-capita
       - farm-weight pounds per-capita
     type: numeric
-#   - header: Fresh asparagus
-#     noun: "fresh asparagus use"
-#     noun_number: 1
-#     units: 
-#       - lbs per-capita
-#       - pounds per-capita
-#       - farm-weight pounds per-capita
-#     type: numeric
-#   - header: Canning asparagus
-#     noun: "canning asparagus use"
-#     noun_number: 1
-#     units: 
-#       - lbs per-capita
-#       - pounds per-capita
-#       - farm-weight pounds per-capita
-#     type: numeric
-#   - header: Freezing asparagus
-#     noun: "freezing asparagus use"
-#     noun_number: 1
-#     units: 
-#       - lbs per-capita
-#       - pounds per-capita
-#       - farm-weight pounds per-capita
-#     type: numeric
-#   - header: Snap/green beans
-#     noun: "snap/green beans use"
-#     noun_number: 1
-#     units: 
-#       - lbs per-capita
-#       - pounds per-capita
-#       - farm-weight pounds per-capita
-#     type: numeric
-#   - header: Fresh snap/green beans
-#     noun: "fresh snap/green beans use"
-#     noun_number: 1
-#     units: 
-#       - lbs per-capita
-#       - pounds per-capita
-#       - farm-weight pounds per-capita
-#     type: numeric
-#   - header: Canning snap/green beans
-#     noun: "canning snap/green beans use"
-#     noun_number: 1
-#     units: 
-#       - lbs per-capita
-#       - pounds per-capita
-#       - farm-weight pounds per-capita
-#     type: numeric
-#   - header: Freezing snap/green beans
-#     noun: "freezing snap/green beans use"
-#     noun_number: 1
-#     units: 
-#       - lbs per-capita
-#       - pounds per-capita
-#       - farm-weight pounds per-capita
-#     type: numeric
-#   - header: Broccoli
-#     noun: "broccoli use"
-#     noun_number: 1
-#     units: 
-#       - lbs per-capita
-#       - pounds per-capita
-#       - farm-weight pounds per-capita
-#     type: numeric
-#   - header: Fresh broccoli
-#     noun: "fresh broccoli use"
-#     noun_number: 1
-#     units: 
-#       - lbs per-capita
-#       - pounds per-capita
-#       - farm-weight pounds per-capita
-#     type: numeric
-#   - header: Freezing broccoli
-#     noun: "freezing broccoli use"
-#     noun_number: 1
-#     units: 
-#       - lbs per-capita
-#       - pounds per-capita
-#       - farm-weight pounds per-capita
-#     type: numeric
-#   - header: Cabbage
-#     noun: "cabbage use"
-#     noun_number: 1
-#     units: 
-#       - lbs per-capita
-#       - pounds per-capita
-#       - farm-weight pounds per-capita
-#     type: numeric
-#   - header: Fresh cabbage
-#     noun: "fresh cabbage use"
-#     noun_number: 1
-#     units: 
-#       - lbs per-capita
-#       - pounds per-capita
-#       - farm-weight pounds per-capita
-#     type: numeric
-#   - header: Canning (kraut) cabbage
-#     noun: "canning (kraut) cabbage use"
-#     noun_number: 1
-#     units: 
-#       - lbs per-capita
-#       - pounds per-capita
-#       - farm-weight pounds per-capita
-#     type: numeric
-#   - header: Carrots
-#     noun: "carrots use"
-#     noun_number: 1
-#     units: 
-#       - lbs per-capita
-#       - pounds per-capita
-#       - farm-weight pounds per-capita
-#     type: numeric
-#   - header: Fresh carrots
-#     noun: "fresh carrots use"
-#     noun_number: 1
-#     units: 
-#       - lbs per-capita
-#       - pounds per-capita
-#       - farm-weight pounds per-capita
-#     type: numeric
-#   - header: Canning carrots
-#     noun: "canning carrots use"
-#     noun_number: 1
-#     units: 
-#       - lbs per-capita
-#       - pounds per-capita
-#       - farm-weight pounds per-capita
-#     type: numeric
-#   - header: Freezing carrots
-#     noun: "freezing carrots use"
-#     noun_number: 1
-#     units: 
-#       - lbs per-capita
-#       - pounds per-capita
-#       - farm-weight pounds per-capita
-#     type: numeric
-#   - header: Cauliflower
-#     noun: "cauliflower use"
-#     noun_number: 1
-#     units: 
-#       - lbs per-capita
-#       - pounds per-capita
-#       - farm-weight pounds per-capita
-#     type: numeric
-#   - header: Fresh cauliflower
-#     noun: "fresh cauliflower use"
-#     noun_number: 1
-#     units: 
-#       - lbs per-capita
-#       - pounds per-capita
-#       - farm-weight pounds per-capita
-#     type: numeric
-#   - header: Freezing cauliflower
-#     noun: "freezing cauliflower use"
-#     noun_number: 1
-#     units: 
-#       - lbs per-capita
-#       - pounds per-capita
-#       - farm-weight pounds per-capita
-#     type: numeric
-#   - header: Celery
-#     noun: "celery use"
-#     noun_number: 1
-#     units: 
-#       - lbs per-capita
-#       - pounds per-capita
-#       - farm-weight pounds per-capita
-#     type: numeric
-#   - header: Sweet corn
-#     noun: "sweet corn use"
-#     noun_number: 1
-#     units: 
-#       - lbs per-capita
-#       - pounds per-capita
-#       - farm-weight pounds per-capita
-#     type: numeric
-#   - header: Fresh sweet corn
-#     noun: "fresh sweet corn use"
-#     noun_number: 1
-#     units: 
-#       - lbs per-capita
-#       - pounds per-capita
-#       - farm-weight pounds per-capita
-#     type: numeric
-#   - header: Canning sweet corn
-#     noun: "canning sweet corn use"
-#     noun_number: 1
-#     units: 
-#       - lbs per-capita
-#       - pounds per-capita
-#       - farm-weight pounds per-capita
-#     type: numeric
-#   - header: Freezing sweet corn
-#     noun: "freezing sweet corn use"
-#     noun_number: 1
-#     units: 
-#       - lbs per-capita
-#       - pounds per-capita
-#       - farm-weight pounds per-capita
-#     type: numeric
-#   - header: Cucumbers
-#     noun: "cucumbers use"
-#     noun_number: 1
-#     units: 
-#       - lbs per-capita
-#       - pounds per-capita
-#       - farm-weight pounds per-capita
-#     type: numeric
-#   - header: Fresh cucumbers
-#     noun: "fresh cucumbers use"
-#     noun_number: 1
-#     units: 
-#       - lbs per-capita
-#       - pounds per-capita
-#       - farm-weight pounds per-capita
-#     type: numeric
-#   - header: Pickling cucumbers
-#     noun: "pickling cucumbers use"
-#     noun_number: 1
-#     units: 
-#       - lbs per-capita
-#       - pounds per-capita
-#       - farm-weight pounds per-capita
-#     type: numeric
-#   - header: Melons
-#     noun: "melons use"
-#     noun_number: 1
-#     units: 
-#       - lbs per-capita
-#       - pounds per-capita
-#       - farm-weight pounds per-capita
-#     type: numeric
-#   - header: Watermelon
-#     noun: "watermelon use"
-#     noun_number: 1
-#     units: 
-#       - lbs per-capita
-#       - pounds per-capita
-#       - farm-weight pounds per-capita
-#     type: numeric
-#   - header: Cantaloupe
-#     noun: "cantaloupe use"
-#     noun_number: 1
-#     units: 
-#       - lbs per-capita
-#       - pounds per-capita
-#       - farm-weight pounds per-capita
-#     type: numeric
-#   - header: Honeydew
-#     noun: "honeydew use"
-#     noun_number: 1
-#     units: 
-#       - lbs per-capita
-#       - pounds per-capita
-#       - farm-weight pounds per-capita
-#     type: numeric
-#   - header: Lettuce
-#     noun: "lettuce use"
-#     noun_number: 1
-#     units: 
-#       - lbs per-capita
-#       - pounds per-capita
-#       - farm-weight pounds per-capita
-#     type: numeric
-#   - header: Head lettuce
-#     noun: "head lettuce use"
-#     noun_number: 1
-#     units: 
-#       - lbs per-capita
-#       - pounds per-capita
-#       - farm-weight pounds per-capita
-#     type: numeric
-#   - header: Romaine & leaf lettuce
-#     noun: "romaine & leaf lettuce use"
-#     noun_number: 1
-#     units: 
-#       - lbs per-capita
-#       - pounds per-capita
-#       - farm-weight pounds per-capita
-#     type: numeric
-#   - header: Onions
-#     noun: "onions use"
-#     noun_number: 1
-#     units: 
-#       - lbs per-capita
-#       - pounds per-capita
-#       - farm-weight pounds per-capita
-#     type: numeric
-#   - header: Fresh onions
-#     noun: "fresh onions use"
-#     noun_number: 1
-#     units: 
-#       - lbs per-capita
-#       - pounds per-capita
-#       - farm-weight pounds per-capita
-#     type: numeric
-#   - header: Dehydrating onions
-#     noun: "dehydrating onions use"
-#     noun_number: 1
-#     units: 
-#       - lbs per-capita
-#       - pounds per-capita
-#       - farm-weight pounds per-capita
-#     type: numeric
-#   - header: Green peas
-#     noun: "green peas use"
-#     noun_number: 1
-#     units: 
-#       - lbs per-capita
-#       - pounds per-capita
-#       - farm-weight pounds per-capita
-#     type: numeric
-#   - header: Canning green peas
-#     noun: "canning green peas use"
-#     noun_number: 1
-#     units: 
-#       - lbs per-capita
-#       - pounds per-capita
-#       - farm-weight pounds per-capita
-#     type: numeric
-#   - header: Freezing green peas
-#     noun: "freezing green peas use"
-#     noun_number: 1
-#     units: 
-#       - lbs per-capita
-#       - pounds per-capita
-#       - farm-weight pounds per-capita
-#     type: numeric
-#   - header: Peppers
-#     noun: "peppers use"
-#     noun_number: 1
-#     units: 
-#       - lbs per-capita
-#       - pounds per-capita
-#       - farm-weight pounds per-capita
-#     type: numeric
-#   - header: Bell peppers
-#     noun: "bell peppers use"
-#     noun_number: 1
-#     units: 
-#       - lbs per-capita
-#       - pounds per-capita
-#       - farm-weight pounds per-capita
-#     type: numeric
-#   - header: Chile peppers
-#     noun: "chile peppers use"
-#     noun_number: 1
-#     units: 
-#       - lbs per-capita
-#       - pounds per-capita
-#       - farm-weight pounds per-capita
-#     type: numeric
-#   - header: Tomatoes
-#     noun: "tomatoes use"
-#     noun_number: 1
-#     units: 
-#       - lbs per-capita
-#       - pounds per-capita
-#       - farm-weight pounds per-capita
-#     type: numeric
-#   - header: Fresh tomatoes
-#     noun: "fresh tomatoes use"
-#     noun_number: 1
-#     units: 
-#       - lbs per-capita
-#       - pounds per-capita
-#       - farm-weight pounds per-capita
-#     type: numeric
-#   - header: Canning tomatoes
-#     noun: "canning tomatoes use"
-#     noun_number: 1
-#     units: 
-#       - lbs per-capita
-#       - pounds per-capita
-#       - farm-weight pounds per-capita
-#     type: numeric
-# - html_source: http://www.census.gov/foreign-trade/statistics/historical/index.html
-#   source: http://www.census.gov/foreign-trade/statistics/historical/goods.xls
-#   notes: 
-#   year_column_header: Period
-#   filename: us_international_trade_in_goods.csv
-#   data_columns:
-#   - header: Balance BOP Basis
-#     noun: "U.S. balance of trade"
-#     noun_number: 1
-#     type: numeric
-#     units:
-#       - dollars
-#       - USD
-#       - word: "$"
-#         direction: prefix
-#         include_space: false
-#   - header: Exports BOP Basis
-#     noun: "U.S. exports"
-#     noun_number: 1
-#     type: numeric
-#     units:
-#       - dollars
-#       - USD
-#       - word: "$"
-#         direction: prefix
-#         include_space: false
-#   - header: Imports BOP Basis
-#     noun: "U.S. imports"
-#     noun_number: 1
-#     type: numeric
-#     units:
-#       - dollars
-#       - USD
-#       - word: "$"
-#         direction: prefix
-#         include_space: false
-#   - header: Trade Deficit?
-#     noun: "had a trade deficit"
-#     type: boolean
-#   - header: Trade Surplus?
-#     noun: "had a trade surplus"
-#     type: boolean
-# - html_source: https://www.ncdc.noaa.gov/cag/time-series/us
-#   source: https://www.ncdc.noaa.gov/cag/time-series/us/110/00/tavg/ytd/12/1895-2015.csv?base_prd=true&firstbaseyear=1901&lastbaseyear=2000
-#   notes: Contiguous U.S., Average Temperature, January-December
-#   year_column_header: Date
-#   filename: avg_temperature.csv
-#   data_columns:
-#   - header: Value
-#     noun: "average annual U.S. temperature"
-#     noun_number: 1
-#     type: numeric
-#     units: 
-#       - degrees
-#       - word: "°"
-#         direction: "suffix"
-#         include_space: false
+  - header: Fresh asparagus
+    noun: "fresh asparagus use"
+    noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
+    type: numeric
+  - header: Canning asparagus
+    noun: "canning asparagus use"
+    noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
+    type: numeric
+  - header: Freezing asparagus
+    noun: "freezing asparagus use"
+    noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
+    type: numeric
+  - header: Snap/green beans
+    noun: "snap/green beans use"
+    noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
+    type: numeric
+  - header: Fresh snap/green beans
+    noun: "fresh snap/green beans use"
+    noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
+    type: numeric
+  - header: Canning snap/green beans
+    noun: "canning snap/green beans use"
+    noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
+    type: numeric
+  - header: Freezing snap/green beans
+    noun: "freezing snap/green beans use"
+    noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
+    type: numeric
+  - header: Broccoli
+    noun: "broccoli use"
+    noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
+    type: numeric
+  - header: Fresh broccoli
+    noun: "fresh broccoli use"
+    noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
+    type: numeric
+  - header: Freezing broccoli
+    noun: "freezing broccoli use"
+    noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
+    type: numeric
+  - header: Cabbage
+    noun: "cabbage use"
+    noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
+    type: numeric
+  - header: Fresh cabbage
+    noun: "fresh cabbage use"
+    noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
+    type: numeric
+  - header: Canning (kraut) cabbage
+    noun: "canning (kraut) cabbage use"
+    noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
+    type: numeric
+  - header: Carrots
+    noun: "carrots use"
+    noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
+    type: numeric
+  - header: Fresh carrots
+    noun: "fresh carrots use"
+    noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
+    type: numeric
+  - header: Canning carrots
+    noun: "canning carrots use"
+    noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
+    type: numeric
+  - header: Freezing carrots
+    noun: "freezing carrots use"
+    noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
+    type: numeric
+  - header: Cauliflower
+    noun: "cauliflower use"
+    noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
+    type: numeric
+  - header: Fresh cauliflower
+    noun: "fresh cauliflower use"
+    noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
+    type: numeric
+  - header: Freezing cauliflower
+    noun: "freezing cauliflower use"
+    noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
+    type: numeric
+  - header: Celery
+    noun: "celery use"
+    noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
+    type: numeric
+  - header: Sweet corn
+    noun: "sweet corn use"
+    noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
+    type: numeric
+  - header: Fresh sweet corn
+    noun: "fresh sweet corn use"
+    noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
+    type: numeric
+  - header: Canning sweet corn
+    noun: "canning sweet corn use"
+    noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
+    type: numeric
+  - header: Freezing sweet corn
+    noun: "freezing sweet corn use"
+    noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
+    type: numeric
+  - header: Cucumbers
+    noun: "cucumbers use"
+    noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
+    type: numeric
+  - header: Fresh cucumbers
+    noun: "fresh cucumbers use"
+    noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
+    type: numeric
+  - header: Pickling cucumbers
+    noun: "pickling cucumbers use"
+    noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
+    type: numeric
+  - header: Melons
+    noun: "melons use"
+    noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
+    type: numeric
+  - header: Watermelon
+    noun: "watermelon use"
+    noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
+    type: numeric
+  - header: Cantaloupe
+    noun: "cantaloupe use"
+    noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
+    type: numeric
+  - header: Honeydew
+    noun: "honeydew use"
+    noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
+    type: numeric
+  - header: Lettuce
+    noun: "lettuce use"
+    noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
+    type: numeric
+  - header: Head lettuce
+    noun: "head lettuce use"
+    noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
+    type: numeric
+  - header: Romaine & leaf lettuce
+    noun: "romaine & leaf lettuce use"
+    noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
+    type: numeric
+  - header: Onions
+    noun: "onions use"
+    noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
+    type: numeric
+  - header: Fresh onions
+    noun: "fresh onions use"
+    noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
+    type: numeric
+  - header: Dehydrating onions
+    noun: "dehydrating onions use"
+    noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
+    type: numeric
+  - header: Green peas
+    noun: "green peas use"
+    noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
+    type: numeric
+  - header: Canning green peas
+    noun: "canning green peas use"
+    noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
+    type: numeric
+  - header: Freezing green peas
+    noun: "freezing green peas use"
+    noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
+    type: numeric
+  - header: Peppers
+    noun: "peppers use"
+    noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
+    type: numeric
+  - header: Bell peppers
+    noun: "bell peppers use"
+    noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
+    type: numeric
+  - header: Chile peppers
+    noun: "chile peppers use"
+    noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
+    type: numeric
+  - header: Tomatoes
+    noun: "tomatoes use"
+    noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
+    type: numeric
+  - header: Fresh tomatoes
+    noun: "fresh tomatoes use"
+    noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
+    type: numeric
+  - header: Canning tomatoes
+    noun: "canning tomatoes use"
+    noun_number: 1
+    units: 
+      - lbs per-capita
+      - pounds per-capita
+      - farm-weight pounds per-capita
+    type: numeric
+- html_source: http://www.census.gov/foreign-trade/statistics/historical/index.html
+  source: http://www.census.gov/foreign-trade/statistics/historical/goods.xls
+  notes: 
+  year_column_header: Period
+  filename: us_international_trade_in_goods.csv
+  data_columns:
+  - header: Balance BOP Basis
+    noun: "U.S. balance of trade"
+    noun_number: 1
+    type: numeric
+    units:
+      - dollars
+      - USD
+      - word: "$"
+        direction: prefix
+        include_space: false
+  - header: Exports BOP Basis
+    noun: "U.S. exports"
+    noun_number: 1
+    type: numeric
+    units:
+      - dollars
+      - USD
+      - word: "$"
+        direction: prefix
+        include_space: false
+  - header: Imports BOP Basis
+    noun: "U.S. imports"
+    noun_number: 1
+    type: numeric
+    units:
+      - dollars
+      - USD
+      - word: "$"
+        direction: prefix
+        include_space: false
+  - header: Trade Deficit?
+    noun: "had a trade deficit"
+    type: boolean
+  - header: Trade Surplus?
+    noun: "had a trade surplus"
+    type: boolean
+- html_source: https://www.ncdc.noaa.gov/cag/time-series/us
+  source: https://www.ncdc.noaa.gov/cag/time-series/us/110/00/tavg/ytd/12/1895-2015.csv?base_prd=true&firstbaseyear=1901&lastbaseyear=2000
+  notes: Contiguous U.S., Average Temperature, January-December
+  year_column_header: Date
+  filename: avg_temperature.csv
+  data_columns:
+  - header: Value
+    noun: "average annual U.S. temperature"
+    noun_number: 1
+    type: numeric
+    units: 
+      - degrees
+      - word: "°"
+        direction: "suffix"
+        include_space: false

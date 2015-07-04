@@ -15,11 +15,11 @@ TODO:
   - make categories that react to previous years
   - uh oh: 95 chars: "When per-capita fresh snap/green beans use, the Republican Party has never lost the presidency.", 105 chars: "The Republican Party has never, in years when per-capita fresh snap/green beans use lost the White House."
   - add "Every year BUT 1992"
-  - in every year EXCEPT 1234 **that** X. Need to add **that** if there's an intrusive parenthetical
   DO NOW: 
   - should I add units (to correlates.yml, e.g. "degrees"; just a list of units that are either prepended/appended)
   - boolean type (e.g. "had a trade deficit")
   - put alternate nouns in correlates.yml (e.g. ["average annual U.S. temperature", "avg. U.S. temperature"] ) / make it rephraseable
+  - experiment with re-enabling add_pre_modifier
 
 
 
