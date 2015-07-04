@@ -159,7 +159,7 @@ module PunditBot
     def cleaners
       { 
         :integral     => lambda{|n| n.gsub(/[^\d]/, '').to_i },  #removes dots, so only suitable for claims ABOUT numbers, like 'digits add up an even number'
-        :numeric     =>  lambda{|n| n.gsub(/[^\d\.]/, '').to_i }, 
+        :numeric     =>  lambda{|n| n.gsub(/[^\d\.]/, '').to_f }, 
         :categorical =>  lambda{|x| x}
       }
     end
@@ -228,16 +228,16 @@ module PunditBot
       @dataset.get_data!
     end
 
-    def find_data(hash_of_results)
+    def find_data(hash_of_election_results)
       # for our data sets, find the earliest election year where the data condition matches that year's value in the vector_to_match every year or all but once.
-      raise JeremyMessedUpError unless hash_of_results.is_a? Hash
+      raise JeremyMessedUpError unless hash_of_election_results.is_a? Hash
       # like {2012 => true, 2008 => true, 2004 => false} if we're talking about Dems winning WH
 
       # datasets must all look like this {2004 => 5.5, 2008 => 5.8, 2012 => 8.1 }
       get_a_dataset! # seems more exciting with the ! at the end, no?
 
 
-      trues, falses = @dataset.data.to_a.partition.each_with_index{|val, idx| hash_of_results[val[0]] } #TODO: factor out; but something like it is used in data_claims
+      trues, falses = @dataset.data.to_a.partition.each_with_index{|val, idx| hash_of_election_results[val[0]] } #TODO: factor out; but something like it is used in data_claims
       # data_claims need a lambda and an English template
 
       # TODO: data_claims need to be divied into types:
@@ -412,7 +412,7 @@ module PunditBot
           next if yr < (@dataset.min_year.to_i - 1).to_s
           raise JeremyMessedUpError unless idx > 0 || yr != "2014" 
           # find the second year for which the pattern doesn't fit
-          if data_claim.condition.call(@dataset.data[yr], yr) == (hash_of_results[yr] == polarity) # if this year matches the pattern
+          if data_claim.condition.call(@dataset.data[yr], yr) == (hash_of_election_results[yr] == polarity) # if this year matches the pattern
             # do nothing
             # puts "match: #{yr},  #{data_claim.condition.call(@dataset.data[yr], yr)}, #{@dataset.data[yr]}"
           elsif exceptional_year.nil? # if this is the first year that doesn't match the pattern
