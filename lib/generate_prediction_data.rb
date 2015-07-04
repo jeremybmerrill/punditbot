@@ -119,7 +119,8 @@ module PunditBot
   ]
 
   class DataClaim
-    attr_reader :condition, :template, :year_buffer
+    attr_reader :condition, :year_buffer
+    attr_accessor :template
     def initialize(condition, template, year_buffer = nil)
       @template = template
       raise ArgumentError, "DataClaim condition is not callable" unless condition.respond_to? :call
@@ -168,11 +169,14 @@ module PunditBot
     def get_data!
       #randomly give a column's data
       return @data unless @data.nil?
-      column = @data_columns.reject{|column| cleaners[(column["type"] || "numeric").to_sym].nil? }.sample
-      # TODO: implement multiple noun support (unit should be a sub-object of noun)
+      @data_columns.each{|column| column["type"] ||= "numeric" }
+      @data_columns += @data_columns.select{|column| column["type"] == "numeric"}.map{|column| c = column.dup; c["type"] = "integral"; c}
+      # reject those columns whose type doesn't have a cleaner (i.e. I haven't figured out categorical yet, but some are in the yaml file)
+      @data_columns.reject!{|column| cleaners[column["type"].to_sym].nil? }
+      column = @data_columns.sample
       @noun = Noun.new(column["noun"], column["noun_number"])
-
-      @data_type = (column["type"] || "numeric").to_sym
+      @data_type = column["type"].to_sym
+      puts @data_type
       @units = column["units"] || []
       @data = Hash[*@csv.map{|row| [row[@year_column_header], 
         begin 
@@ -195,9 +199,9 @@ module PunditBot
         include_space: false
 =end
         if unit["direction"] == "prefix"
-          intro + " " + (unit["include_space"] == false ? '' : " ") + unit["word"] + number.to_s
+          intro + " " + (unit["include_space"] == false ? '' : " ") + unit["word"] + number.round(1).to_s
         else # suffix
-          intro + " " + number.to_s + (unit["include_space"] == false ? '' : " ") + unit["word"]
+          intro + " " + number.round(1).to_s + (unit["include_space"] == false ? '' : " ") + unit["word"]
         end
       end
     end
@@ -241,7 +245,7 @@ module PunditBot
       trues, falses = @dataset.data.to_a.partition.each_with_index{|val, idx| hash_of_election_results[val[0]] } #TODO: factor out; but something like it is used in data_claims
       # data_claims need a lambda and an English template
 
-      # TODO: data_claims need to be divied into types:
+      # TODO: data_claims need to be divvied into types:
       #   those those apply to numbers themselves ('the number of atlantic hurricane deaths was an odd number' for noun 'atlantic hurricane deaths')
       #   those that apply to changes in numbers as the noun itself ('atlantic hurricane deaths decreased')
       #   those that apply to categorical data ('an AFC team won the World Series')
@@ -249,13 +253,9 @@ module PunditBot
         # claims that apply to changes in numbers as the noun itself ('atlantic hurricane deaths decreased')
         :numeric => [
           DataClaim.new( lambda{|x, _|  x > trues.map{|a, b| b}.min }, 
-            phrase: {
-              :v => 'be',
-              :tense => :past,
-              :o => @dataset.add_units("greater than", trues.map{|a, b| b}.min) # obvi true for trues; if true for all of falses, unemployment was less than trues.min all the time,
-                    
-
-            }
+            :v => 'be',
+            :tense => :past,
+            :o => @dataset.add_units("greater than", trues.map{|a, b| b}.min) # obvi true for trues; if true for all of falses, unemployment was less than trues.min all the time,
           ),
           
           DataClaim.new( lambda{|x, _| x < trues.map{|a, b| b}.max }, 
@@ -266,6 +266,7 @@ module PunditBot
             }
           ),
 
+          # these are duplicates
           DataClaim.new( lambda{|x, yr| x > @dataset.data[(yr.to_i-1).to_s] }, 
             {
               :v => 'grow',
@@ -284,6 +285,40 @@ module PunditBot
             }, 
             1
           ), 
+          DataClaim.new( lambda{|x, yr| x > @dataset.data[(yr.to_i-1).to_s] }, 
+            {
+              :v => 'grow',
+              :tense => :past,
+              # TODO: this is actually a complement
+              :c => "year over year",
+            }, 
+            1
+          ), 
+          DataClaim.new( lambda{|x, yr| x < @dataset.data[(yr.to_i-1).to_s] }, 
+            {
+              :v => 'decline',
+              :tense => :past,
+              # TODO: this is actually a complement
+              :c => "year over year",
+            }, 
+            1
+          ),           
+          DataClaim.new( lambda{|x, yr| x > @dataset.data[(yr.to_i-1).to_s] }, 
+            {
+              :v => 'increase',
+              :tense => :past,
+            }, 
+            1
+          ), 
+          DataClaim.new( lambda{|x, yr| x < @dataset.data[(yr.to_i-1).to_s] }, 
+            {
+              :v => 'decline',
+              :tense => :past,
+            }, 
+            1
+          ), 
+
+
           DataClaim.new( lambda{|x, yr| x > @dataset.data[(yr.to_i-4).to_s] }, 
             {
               :v => 'grow',

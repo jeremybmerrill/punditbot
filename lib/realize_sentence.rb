@@ -42,7 +42,9 @@ class Prediction
     }
     sentence = NLG.phrase(main_clause)
 
+    @prediction_meta[:data_claim].template[:o] = (rephraseables[:prediction_meta_data_claim_o].nil?) ? nil : rephraseables[:prediction_meta_data_claim_o].first 
     data_phrase = @prediction_meta[:data_claim].phrase(@prediction_meta[:correlate_noun]) #TODO correlate_noun should be rephraseable
+    
     since_pp = NLG.factory.create_preposition_phrase(rephraseables[:since_after].first, NLG.factory.create_noun_phrase(@prediction_meta[:start_year]))
     #TODO choose between when ... always/never
     # and                in every/no ... (nothing)
@@ -116,16 +118,17 @@ class Prediction
     rephraseables[:except] = ['except', 'besides'] 
     rephraseables[:when] = ['when', 'in years when', 'whenever', 'in every year']
     rephraseables[:year_election] = ["year", "election year"]
-    rephraseables[:prediction_meta_data_claim_o] = @prediction_meta[:data_claim].template.has_key?(:o) ? @prediction_meta[:data_claim].template[:o] : nil
+    rephraseables[:prediction_meta_data_claim_o] = @prediction_meta[:data_claim].template[:o] if @prediction_meta[:data_claim].template.has_key?(:o)
     # collect all the rephraseable elements
     # rephraseables[:data_claim_object] = [] if [].respond_to?(:rephrase)
     rephraseables.compact!
+    rephraseables.reject!{|k, v| v.empty? }
 
     min_rephraseable_length = 0
     max_rephraseable_length = 0
     unrephraseable_length = 0 
     rephraseables.each do |k, v|
-      if v.respond_to? :rephrase
+      if v.respond_to?(:rephrase) && v.size > 0
         max_rephraseable_length += v.max_by(&:size).size # +1 for spaces
         min_rephraseable_length += v.min_by(&:size).size # +1 for spaces
       end
@@ -142,10 +145,10 @@ class Prediction
     # puts "Buffer: #{buffer}"
 
     rephraseables.to_a.shuffle.each do |k, v|
-
+      # rather than choosing randomly, should prefer longer versions
+      # we put each option into the hat once per character in it
       weighted = v.reduce([]){|memo, nxt| memo += [nxt] * nxt.size }
       weighted.shuffle!
-      #TODO: rather than choosing randomly, should prefer longer versions
       chosen_word = weighted.first
       # puts "Buffer: #{buffer.to_s.size == 1 ? ' ' : ''}#{buffer}, chose '#{chosen_word}' from #{v}"
       redo if buffer - (chosen_word.size - weighted.min_by(&:size).size) < 0 # I think this is bad. I think this'll never end.
