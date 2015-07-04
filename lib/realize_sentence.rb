@@ -43,7 +43,6 @@ class Prediction
     sentence = NLG.phrase(main_clause)
 
     data_phrase = @prediction_meta[:data_claim].phrase(@prediction_meta[:correlate_noun]) #TODO correlate_noun should be rephraseable
-    # data_phrase.set_feature(NLG::Feature::SUPRESSED_COMPLEMENTISER, true) # note to self: what does this do??
     since_pp = NLG.factory.create_preposition_phrase(rephraseables[:since_after].first, NLG.factory.create_noun_phrase(@prediction_meta[:start_year]))
     #TODO choose between when ... always/never
     # and                in every/no ... (nothing)
@@ -83,7 +82,9 @@ class Prediction
     else
       sentence.add_pre_modifier(claim_polarity ? 'always' : 'never')
       sentence.set_feature(NLG::Feature::NEGATED, false) if !claim_polarity
+      data_phrase.set_feature(NLG::Feature::SUPRESSED_COMPLEMENTISER, true) # note to self: what does this do??
       prep_phrase = NLG.factory.create_preposition_phrase(rephraseables[:when].first, data_phrase)
+      since_pp.set_feature(NLG::Feature::APPOSITIVE, true)
       prep_phrase.send( (MODIFIERS - [:add_front_modifier]).sample, since_pp) # TODO why does :add_front_modifier not work here?
       prep_phrase.set_feature(NLG::Feature::APPOSITIVE, true)
       sentence.send((MODIFIERS - [:add_pre_modifier] ).sample, prep_phrase) #TODO: get pre_modifiers working with commas (right now it's "SUBJ has, PREPOSITION whatever VERBed OBJ", lacking the second comma)
