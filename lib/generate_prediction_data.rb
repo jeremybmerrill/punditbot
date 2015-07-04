@@ -119,11 +119,12 @@ module PunditBot
   ]
 
   class DataClaim
-    attr_reader :condition, :template
-    def initialize(condition, template)
+    attr_reader :condition, :template, :year_buffer
+    def initialize(condition, template, year_buffer = nil)
       @template = template
       raise ArgumentError, "DataClaim condition is not callable" unless condition.respond_to? :call
       @condition = condition
+      @year_buffer = year_buffer || 0
     end
     def phrase(complement_subject_noun)
       if !@template[:n].nil?
@@ -270,32 +271,36 @@ module PunditBot
               :v => 'grow',
               :tense => :past,
               # TODO: this is actually a complement
-              :c => "from the previous year"
-            }
+              :c => "from the previous year",
+            }, 
+            1
           ), 
           DataClaim.new( lambda{|x, yr| x < @dataset.data[(yr.to_i-1).to_s] }, 
             {
               :v => 'decline',
               :tense => :past,
               # TODO: this is actually a complement
-              :c => "from the previous year"
-            }
+              :c => "from the previous year",
+            }, 
+            1
           ), 
           DataClaim.new( lambda{|x, yr| x > @dataset.data[(yr.to_i-4).to_s] }, 
             {
               :v => 'grow',
               :tense => :past,
               # TODO: this is actually a complement
-              :c => "from the previous election year"
-            }
+              :c => "from the previous election year",
+            }, 
+            4
           ), 
           DataClaim.new( lambda{|x, yr| x < @dataset.data[(yr.to_i-4).to_s] }, 
             {
               :v => 'decline',
               :tense => :past,
               # TODO: this is actually a complement
-              :c => "from the previous election year"
-            }
+              :c => "from the previous election year",
+            }, 
+            4
           ), 
         ],
 
@@ -409,7 +414,7 @@ module PunditBot
         exceptional_year = nil
         start_year = nil
         @election_years.reverse.each_with_index do |yr, idx|
-          next if yr < (@dataset.min_year.to_i - 1).to_s
+          next if yr < (@dataset.min_year.to_i - 1).to_s || (yr.to_i - data_claim.year_buffer).to_s < (@dataset.min_year.to_i - 1).to_s
           raise JeremyMessedUpError unless idx > 0 || yr != "2014" 
           # find the second year for which the pattern doesn't fit
           if data_claim.condition.call(@dataset.data[yr], yr) == (hash_of_election_results[yr] == polarity) # if this year matches the pattern
@@ -420,10 +425,15 @@ module PunditBot
             # puts "exceptional_year: #{yr},  #{data_claim.condition.call(@dataset.data[yr], yr)}, #{@dataset.data[yr]}"
           else #this is the second year that doesn't match the pattern
             start_year = (yr.to_i + 4).to_s 
+            # if start_year = exceptional_year
+            #   exceptional_year = nil
+            # end
             break
           end
         end
+        # TODO: dataset min year that is also an election year!!
         start_year = @dataset.min_year if start_year.nil?
+
         # TODO: uncomment and test this! it's meant to be a guard against saying
         # since 1996, except 2000, X has occured,
         # if exceptional_year.to_i - start_year.to_i == 4
