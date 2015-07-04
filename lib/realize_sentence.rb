@@ -43,28 +43,41 @@ class Prediction
     sentence = NLG.phrase(main_clause)
 
     data_phrase = @prediction_meta[:data_claim].phrase(@prediction_meta[:correlate_noun]) #TODO correlate_noun should be rephraseable
-    data_phrase.set_feature(NLG::Feature::SUPRESSED_COMPLEMENTISER, true)
+    # data_phrase.set_feature(NLG::Feature::SUPRESSED_COMPLEMENTISER, true) # note to self: what does this do??
     since_pp = NLG.factory.create_preposition_phrase(rephraseables[:since_after].first, NLG.factory.create_noun_phrase(@prediction_meta[:start_year]))
     #TODO choose between when ... always/never
     # and                in every/no ... (nothing)
     # e.g. * in every year fake unemployment ended in an even number, the Republican Party has always won the white house.
     # e.g.   when fake unemployment ended in an even number, the Republican Party has always won the white house.
     if (exceptional_year = @prediction_meta[:exceptional_year])
+      year_noun_phrase = NLG.factory.create_noun_phrase(claim_polarity ? 'every' : 'any', rephraseables[:year_election].first)
+      data_phrase.set_feature(NLG::Feature::COMPLEMENTISER, 'when') # requires 3eed77f5bf6ce0e2655d80ce3ba453696ad5bb8a in my fork of SimpleNLG
+      year_noun_phrase.add_complement(data_phrase) # was add_post_modifier
+      prep_phrase = NLG.factory.create_preposition_phrase('in', year_noun_phrase)
 
-      prep_phrase = NLG.factory.create_preposition_phrase('in', NLG.factory.create_noun_phrase(claim_polarity ? 'every' : 'any', rephraseables[:year_election].first ))
       with MODIFIERS.sample do |modifier_position|
-        if modifier_position == :add_front_modifier
-          sentence.send(modifier_position, since_pp)
-        else
+        case modifier_position 
+        when :add_front_modifier
           since_pp.set_feature(NLG::Feature::APPOSITIVE, true)
-          [sentence, prep_phrase].sample.send(modifier_position, since_pp)
+          modified = sentence
+          # sentence.subject = (modified == sentence ? "sentence" : "prep_phrase") + " front"  # for testing
+        when :add_pre_modifier
+          since_pp.set_feature(NLG::Feature::APPOSITIVE, true)
+          modified = [sentence, prep_phrase].sample
+          # sentence.subject = (modified == sentence ? "sentence" : "prep_phrase") + " pre" # for testing
+        when :add_post_modifier
+          since_pp.set_feature(NLG::Feature::APPOSITIVE, true)
+          modified = [sentence, prep_phrase].sample
+          # sentence.subject = (modified == sentence ? "sentence" : "prep_phrase") + " post" # for testing
         end
+        modified.send(modifier_position, since_pp)
+        
       end
       except_phrase = NLG.factory.create_preposition_phrase(rephraseables[:except].first, NLG.factory.create_noun_phrase(exceptional_year) )
-      with  [[sentence,(MODIFIERS - [:add_pre_modifier] ).sample], [prep_phrase, :add_post_modifier]].sample do |modified, method|
-       modified.send(method, except_phrase)#TODO: get pre_modifiers working with commas
-     end
-      prep_phrase.add_post_modifier(data_phrase)
+      with  [ [prep_phrase, :add_post_modifier]].sample do |modified, method| # used to include [sentence,(MODIFIERS - [:add_pre_modifier] ).sample],
+        except_phrase.set_feature(NLG::Feature::APPOSITIVE, true)
+        modified.send(method, except_phrase)#TODO: get pre_modifiers working with commas
+      end
 
       sentence.send((MODIFIERS - [:add_pre_modifier] ).sample,  prep_phrase) #TODO: get pre_modifiers working with commas (right now it's "SUBJ has, PREPOSITION whatever VERBed OBJ", lacking the second comma)
     else
@@ -72,12 +85,13 @@ class Prediction
       sentence.set_feature(NLG::Feature::NEGATED, false) if !claim_polarity
       prep_phrase = NLG.factory.create_preposition_phrase(rephraseables[:when].first, data_phrase)
       prep_phrase.send( (MODIFIERS - [:add_front_modifier]).sample, since_pp) # TODO why does :add_front_modifier not work here?
+      prep_phrase.set_feature(NLG::Feature::APPOSITIVE, true)
       sentence.send((MODIFIERS - [:add_pre_modifier] ).sample, prep_phrase) #TODO: get pre_modifiers working with commas (right now it's "SUBJ has, PREPOSITION whatever VERBed OBJ", lacking the second comma)
     end
     NLG.realizer.setCommaSepCuephrase(true) # for "front modifier" sentences, puts a comma after the modifier.
     NLG.realizer.setCommaSepPremodifiers(true) # for pre-modifier sentences
     # puts sentence
-    NLG.realizer.realise_sentence(sentence) 
+    NLG.realizer.realise_sentence(sentence).gsub(/,,+/, ',')
   end
 
   def templatize!
@@ -97,7 +111,7 @@ class Prediction
     rephraseables = {}
     rephraseables[:politics_condition_object] = @prediction_meta[:politics_condition].objects.dup
     rephraseables[:party] = @prediction_meta[:party].alt_names.dup
-    rephraseables[:since_after] = ['since', 'after']
+    rephraseables[:since_after] = ['since', 'after', 'starting in']
     rephraseables[:except] = ['except', 'besides'] 
     rephraseables[:when] = ['when', 'in years when', 'whenever', 'in every year']
     rephraseables[:year_election] = ["year", "election year"]
