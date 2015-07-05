@@ -176,7 +176,8 @@ module PunditBot
       column = @data_columns.sample
       @noun = Noun.new(column["noun"], column["noun_number"])
       @data_type = column["type"].to_sym
-      puts @data_type
+
+
       @units = column["units"] || []
       @data = Hash[*@csv.map{|row| [row[@year_column_header], 
         begin 
@@ -443,7 +444,7 @@ module PunditBot
         ],
       }
 
-      result_needs_better_name = nil
+      prediction_meta = nil
       data_claims[@dataset.data_type || "numeric"].product(POLARITIES).shuffle.find do |data_claim, polarity|
         # find the most recent two years where the pattern is broken
         exceptional_year = nil
@@ -471,26 +472,28 @@ module PunditBot
 
         # TODO: uncomment and test this! it's meant to be a guard against saying
         # since 1996, except 2000, X has occured,
-        # if exceptional_year.to_i - start_year.to_i == 4
-        #   start_year = exceptional_year
-        #   exceptional_year = nil
-        # end
+        if exceptional_year.to_i - start_year.to_i == 4
+          start_year = exceptional_year
+          exceptional_year = nil
+        end
         if start_year > TOO_RECENT_TO_CARE_CUTOFF.to_s
           false
         else
-          result_needs_better_name = {
+          prediction_meta = {
             data_claim: data_claim,
             correlate_noun: @dataset.noun,
             start_year: start_year, #never nil
             exceptional_year: exceptional_year, # maybe nil
-            polarity: polarity
+            polarity: polarity,
+            data_claim_type: @dataset.data_type,
+            dataset: @dataset.source
           }
           break
         end
       end
 
-      puts "Results: #{result_needs_better_name}" unless result_needs_better_name.nil?
-      result_needs_better_name
+      puts "Results: #{prediction_meta}" unless prediction_meta.nil?
+      prediction_meta
     end
 
     def generate_prediction
@@ -507,7 +510,8 @@ module PunditBot
       prediction.set(:exceptional_year, data[:exceptional_year])
       prediction.set(:claim_polarity, data[:polarity])
       prediction.set(:politics_condition, politics_condition)
-
+      prediction.set(:data_claim_type, data[:data_claim_type])
+      prediction.set(:dataset, data[:dataset])
       prediction.templatize!
 
       prediction

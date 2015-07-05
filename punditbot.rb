@@ -27,16 +27,22 @@ end
 module PunditBot
 MAX_OUTPUT_LENGTH = 140
 
+  claim_types = Hash.new(0)
   predictions = []
   loop do 
     pundit = PunditBot.new
     prediction = pundit.generate_prediction
+    next if prediction.nil?
+    # available methods: dataset, column, column_type
+    claim_types[prediction.column_type] += 1
     predictions << prediction.inspect
     predictions.compact!
     predictions.uniq!
+    puts predictions.size
     break if predictions.size >= 10 # was 10
   end
   puts predictions
+  # puts claim_types
 end
 
 # Since 1975, in every year fake unemployment had declined over the past year, the GOP has  won the presidency save 2012.

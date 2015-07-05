@@ -11,6 +11,21 @@ class Prediction
   # PHRASE_TYPES = [:s, :v, :o, :c, ]
   MODIFIERS = [:add_post_modifier, :add_pre_modifier, :add_front_modifier]
 
+  def column
+    # hurricanes, unemployment, veggies,etc.
+    @prediction_meta[:correlate_noun].word
+  end
+
+  def dataset
+    # e.g. integral, whatever
+    @prediction_meta[:dataset]
+  end
+
+  def column_type
+    # e.g. integral, whatever
+    @prediction_meta[:data_claim_type]
+  end
+
   def initialize()
     @prediction_meta = {
     }
@@ -44,7 +59,7 @@ class Prediction
 
     @prediction_meta[:data_claim].template[:o] = (rephraseables[:prediction_meta_data_claim_o].nil?) ? nil : rephraseables[:prediction_meta_data_claim_o].first 
     data_phrase = @prediction_meta[:data_claim].phrase(@prediction_meta[:correlate_noun]) #TODO correlate_noun should be rephraseable
-    
+
     since_pp = NLG.factory.create_preposition_phrase(rephraseables[:since_after].first, NLG.factory.create_noun_phrase(@prediction_meta[:start_year]))
     #TODO choose between when ... always/never
     # and                in every/no ... (nothing)
@@ -156,17 +171,18 @@ class Prediction
       buffer -= (chosen_word.size - weighted.min_by(&:size).size)
     end
 
-    @prediction = _realize_sentence(rephraseables)
+    @prediction_text = _realize_sentence(rephraseables)
   end
 
   def to_s
-    @prediction || templatize!
+    @prediction_text || templatize!
   end
 
   def inspect
-    @prediction || templatize!
-    @prediction.nil? ? nil : "#{@prediction.size} chars: \"#{@prediction}\""
+    @prediction_text || templatize!
+    # [#{dataset}, #{column}, #{column_type}]
+    @prediction_text.nil? ? nil : "#{@prediction_text.size} chars: \"#{@prediction_text}\""
   end
-end
+end # ends the class
 
-end
+end # ends the module
