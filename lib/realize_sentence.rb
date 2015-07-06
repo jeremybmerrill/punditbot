@@ -61,10 +61,6 @@ class Prediction
     data_phrase = @prediction_meta[:data_claim].phrase(rephraseables[:correlate_nouns].first) #TODO correlate_noun should be rephraseable
 
     since_pp = NLG.factory.create_preposition_phrase(rephraseables[:since_after].first, NLG.factory.create_noun_phrase(@prediction_meta[:start_year]))
-    #TODO choose between when ... always/never
-    # and                in every/no ... (nothing)
-    # e.g. * in every year fake unemployment ended in an even number, the Republican Party has always won the white house.
-    # e.g.   when fake unemployment ended in an even number, the Republican Party has always won the white house.
     if (exceptional_year = @prediction_meta[:exceptional_year])
       year_noun_phrase = NLG.factory.create_noun_phrase(claim_polarity ? 'every' : 'any', rephraseables[:year_election].first)
       data_phrase.set_feature(NLG::Feature::COMPLEMENTISER, 'when') # requires 3eed77f5bf6ce0e2655d80ce3ba453696ad5bb8a in my fork of SimpleNLG
@@ -131,7 +127,7 @@ class Prediction
     rephraseables[:party] = @prediction_meta[:party].alt_names.dup
     rephraseables[:since_after] = ['since', 'after', 'starting in']
     rephraseables[:except] = ['except', 'besides'] 
-    rephraseables[:when] = ['when', 'in years when', 'whenever', 'in every year']
+    rephraseables[:when] = ['when', 'in years when', 'whenever', 'in years']
     rephraseables[:year_election] = ["year", "election year"]
     rephraseables[:correlate_nouns] = @prediction_meta[:correlate_noun]
     rephraseables[:prediction_meta_data_claim_o] = @prediction_meta[:data_claim].template[:o] if @prediction_meta[:data_claim].template.has_key?(:o)
