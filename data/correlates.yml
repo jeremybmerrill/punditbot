@@ -13,8 +13,6 @@
       nouns: 
         - noun: unemployment
           noun_number: 1
-        - noun: joblessness
-          noun_number: 1
       type: numeric
       units: 
         - percent
