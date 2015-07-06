@@ -8,23 +8,21 @@ PunditBot
 These claims are stupid. They have no predictive power. Let's mock them.
 
 TODO:
-  - should `The Republicans have in every year bears killed more than 10 people won the White House.` have commas or switch `have` and the complement, e.g. `The Republicans, in every year bears killed more than 10 people, have won the White House.`?
-  - how to make numeric claims drop down to integral
-  - ensure NLG system generates all varieties that were templated out.
   - remove linguistics stuff from everything NLG parts (so there's no "verb phrase" in constants)
-  - make categories that react to previous years
-  - uh oh: 95 chars: "When per-capita fresh snap/green beans use, the Republican Party has never lost the presidency.", 105 chars: "The Republican Party has never, in years when per-capita fresh snap/green beans use lost the White House."
   - add "Every year BUT 1992"
   DO NOW: 
-  - should I add units (to correlates.yml, e.g. "degrees"; just a list of units that are either prepended/appended)
-  - boolean type (e.g. "had a trade deficit")
   - put alternate nouns in correlates.yml (e.g. ["average annual U.S. temperature", "avg. U.S. temperature"] ) / make it rephraseable
-  - experiment with re-enabling add_pre_modifier
-
-
-
+  - refactor
+  - can I make a hash that represents a whole sentence??
+  - weather, temperature on election day
+  - somehow balance out distribution of integral, numeric, claims {:integral=>2789, :numeric=>757} from 10k
+                                                                  {:integral=>2697, :numeric=>740}
+  - looks like a polarity issue 124 chars: "Starting in 1988, in every year fresh carrot use ended in an odd number, the Democratic Party has never lost the presidency."
+  - Do I even need this Noun class? Will the Lexicon thing deal with noun number for me?
+  - get Senate/House control database
 Leave this for later, focus on MVP:
-    - add categorical data sets (how does this work??)
+    - add categorical data sets (how does this work??) {:s => "weather", :v => 'is', :o => "rainy"} {:s => "Super Bowl winner", :v => 'is', :o => "the Patriots"}
     - commas and dashes (fixed, but for bugs, e.g. https://github.com/simplenlg/simplenlg/issues/13 )
     - state based "without winning Iowa or Pennsylvania"
     - MAYBE: add support for candidate based exceptoins ("Without a Clinton on the ballot, ")
+    - boolean type (e.g. "had a trade deficit")?? ( already in correlates.yml )

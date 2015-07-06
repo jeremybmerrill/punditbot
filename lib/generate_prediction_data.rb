@@ -27,7 +27,7 @@ module PunditBot
     end
   end
 
-  class Noun
+  class Noun #< String
     attr_reader :word
     def initialize(word, number)
       @word = word.is_a?(Noun) ? word.word : word
@@ -46,6 +46,7 @@ module PunditBot
       @number == 1
     end
 
+    # if this inherits from String, get rid of #to_s and #size
     def to_s
       "Noun: #{@word}"
     end
@@ -127,6 +128,8 @@ module PunditBot
       @condition = condition
       @year_buffer = year_buffer || 0
     end
+
+    # refactor: move this into realize_sentence.rb
     def phrase(complement_subject_noun)
       if !@template[:n].nil?
         complement_subject = @template[:n].call(complement_subject_noun)
@@ -142,7 +145,7 @@ module PunditBot
 
 
   class Dataset
-    attr_reader :name, :noun, :min_year, :data, :source, :data_type
+    attr_reader :name, :nouns, :min_year, :data, :source, :data_type
     def initialize(obj) 
       # create a dataset object from it
       # Notably: only one dataset object per spreadsheet
@@ -174,9 +177,12 @@ module PunditBot
       # reject those columns whose type doesn't have a cleaner (i.e. I haven't figured out categorical yet, but some are in the yaml file)
       @data_columns.reject!{|column| cleaners[column["type"].to_sym].nil? }
       column = @data_columns.sample
-      @noun = Noun.new(column["noun"], column["noun_number"])
+      if column["nouns"]
+        @nouns = column["nouns"].map{|n| Noun.new(n["noun"], n["noun_number"])}
+      else
+        @nouns = [Noun.new(column["noun"], column["noun_number"])]
+      end
       @data_type = column["type"].to_sym
-
 
       @units = column["units"] || []
       @data = Hash[*@csv.map{|row| [row[@year_column_header], 
@@ -461,14 +467,16 @@ module PunditBot
             # puts "exceptional_year: #{yr},  #{data_claim.condition.call(@dataset.data[yr], yr)}, #{@dataset.data[yr]}"
           else #this is the second year that doesn't match the pattern
             start_year = (yr.to_i + 4).to_s 
-            # if start_year = exceptional_year
-            #   exceptional_year = nil
-            # end
+            if start_year = exceptional_year
+              exceptional_year = nil
+            end
             break
           end
         end
-        # TODO: dataset min year that is also an election year!!
-        start_year = @dataset.min_year if start_year.nil?
+
+        # if there is no start year set yet, take the minimum election year from the dataset
+        start_year = @election_years.reject{|yr| yr < @dataset.min_year }.min if start_year.nil?
+
 
         # TODO: uncomment and test this! it's meant to be a guard against saying
         # since 1996, except 2000, X has occured,
@@ -481,7 +489,7 @@ module PunditBot
         else
           prediction_meta = {
             data_claim: data_claim,
-            correlate_noun: @dataset.noun,
+            correlate_noun: @dataset.nouns,
             start_year: start_year, #never nil
             exceptional_year: exceptional_year, # maybe nil
             polarity: polarity,
@@ -504,6 +512,7 @@ module PunditBot
 
       data = find_data(politics_claim_truth_vector)
       return nil if data.nil?
+      # REFACTOR: this #set stuff is dumb
       prediction.set(:data_claim, data[:data_claim])
       prediction.set(:correlate_noun, data[:correlate_noun])
       prediction.set(:start_year, data[:start_year])
@@ -515,8 +524,6 @@ module PunditBot
       prediction.templatize!
 
       prediction
-      ## TODO: if there's room, replace [] things, otherwise, erase them
-      ## fix capitalization
     end
 
     def process_csv!

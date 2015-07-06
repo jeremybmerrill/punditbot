@@ -25,7 +25,7 @@ class Hash
 end
 
 module PunditBot
-MAX_OUTPUT_LENGTH = 140
+  MAX_OUTPUT_LENGTH = 140
 
   claim_types = Hash.new(0)
   predictions = []

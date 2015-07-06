@@ -1,67 +1,79 @@
-# - filename: fake_unemployment.csv
-#   year_column_header: Year
-#   source: "I made it up, literally"
-#   data_columns:
-#     - header: Annual
-#       noun: "fake unemployment"
-#       type: numeric
-# - filename: unemployment.csv
-#   year_column_header: Year
-#   source: "http://data.bls.gov/timeseries/LNU04000000?years_option=all_years&periods_option=specific_periods&periods=Annual+Data"
-#   data_columns:
-#     - header: Annual
-#       noun: unemployment
-#       type: numeric
-#       noun_number: 1
-#       units: 
-#         - percent
-#         - word: "%"
-#           direction: "suffix"
-#           include_space: false
-# - filename: atlantic_hurricanes.csv
-#   year_column_header: Year
-#   source: http://www.wunderground.com/hurricane/hurrarchive.asp
-#   data_columns:
-#     - header: Storms
-#       noun: the number of Atlantic tropical storms
-#       noun_number: 1
-#     - header: Hurricanes
-#       type: numeric
-#       noun: the number of Atlantic hurricanes
-#       noun_number: 1
-#     - header: Deaths
-#       type: numeric
-#       noun: Atlantic tropical storm-related deaths
-#       noun_number: 2
-#     - header: "Damage (millions USD)"
-#       noun: Atlantic tropical storm-related damage
-#       type: numeric
-#       noun_number: 1
-#     - header: Retired Names
-#       noun: the number of retired Atlantic Hurricane names
-#       type: numeric
-#       noun_number: 1
-# - filename: super_bowl.csv
-#   year_column_header: year
-#   source: https://en.wikipedia.org/wiki/List_of_Super_Bowl_champions
-#   data_columns:
-#     - header: winning conference,
-#       noun: 'TK TODO'
-#       noun_number: 1
-#       type: categorical
-#     # - Score,
-#     - header: city
-#       noun: 'Super Bowl host city'
-#       noun_number: 1
-#       type: categorical
-#     - header: state
-#       noun: 'Super Bowl host state' # how can I get to "Super Bowl was hosted on the West Coast"
-#       noun_number: 1
-#       type: categorical
-#     - header: attendance
-#       noun:
-#       noun_number: 1
-#       type: numeric
+# # - filename: fake_unemployment.csv
+# #   year_column_header: Year
+# #   source: "I made it up, literally"
+# #   data_columns:
+# #     - header: Annual
+# #       noun: "fake unemployment"
+# #       type: numeric
+- filename: unemployment.csv
+  year_column_header: Year
+  source: "http://data.bls.gov/timeseries/LNU04000000?years_option=all_years&periods_option=specific_periods&periods=Annual+Data"
+  data_columns:
+    - header: Annual
+      nouns: 
+        - noun: unemployment
+          noun_number: 1
+        - noun: joblessness
+          noun_number: 1
+      type: numeric
+      units: 
+        - percent
+        - word: "%"
+          direction: "suffix"
+          include_space: false
+- filename: atlantic_hurricanes.csv
+  year_column_header: Year
+  source: http://www.wunderground.com/hurricane/hurrarchive.asp
+  data_columns:
+    - header: Storms
+      noun: the number of Atlantic tropical storms
+      noun_number: 1
+    - header: Hurricanes
+      type: numeric
+      noun: the number of Atlantic hurricanes
+      noun_number: 1
+    - header: Deaths
+      type: numeric
+      nouns: 
+        - noun: Atlantic tropical storm-related deaths
+          noun_number: 2
+        - noun: Atlantic tropical storm deaths
+          noun_number: 2
+    - header: "Damage (millions USD)"
+      nouns:
+        - noun: Atlantic tropical storm-related damage
+          noun_number: 1
+        - noun: Atlantic tropical storm damage
+          noun_number: 1
+      type: numeric
+    - header: Retired Names
+      nouns: 
+        - noun: the number of retired Atlantic hurricane names
+          noun_number: 1
+        - noun: the number of retired hurricane names
+          noun_number: 1
+      type: numeric
+- filename: super_bowl.csv
+  year_column_header: year
+  source: https://en.wikipedia.org/wiki/List_of_Super_Bowl_champions
+  data_columns:
+    - header: winning conference,
+      noun: 'TK TODO'
+      noun_number: 1
+      type: categorical
+    # - Score,
+    - header: city
+      noun: 'Super Bowl host city'
+      noun_number: 1
+      type: categorical
+    - header: state
+      noun: 'Super Bowl host state' # how can I get to "Super Bowl was hosted on the West Coast"
+      noun_number: 1
+      type: categorical
+    - header: attendance
+      noun: "Super Bowl attendance"
+      noun_number: 1
+      type: numeric
 - html_source: http://www.ers.usda.gov/data-products/vegetables-and-pulses-data/yearbook-tables.aspx
   source: http://www.ers.usda.gov/datafiles/Vegetable_and_Pulses_Yearbook_Tables/General/YRBK2015_Section%201_General.xlsx
   notes: I combined tables 1a-d.
@@ -73,6 +85,10 @@
     noun_number: 1
     units: 
       - lbs per-capita
+      - lbs each
+      - pounds each
+      - lbs
+      - pounds
       - pounds per-capita
       - farm-weight pounds per-capita
     type: numeric
@@ -81,6 +97,10 @@
     noun_number: 1
     units: 
       - lbs per-capita
+      - lbs each
+      - pounds each
+      - lbs
+      - pounds
       - pounds per-capita
       - farm-weight pounds per-capita
     type: numeric
@@ -89,6 +109,10 @@
     noun_number: 1
     units: 
       - lbs per-capita
+      - lbs each
+      - pounds each
+      - lbs
+      - pounds
       - pounds per-capita
       - farm-weight pounds per-capita
     type: numeric
@@ -97,6 +121,10 @@
     noun_number: 1
     units: 
       - lbs per-capita
+      - lbs each
+      - pounds each
+      - lbs
+      - pounds
       - pounds per-capita
       - farm-weight pounds per-capita
     type: numeric
@@ -105,6 +133,10 @@
     noun_number: 1
     units: 
       - lbs per-capita
+      - lbs each
+      - pounds each
+      - lbs
+      - pounds
       - pounds per-capita
       - farm-weight pounds per-capita
     type: numeric
@@ -113,6 +145,10 @@
     noun_number: 1
     units: 
       - lbs per-capita
+      - lbs each
+      - pounds each
+      - lbs
+      - pounds
       - pounds per-capita
       - farm-weight pounds per-capita
     type: numeric
@@ -121,6 +157,10 @@
     noun_number: 1
     units: 
       - lbs per-capita
+      - lbs each
+      - pounds each
+      - lbs
+      - pounds
       - pounds per-capita
       - farm-weight pounds per-capita
     type: numeric
@@ -129,6 +169,10 @@
     noun_number: 1
     units: 
       - lbs per-capita
+      - lbs each
+      - pounds each
+      - lbs
+      - pounds
       - pounds per-capita
       - farm-weight pounds per-capita
     type: numeric
@@ -137,6 +181,10 @@
     noun_number: 1
     units: 
       - lbs per-capita
+      - lbs each
+      - pounds each
+      - lbs
+      - pounds
       - pounds per-capita
       - farm-weight pounds per-capita
     type: numeric
@@ -145,6 +193,10 @@
     noun_number: 1
     units: 
       - lbs per-capita
+      - lbs each
+      - pounds each
+      - lbs
+      - pounds
       - pounds per-capita
       - farm-weight pounds per-capita
     type: numeric
@@ -153,6 +205,10 @@
     noun_number: 1
     units: 
       - lbs per-capita
+      - lbs each
+      - pounds each
+      - lbs
+      - pounds
       - pounds per-capita
       - farm-weight pounds per-capita
     type: numeric
@@ -161,6 +217,10 @@
     noun_number: 1
     units: 
       - lbs per-capita
+      - lbs each
+      - pounds each
+      - lbs
+      - pounds
       - pounds per-capita
       - farm-weight pounds per-capita
     type: numeric
@@ -169,6 +229,10 @@
     noun_number: 1
     units: 
       - lbs per-capita
+      - lbs each
+      - pounds each
+      - lbs
+      - pounds
       - pounds per-capita
       - farm-weight pounds per-capita
     type: numeric
@@ -177,22 +241,34 @@
     noun_number: 1
     units: 
       - lbs per-capita
+      - lbs each
+      - pounds each
+      - lbs
+      - pounds
       - pounds per-capita
       - farm-weight pounds per-capita
     type: numeric
   - header: Carrots
-    noun: "carrots use"
+    noun: "carrot use"
     noun_number: 1
     units: 
       - lbs per-capita
+      - lbs each
+      - pounds each
+      - lbs
+      - pounds
       - pounds per-capita
       - farm-weight pounds per-capita
     type: numeric
   - header: Fresh carrots
-    noun: "fresh carrots use"
+    noun: "fresh carrot use"
     noun_number: 1
     units: 
       - lbs per-capita
+      - lbs each
+      - pounds each
+      - lbs
+      - pounds
       - pounds per-capita
       - farm-weight pounds per-capita
     type: numeric
@@ -201,6 +277,10 @@
     noun_number: 1
     units: 
       - lbs per-capita
+      - lbs each
+      - pounds each
+      - lbs
+      - pounds
       - pounds per-capita
       - farm-weight pounds per-capita
     type: numeric
@@ -209,6 +289,10 @@
     noun_number: 1
     units: 
       - lbs per-capita
+      - lbs each
+      - pounds each
+      - lbs
+      - pounds
       - pounds per-capita
       - farm-weight pounds per-capita
     type: numeric
@@ -217,6 +301,10 @@
     noun_number: 1
     units: 
       - lbs per-capita
+      - lbs each
+      - pounds each
+      - lbs
+      - pounds
       - pounds per-capita
       - farm-weight pounds per-capita
     type: numeric
@@ -225,6 +313,10 @@
     noun_number: 1
     units: 
       - lbs per-capita
+      - lbs each
+      - pounds each
+      - lbs
+      - pounds
       - pounds per-capita
       - farm-weight pounds per-capita
     type: numeric
@@ -233,6 +325,10 @@
     noun_number: 1
     units: 
       - lbs per-capita
+      - lbs each
+      - pounds each
+      - lbs
+      - pounds
       - pounds per-capita
       - farm-weight pounds per-capita
     type: numeric
@@ -241,6 +337,10 @@
     noun_number: 1
     units: 
       - lbs per-capita
+      - lbs each
+      - pounds each
+      - lbs
+      - pounds
       - pounds per-capita
       - farm-weight pounds per-capita
     type: numeric
@@ -249,6 +349,10 @@
     noun_number: 1
     units: 
       - lbs per-capita
+      - lbs each
+      - pounds each
+      - lbs
+      - pounds
       - pounds per-capita
       - farm-weight pounds per-capita
     type: numeric
@@ -257,6 +361,10 @@
     noun_number: 1
     units: 
       - lbs per-capita
+      - lbs each
+      - pounds each
+      - lbs
+      - pounds
       - pounds per-capita
       - farm-weight pounds per-capita
     type: numeric
@@ -265,6 +373,10 @@
     noun_number: 1
     units: 
       - lbs per-capita
+      - lbs each
+      - pounds each
+      - lbs
+      - pounds
       - pounds per-capita
       - farm-weight pounds per-capita
     type: numeric
@@ -273,6 +385,10 @@
     noun_number: 1
     units: 
       - lbs per-capita
+      - lbs each
+      - pounds each
+      - lbs
+      - pounds
       - pounds per-capita
       - farm-weight pounds per-capita
     type: numeric
@@ -281,6 +397,10 @@
     noun_number: 1
     units: 
       - lbs per-capita
+      - lbs each
+      - pounds each
+      - lbs
+      - pounds
       - pounds per-capita
       - farm-weight pounds per-capita
     type: numeric
@@ -289,6 +409,10 @@
     noun_number: 1
     units: 
       - lbs per-capita
+      - lbs each
+      - pounds each
+      - lbs
+      - pounds
       - pounds per-capita
       - farm-weight pounds per-capita
     type: numeric
@@ -297,6 +421,10 @@
     noun_number: 1
     units: 
       - lbs per-capita
+      - lbs each
+      - pounds each
+      - lbs
+      - pounds
       - pounds per-capita
       - farm-weight pounds per-capita
     type: numeric
@@ -305,6 +433,10 @@
     noun_number: 1
     units: 
       - lbs per-capita
+      - lbs each
+      - pounds each
+      - lbs
+      - pounds
       - pounds per-capita
       - farm-weight pounds per-capita
     type: numeric
@@ -313,6 +445,10 @@
     noun_number: 1
     units: 
       - lbs per-capita
+      - lbs each
+      - pounds each
+      - lbs
+      - pounds
       - pounds per-capita
       - farm-weight pounds per-capita
     type: numeric
@@ -321,6 +457,10 @@
     noun_number: 1
     units: 
       - lbs per-capita
+      - lbs each
+      - pounds each
+      - lbs
+      - pounds
       - pounds per-capita
       - farm-weight pounds per-capita
     type: numeric
@@ -329,6 +469,10 @@
     noun_number: 1
     units: 
       - lbs per-capita
+      - lbs each
+      - pounds each
+      - lbs
+      - pounds
       - pounds per-capita
       - farm-weight pounds per-capita
     type: numeric
@@ -337,6 +481,10 @@
     noun_number: 1
     units: 
       - lbs per-capita
+      - lbs each
+      - pounds each
+      - lbs
+      - pounds
       - pounds per-capita
       - farm-weight pounds per-capita
     type: numeric
@@ -345,6 +493,10 @@
     noun_number: 1
     units: 
       - lbs per-capita
+      - lbs each
+      - pounds each
+      - lbs
+      - pounds
       - pounds per-capita
       - farm-weight pounds per-capita
     type: numeric
@@ -353,6 +505,10 @@
     noun_number: 1
     units: 
       - lbs per-capita
+      - lbs each
+      - pounds each
+      - lbs
+      - pounds
       - pounds per-capita
       - farm-weight pounds per-capita
     type: numeric
@@ -361,6 +517,10 @@
     noun_number: 1
     units: 
       - lbs per-capita
+      - lbs each
+      - pounds each
+      - lbs
+      - pounds
       - pounds per-capita
       - farm-weight pounds per-capita
     type: numeric
@@ -369,6 +529,10 @@
     noun_number: 1
     units: 
       - lbs per-capita
+      - lbs each
+      - pounds each
+      - lbs
+      - pounds
       - pounds per-capita
       - farm-weight pounds per-capita
     type: numeric
@@ -377,6 +541,10 @@
     noun_number: 1
     units: 
       - lbs per-capita
+      - lbs each
+      - pounds each
+      - lbs
+      - pounds
       - pounds per-capita
       - farm-weight pounds per-capita
     type: numeric
@@ -385,6 +553,10 @@
     noun_number: 1
     units: 
       - lbs per-capita
+      - lbs each
+      - pounds each
+      - lbs
+      - pounds
       - pounds per-capita
       - farm-weight pounds per-capita
     type: numeric
@@ -393,6 +565,10 @@
     noun_number: 1
     units: 
       - lbs per-capita
+      - lbs each
+      - pounds each
+      - lbs
+      - pounds
       - pounds per-capita
       - farm-weight pounds per-capita
     type: numeric
@@ -401,6 +577,10 @@
     noun_number: 1
     units: 
       - lbs per-capita
+      - lbs each
+      - pounds each
+      - lbs
+      - pounds
       - pounds per-capita
       - farm-weight pounds per-capita
     type: numeric
@@ -409,6 +589,10 @@
     noun_number: 1
     units: 
       - lbs per-capita
+      - lbs each
+      - pounds each
+      - lbs
+      - pounds
       - pounds per-capita
       - farm-weight pounds per-capita
     type: numeric
@@ -417,6 +601,10 @@
     noun_number: 1
     units: 
       - lbs per-capita
+      - lbs each
+      - pounds each
+      - lbs
+      - pounds
       - pounds per-capita
       - farm-weight pounds per-capita
     type: numeric
@@ -425,6 +613,10 @@
     noun_number: 1
     units: 
       - lbs per-capita
+      - lbs each
+      - pounds each
+      - lbs
+      - pounds
       - pounds per-capita
       - farm-weight pounds per-capita
     type: numeric
@@ -433,6 +625,10 @@
     noun_number: 1
     units: 
       - lbs per-capita
+      - lbs each
+      - pounds each
+      - lbs
+      - pounds
       - pounds per-capita
       - farm-weight pounds per-capita
     type: numeric
@@ -441,6 +637,10 @@
     noun_number: 1
     units: 
       - lbs per-capita
+      - lbs each
+      - pounds each
+      - lbs
+      - pounds
       - pounds per-capita
       - farm-weight pounds per-capita
     type: numeric
@@ -449,6 +649,10 @@
     noun_number: 1
     units: 
       - lbs per-capita
+      - lbs each
+      - pounds each
+      - lbs
+      - pounds
       - pounds per-capita
       - farm-weight pounds per-capita
     type: numeric
@@ -470,7 +674,7 @@
         include_space: false
   - header: Exports BOP Basis
     noun: "U.S. exports"
-    noun_number: 1
+    noun_number: 2
     type: numeric
     units:
       - dollars
@@ -480,7 +684,7 @@
         include_space: false
   - header: Imports BOP Basis
     noun: "U.S. imports"
-    noun_number: 1
+    noun_number: 2
     type: numeric
     units:
       - dollars
@@ -501,8 +705,13 @@
   filename: avg_temperature.csv
   data_columns:
   - header: Value
-    noun: "average annual U.S. temperature"
-    noun_number: 1
+    nouns: 
+      - noun: "average annual U.S. temperature"
+        noun_number: 1
+      - noun: "avg. U.S. temperature"
+        noun_number: 1
+      - noun: "average U.S. temperature"
+        noun_number: 1
     type: numeric
     units: 
       - degrees

@@ -13,7 +13,7 @@ class Prediction
 
   def column
     # hurricanes, unemployment, veggies,etc.
-    @prediction_meta[:correlate_noun].word
+    @prediction_meta[:correlate_noun].first.word
   end
 
   def dataset
@@ -58,7 +58,7 @@ class Prediction
     sentence = NLG.phrase(main_clause)
 
     @prediction_meta[:data_claim].template[:o] = (rephraseables[:prediction_meta_data_claim_o].nil?) ? nil : rephraseables[:prediction_meta_data_claim_o].first 
-    data_phrase = @prediction_meta[:data_claim].phrase(@prediction_meta[:correlate_noun]) #TODO correlate_noun should be rephraseable
+    data_phrase = @prediction_meta[:data_claim].phrase(rephraseables[:correlate_nouns].first) #TODO correlate_noun should be rephraseable
 
     since_pp = NLG.factory.create_preposition_phrase(rephraseables[:since_after].first, NLG.factory.create_noun_phrase(@prediction_meta[:start_year]))
     #TODO choose between when ... always/never
@@ -133,6 +133,7 @@ class Prediction
     rephraseables[:except] = ['except', 'besides'] 
     rephraseables[:when] = ['when', 'in years when', 'whenever', 'in every year']
     rephraseables[:year_election] = ["year", "election year"]
+    rephraseables[:correlate_nouns] = @prediction_meta[:correlate_noun]
     rephraseables[:prediction_meta_data_claim_o] = @prediction_meta[:data_claim].template[:o] if @prediction_meta[:data_claim].template.has_key?(:o)
     # collect all the rephraseable elements
     # rephraseables[:data_claim_object] = [] if [].respond_to?(:rephrase)
@@ -155,6 +156,7 @@ class Prediction
       shortest_rephrase_options[k] = [v.min_by(&:size)]
     end
     shortest_possible_sentence_length = _realize_sentence(shortest_rephrase_options).size
+    puts "way too long: #{_realize_sentence(shortest_rephrase_options)}" if MAX_OUTPUT_LENGTH < shortest_possible_sentence_length
     return nil if MAX_OUTPUT_LENGTH < shortest_possible_sentence_length
     buffer = MAX_OUTPUT_LENGTH - shortest_possible_sentence_length # [max_rephraseable_length - min_rephraseable_length, MAX_OUTPUT_LENGTH - shortest_possible_sentence_length].min
     # puts "Buffer: #{buffer}"
@@ -166,6 +168,7 @@ class Prediction
       weighted.shuffle!
       chosen_word = weighted.first
       # puts "Buffer: #{buffer.to_s.size == 1 ? ' ' : ''}#{buffer}, chose '#{chosen_word}' from #{v}"
+      puts "redo"  if buffer - (chosen_word.size - weighted.min_by(&:size).size) < 0 # I think this is bad. I think this'll never end.
       redo if buffer - (chosen_word.size - weighted.min_by(&:size).size) < 0 # I think this is bad. I think this'll never end.
       rephraseables[k] = [chosen_word]
       buffer -= (chosen_word.size - weighted.min_by(&:size).size)
