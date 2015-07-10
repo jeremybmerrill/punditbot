@@ -23,7 +23,7 @@ module PunditBot
     end
     def verb
       # TODO: support other verbs, e.g. pick up seats
-      @change ? (@control ? 'gain' : 'give up') : (@control ? 'win' : 'lose')
+      @change ? (@control ? 'taken' : 'give up') : (@control ? 'win' : 'lose')
     end
   end
 
@@ -69,19 +69,19 @@ module PunditBot
     #     control: true, # if after the election, the chosen party/person controls the object
     #     change: false,  # if the election caused a change in control of the object
     #     objects: [Noun.new("White House", 1), Noun.new("presidency", 1)] 
-    # )
+    # ),
     # PoliticsCondition.new(
     #     race: :pres, 
     #     control: false, # if after the election, the chosen party/person controls the object
     #     change: true,  # if the election caused a change in control of the object
     #     objects: [Noun.new("White House", 1), Noun.new("presidency", 1)] 
-    # )
+    # ),
     # PoliticsCondition.new(
     #     race: :pres, 
     #     control: true, # if after the election, the chosen party/person controls the object
     #     change: true,  # if the election caused a change in control of the object
     #     objects: [Noun.new("White House", 1), Noun.new("presidency", 1)] 
-    # )
+    # ),
 
                           # },
                             # "hasn't controlled the Senate" => {},
@@ -533,7 +533,7 @@ module PunditBot
       
 
       usa_winner = {"State" => "USA", "Source" => csv.find{|row| row["State"] == "New York" }["Source"]}
-      ["New York", "South Carolina", "Georgia" ].each do |colony| # these happen to have voted for a winner every year
+      ["New York", "South Carolina", "Georgia" ].each do |colony| # these, between them, happen to have voted for a winner every year
         @election_years.each{|yr| usa_winner[yr] = csv.find{|row| row["State"] == colony}[yr] if (csv.find{|row| row["State"] == colony}[yr] || '').match(/^\*.+\*$/) }
       end
       @elections = {:pres => {}}

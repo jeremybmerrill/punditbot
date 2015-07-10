@@ -27,22 +27,41 @@ end
 module PunditBot
   MAX_OUTPUT_LENGTH = 140
 
-  claim_types = Hash.new(0)
-  predictions = []
-  loop do 
-    pundit = PunditBot.new
-    prediction = pundit.generate_prediction
-    next if prediction.nil?
-    # available methods: dataset, column, column_type
-    claim_types[prediction.column_type] += 1
-    predictions << prediction.inspect
-    predictions.compact!
-    predictions.uniq!
-    puts predictions.size
-    break if predictions.size >= 10 # was 10
+  if ENV["TWEET"] == "true"
+    require 'twitter'
+    until !(prediction ||= nil).nil?
+      pundit = PunditBot.new
+      prediction = pundit.generate_prediction
+      prediction = nil if !prediction.nil? && prediction.column_type == "integral" && rand < 0.8
+    end
+
+    creds = YAML.load_file("creds.yml")
+    client = Twitter::REST::Client.new do |config|
+      config.consumer_key        = creds["consumer_key"]
+      config.consumer_secret     = creds["consumer_secret"]
+      config.access_token        = creds["access_token"]
+      config.access_token_secret = creds["access_token_secret"]
+    end
+    client.update(prediction.to_s)
+    puts "tweeted: #{prediction}"
+  else 
+    claim_types = Hash.new(0)
+    predictions = []
+    loop do 
+      pundit = PunditBot.new
+      prediction = pundit.generate_prediction
+      next if prediction.nil?
+      # available methods: dataset, column, column_type
+      claim_types[prediction.column_type] += 1
+      predictions << prediction.inspect
+      predictions.compact!
+      predictions.uniq!
+      puts predictions.size
+      break if predictions.size >= 10 # was 10
+    end
+    puts predictions
+    # puts claim_types
   end
-  puts predictions
-  # puts claim_types
 end
 
 # Since 1975, in every year fake unemployment had declined over the past year, the GOP has  won the presidency save 2012.

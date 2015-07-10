@@ -13,10 +13,10 @@ TODO:
   - weather, temperature on election day
   - somehow balance out distribution of integral, numeric, claims {:integral=>2789, :numeric=>757} from 10k
                                                                   {:integral=>2697, :numeric=>740}
-  - looks like a polarity issue 124 chars: "Starting 1988, in any year fresh carrot use ended in an odd number, the Democratic Party has never lost the presidency."
+  - looks like a polarity issue 124 chars: "Starting 1988, in years fresh carrot use ended in an odd number, the Democratic Party has never lost the presidency."
   - Do I even need this Noun class? Will the Lexicon thing deal with noun number for me?
   - get Senate/House control database
-  - "starting in" vs. "after" -- should this be the election year AFTER the second exception?
+  - "starting in" vs. "after" -- should this be the election year AFTER the second exception? (does "After 1992, X occurred" mean it happened in 1992 or in 1996?)
 
 
 Leave this for later, focus on MVP:

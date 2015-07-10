@@ -1,6 +1,5 @@
 require 'simplernlg' if RUBY_PLATFORM == 'java'
 puts "Warning, this only works on JRuby but you can check for syntax errors more quickly in MRE" if RUBY_PLATFORM != 'java'
-NLG = SimplerNLG::NLG
 
 module PunditBot
 
@@ -164,7 +163,6 @@ class Prediction
       weighted.shuffle!
       chosen_word = weighted.first
       # puts "Buffer: #{buffer.to_s.size == 1 ? ' ' : ''}#{buffer}, chose '#{chosen_word}' from #{v}"
-      puts "redo"  if buffer - (chosen_word.size - weighted.min_by(&:size).size) < 0 # I think this is bad. I think this'll never end.
       redo if buffer - (chosen_word.size - weighted.min_by(&:size).size) < 0 # I think this is bad. I think this'll never end.
       rephraseables[k] = [chosen_word]
       buffer -= (chosen_word.size - weighted.min_by(&:size).size)
