@@ -51,7 +51,7 @@ class Prediction
       :v => @prediction_meta[:politics_condition].verb, 
       :perfect => true,
       :tense => :present,
-      :o => NLG.factory.create_noun_phrase('the', rephraseables[:politics_condition_object].first.word),
+      :o => NLG.factory.create_noun_phrase(rephraseables[:politics_condition_object].first.word),
       :negation => !claim_polarity
     }
     sentence = NLG.phrase(main_clause)

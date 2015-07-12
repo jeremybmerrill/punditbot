@@ -15,7 +15,6 @@ module PunditBot
     attr_reader :race, :jurisdiction, :objects, :change, :control
     def initialize(obj)
       @race = obj[:race]
-      raise ArgumentError, "I don't know about the `#{race}' race" unless [:pres].include?(@race)
       @control = obj[:control]
       @change = obj[:change]
       @objects = obj[:objects].respond_to?( :sample) ? obj[:objects] : [obj[:objects]]
@@ -62,8 +61,28 @@ module PunditBot
         race: :pres, 
         control: false, # if after the election, the chosen party/person controls the object
         change: false,  # if the election caused a change in control of the object
-        objects: [Noun.new("White House", 1), Noun.new("presidency", 1)] 
+        objects: [Noun.new("the White House", 1), Noun.new("the presidency", 1)] 
     ),
+    PoliticsCondition.new(
+        race: :senate, 
+        control: false, # if after the election, the chosen party/person controls the object
+        change: false,  # if the election caused a change in control of the object
+        objects: [Noun.new("the Senate", 1)] 
+    ),
+    PoliticsCondition.new(
+        race: :house, 
+        control: false, # if after the election, the chosen party/person controls the object
+        change: false,  # if the election caused a change in control of the object
+        objects: [Noun.new("the House", 1)] 
+    ),
+    PoliticsCondition.new(
+        race: :congress, 
+        control: false, # if after the election, the chosen party/person controls the object
+        change: false,  # if the election caused a change in control of the object
+        objects: [Noun.new("control of Congress", 1)] 
+    ),
+
+
     # PoliticsCondition.new(
     #     race: :pres, 
     #     control: true, # if after the election, the chosen party/person controls the object
@@ -145,7 +164,7 @@ module PunditBot
 
 
   class Dataset
-    attr_reader :name, :nouns, :min_year, :data, :source, :data_type
+    attr_reader :name, :nouns, :min_year, :max_year, :data, :source, :data_type
     def initialize(obj) 
       # create a dataset object from it
       # Notably: only one dataset object per spreadsheet
@@ -154,9 +173,12 @@ module PunditBot
 
       # read in CSV, process (e.g. numerics get gsubbed out non numeric chars.)
       # keep year column as string
+      @name = obj["filename"]
       @csv = CSV.read("data/correlates/#{obj["filename"]}", {:headers => true})
       @year_column_header = obj["year_column_header"]
-      @min_year = @csv.map{|row| row[@year_column_header] }.sort.first
+      sorted_years = @csv.map{|row| row[@year_column_header].match(/\d{4}/)[0] }.sort
+      @min_year = sorted_years.first
+      @max_year = sorted_years.last
       @data_columns = obj["data_columns"]
       @source = obj["source"]
     end
@@ -185,7 +207,7 @@ module PunditBot
       @data_type = column["type"].to_sym
 
       @units = column["units"] || []
-      @data = Hash[*@csv.map{|row| [row[@year_column_header], 
+      @data = Hash[*@csv.map{|row| [row[@year_column_header].match(/\d{4}/)[0], 
         begin 
           cleaners[@data_type].call(row[column["header"]])
         rescue NoMethodError => e
@@ -218,16 +240,16 @@ module PunditBot
 
   class PunditBot
     def initialize
-      process_csv!
+      populate_elections!
       @parties = PARTIES
       @datasets = YAML.load_file('data/correlates.yml')
     end
     def vectorize_politics_condition(politics_condition, party)
       victors = @elections[politics_condition.race][politics_condition.jurisdiction]
-      tf_vector = Hash[*@election_years.each_with_index.map do |year, index| 
+      tf_vector = Hash[*@election_years[politics_condition.race].each_with_index.map do |year, index| 
         if politics_condition.change
           [year, (politics_condition.control == (victors[year].match(/[A-Z]+/).to_s == party.wikipedia_symbol)) && 
-            ((index != 0) && (victors[year].match(/[A-Z]+/).to_s != victors[@election_years[index-1]].match(/[A-Z]+/).to_s)) ]
+            ((index != 0) && (victors[year].match(/[A-Z]+/).to_s != victors[@election_years[politics_condition.race][index-1]].match(/[A-Z]+/).to_s)) ]
         else
           [year, politics_condition.control == (victors[year].match(/[A-Z]+/).to_s == party.wikipedia_symbol)]
         end
@@ -240,9 +262,9 @@ module PunditBot
       @dataset.get_data!
     end
 
-    def find_data(hash_of_election_results)
+    def find_data(hash_of_election_results, politics_condition)
       # for our data sets, find the earliest election year where the data condition matches that year's value in the vector_to_match every year or all but once.
-      raise JeremyMessedUpError unless hash_of_election_results.is_a? Hash
+      raise JeremyMessedUpError, "hash_of_election_results is not a hash! and everything follows from a contradiction..." unless hash_of_election_results.is_a? Hash
       # like {2012 => true, 2008 => true, 2004 => false} if we're talking about Dems winning WH
 
       # datasets must all look like this {2004 => 5.5, 2008 => 5.8, 2012 => 8.1 }
@@ -455,48 +477,51 @@ module PunditBot
         # find the most recent two years where the pattern is broken
         exceptional_year = nil
         start_year = nil
-        @election_years.reverse.each_with_index do |yr, idx|
-          next if yr < (@dataset.min_year.to_i - 1).to_s || (yr.to_i - data_claim.year_buffer).to_s < (@dataset.min_year.to_i - 1).to_s
-          raise JeremyMessedUpError unless idx > 0 || yr != "2014" 
-          # find the second year for which the pattern doesn't fit
-          if data_claim.condition.call(@dataset.data[yr], yr) == (hash_of_election_results[yr] == polarity) # if this year matches the pattern
-            # do nothing
-            # puts "match: #{yr},  #{data_claim.condition.call(@dataset.data[yr], yr)}, #{@dataset.data[yr]}"
-          elsif exceptional_year.nil? # if this is the first year that doesn't match the pattern
-            exceptional_year = yr
-            # puts "exceptional_year: #{yr},  #{data_claim.condition.call(@dataset.data[yr], yr)}, #{@dataset.data[yr]}"
-          else #this is the second year that doesn't match the pattern
-            start_year = (yr.to_i + 4).to_s 
-            if start_year = exceptional_year
-              exceptional_year = nil
+        if @dataset.max_year < @election_years[politics_condition.race].last
+          false 
+        else
+          @election_years[politics_condition.race].reverse.each_with_index do |yr, idx|
+            next if yr < (@dataset.min_year.to_i - 1).to_s || (yr.to_i - data_claim.year_buffer).to_s < (@dataset.min_year.to_i - 1).to_s
+            # find the second year for which the pattern doesn't fit
+            if data_claim.condition.call(@dataset.data[yr], yr) == (hash_of_election_results[yr] == polarity) # if this year matches the pattern
+              # do nothing
+              # puts "match: #{yr},  #{data_claim.condition.call(@dataset.data[yr], yr)}, #{@dataset.data[yr]}"
+            elsif exceptional_year.nil? # if this is the first year that doesn't match the pattern
+              exceptional_year = yr
+              # puts "exceptional_year: #{yr},  #{data_claim.condition.call(@dataset.data[yr], yr)}, #{@dataset.data[yr]}"
+            else #this is the second year that doesn't match the pattern
+              start_year = (yr.to_i + 4).to_s 
+              if start_year = exceptional_year
+                exceptional_year = nil
+              end
+              break
             end
+          end
+
+          # if there is no start year set yet, take the minimum election year from the dataset
+          start_year = @election_years[politics_condition.race].reject{|yr| yr < @dataset.min_year }.min if start_year.nil?
+
+
+          # TODO: uncomment and test this! it's meant to be a guard against saying
+          # since 1996, except 2000, X has occured,
+          if exceptional_year.to_i - start_year.to_i == 4
+            start_year = exceptional_year
+            exceptional_year = nil
+          end
+          if start_year > TOO_RECENT_TO_CARE_CUTOFF.to_s
+            false
+          else
+            prediction_meta = {
+              data_claim: data_claim,
+              correlate_noun: @dataset.nouns,
+              start_year: start_year, #never nil
+              exceptional_year: exceptional_year, # maybe nil
+              polarity: polarity,
+              data_claim_type: @dataset.data_type,
+              dataset: @dataset.source
+            }
             break
           end
-        end
-
-        # if there is no start year set yet, take the minimum election year from the dataset
-        start_year = @election_years.reject{|yr| yr < @dataset.min_year }.min if start_year.nil?
-
-
-        # TODO: uncomment and test this! it's meant to be a guard against saying
-        # since 1996, except 2000, X has occured,
-        if exceptional_year.to_i - start_year.to_i == 4
-          start_year = exceptional_year
-          exceptional_year = nil
-        end
-        if start_year > TOO_RECENT_TO_CARE_CUTOFF.to_s
-          false
-        else
-          prediction_meta = {
-            data_claim: data_claim,
-            correlate_noun: @dataset.nouns,
-            start_year: start_year, #never nil
-            exceptional_year: exceptional_year, # maybe nil
-            polarity: polarity,
-            data_claim_type: @dataset.data_type,
-            dataset: @dataset.source
-          }
-          break
         end
       end
 
@@ -509,8 +534,7 @@ module PunditBot
       prediction.set(:party, party = @parties.sample) # TODO: party is our subj
       politics_condition = POLITICS_CONDITIONS.sample
       politics_claim_truth_vector = vectorize_politics_condition(politics_condition, party)
-
-      data = find_data(politics_claim_truth_vector)
+      data = find_data(politics_claim_truth_vector, politics_condition)
       return nil if data.nil?
       # REFACTOR: this #set stuff is dumb
       prediction.set(:data_claim, data[:data_claim])
@@ -526,17 +550,47 @@ module PunditBot
       prediction
     end
 
+    def populate_elections!
+      process_congress_csv!
+      process_csv!
+    end
+
+    def process_congress_csv!
+      csv = CSV.read('data/elections/Party_divisions_of_United_States_Congresses.csv', {:headers => true})
+      @election_years ||= {}
+      @election_years[:senate] = csv["election_year"].map{|year| year.match(/\d{4}/)[0] }
+      @election_years[:house] = csv["election_year"].map{|year| year.match(/\d{4}/)[0] }
+      @election_years[:congress] = csv["election_year"].map{|year| year.match(/\d{4}/)[0] }
+
+      @elections ||= {}
+      @elections[:senate]   = {}
+      @elections[:house]    = {}
+      @elections[:congress] = {}
+      @elections[:senate]["USA"]   = {}
+      @elections[:house]["USA"]    = {}
+      @elections[:congress]["USA"] = {}
+      csv.each do |row|
+        @elections[:senate]["USA"][row["election_year"]] = row["Democrats (Senate)"].match(/^\*\d+\*/) ? 'D' : (row["Republicans (Senate)"].match(/^\*\d+\*/) ? 'R' : 'Other')
+        @elections[:house]["USA"][row["election_year"]] = row["Democrats (House)"].match(/^\*\d+\*/) ? 'D' : (row["Republicans (House)"].match(/^\*\d+\*/) ? 'R' : 'Other')
+        puts "Othered: #{row["Democrats (Senate)"]}, #{row["Republicans (Senate)"]}" if @elections[:senate]["USA"] == "Other"
+        puts "Othered: #{row["Democrats (House)"] }, #{row["Republicans (Senate)"]}" if @elections[:house]["USA"] == "Other"
+        @elections[:congress]["USA"][row["election_year"]] = @elections[:senate]["USA"][row["election_year"]] != @elections[:house]["USA"][row["election_year"]] ? "Split" : @elections[:senate]["USA"][row["election_year"]]
+      end
+    end
+    #TODO: replace all instances of @election_years elsewhere in the codebase with @elections[@election_type][:election_years]
+
     def process_csv!
       # csv is download of source page, with source row added (linking to Wikipedia)
       csv = CSV.read('data/elections/List_of_United_States_presidential_election_results_by_state.csv', {:headers => true})
-      @election_years = csv.headers.select{|h| h && h.match( /\d{4}/)}
-      
+      @election_years ||= {}
+      @election_years[:pres] = csv.headers.select{|h| h && h.match( /\d{4}/)}      
 
       usa_winner = {"State" => "USA", "Source" => csv.find{|row| row["State"] == "New York" }["Source"]}
       ["New York", "South Carolina", "Georgia" ].each do |colony| # these, between them, happen to have voted for a winner every year
-        @election_years.each{|yr| usa_winner[yr] = csv.find{|row| row["State"] == colony}[yr] if (csv.find{|row| row["State"] == colony}[yr] || '').match(/^\*.+\*$/) }
+        @election_years[:pres].each{|yr| usa_winner[yr] = csv.find{|row| row["State"] == colony}[yr] if (csv.find{|row| row["State"] == colony}[yr] || '').match(/^\*.+\*$/) }
       end
-      @elections = {:pres => {}}
+      @elections ||= {}
+      @elections[:pres]   = {}
       csv.each{|row| @elections[:pres][row["State"]] = row.to_hash }
       @elections[:pres][usa_winner["State"]] = usa_winner
     end
