@@ -1,6 +1,4 @@
-Congress,Years,#VALUE!,Total,Democrats,Republicans,Others,"Vacan
-cies",,Total,Democrats,Republicans,Others,"Vacan
-cies",,President,https://en.wikipedia.org/wiki/Party_divisions_of_United_States_Congresses
+Congress,Years,election_year,Total (Senate),Democrats (Senate),Republicans (Senate),Others (Senate),Vacancies (Senate),,Total (House),Democrats (House),Republicans (House),Others (House),Vacancies (House),,President,https://en.wikipedia.org/wiki/Party_divisions_of_United_States_Congresses
 34th,1855–1857,1854,62,*39*,22,1,—,,234,83,*108*,43,—,,Franklin Pierce,https://en.wikipedia.org/wiki/Party_divisions_of_United_States_Congresses
 35th,1857–1859,1856,64,*39*,20,5,—,,237,*131*,94,13,—,,James Buchanan,https://en.wikipedia.org/wiki/Party_divisions_of_United_States_Congresses
 36th,1859–1861,1858,66,*38*,26,2,—,,237,101,*113*,23,—,,,https://en.wikipedia.org/wiki/Party_divisions_of_United_States_Congresses

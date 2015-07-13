@@ -489,7 +489,7 @@ module PunditBot
             elsif exceptional_year.nil? # if this is the first year that doesn't match the pattern
               exceptional_year = yr
               # puts "exceptional_year: #{yr},  #{data_claim.condition.call(@dataset.data[yr], yr)}, #{@dataset.data[yr]}"
-            else #this is the second year that doesn't match the pattern
+            else # `yr` is the second year that doesn't match the pattern
               start_year = (yr.to_i + 4).to_s 
               if start_year = exceptional_year
                 exceptional_year = nil

@@ -13,10 +13,11 @@ TODO:
   - weather, temperature on election day
   - looks like a polarity issue 124 chars: "Starting 1988, in years fresh carrot use ended in an odd number, the Democratic Party has never lost the presidency."
   - Do I even need this Noun class? Will the Lexicon thing deal with noun number for me?
-  - get Senate/House control database
   - "starting in" vs. "after" -- should this be the election year AFTER the second exception? (does "After 1992, X occurred" mean it happened in 1992 or in 1996?)
-  - uncomment Presidency
-  - just be careful to note that 2014 vegetable figures are a prediction
+  - just be careful to note SOMEWHERE that 2014 vegetable figures are a prediction
+  - make 'previous election year' predicates use the right interval for House v. President
+  - should I make a "proof" output that shows in tabular form the relevant years and the relevant number?
+
 
 Leave this for later, focus on MVP:
     - add categorical data sets (how does this work??) {:s => "weather on election day", :v => 'is', :o => "rainy"} {:s => "the Super Bowl winner", :v => 'is', :o => "the Patriots"}
