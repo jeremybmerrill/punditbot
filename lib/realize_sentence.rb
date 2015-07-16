@@ -20,6 +20,21 @@ class Prediction
     @prediction_meta[:dataset]
   end
 
+  def prove_it!
+    """ e.g.
+      2012	2008	2004	2000	1996	1992	1988
+      7.8 	8.2 	7.9 	8.1		etc 	etc  	etc	
+      true	true	false	false	true	true	false
+    """
+    pad = lambda{|x| (x.to_s + "    ")[0...4]}
+
+    years = @prediction_meta[:covered_years]
+    data = years.map{|yr| @prediction_meta[:data][yr] }
+    victor = years.map{|yr| @prediction_meta[:politics_claim_truth_vector][yr] }
+
+    [years.map(&pad).join("\t"), data.map(&pad).join("\t"), victor.map(&pad).join("\t") ].join("\n")
+  end
+
   def column_type
     # e.g. integral, whatever
     @prediction_meta[:data_claim_type]
@@ -178,7 +193,7 @@ class Prediction
   def inspect
     @prediction_text || templatize!
     # [#{dataset}, #{column}, #{column_type}]
-    @prediction_text.nil? ? nil : "#{@prediction_text.size} chars: \"#{@prediction_text}\""
+    @prediction_text.nil? ? nil : "#{@prediction_text.size} chars: \"#{@prediction_text}\"\n#{self.prove_it!}"
   end
 end # ends the class
 

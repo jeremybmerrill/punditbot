@@ -12,13 +12,14 @@ module PunditBot
 
   class PoliticsCondition
     # was politics_verb_phrase
-    attr_reader :race, :jurisdiction, :objects, :change, :control
+    attr_reader :race, :jurisdiction, :objects, :change, :control, :election_interval 
     def initialize(obj)
       @race = obj[:race]
       @control = obj[:control]
       @change = obj[:change]
       @objects = obj[:objects].respond_to?( :sample) ? obj[:objects] : [obj[:objects]]
       @jurisdiction = obj[:jurisdiction] || "USA"
+      @election_interval  = obj[:election_interval]
     end
     def verb
       # TODO: support other verbs, e.g. pick up seats
@@ -61,25 +62,29 @@ module PunditBot
         race: :pres, 
         control: false, # if after the election, the chosen party/person controls the object
         change: false,  # if the election caused a change in control of the object
-        objects: [Noun.new("the White House", 1), Noun.new("the presidency", 1)] 
+        objects: [Noun.new("the White House", 1), Noun.new("the presidency", 1)],
+        election_interval: 4
     ),
     PoliticsCondition.new(
         race: :senate, 
         control: false, # if after the election, the chosen party/person controls the object
         change: false,  # if the election caused a change in control of the object
-        objects: [Noun.new("the Senate", 1)] 
+        objects: [Noun.new("the Senate", 1)],
+        election_interval: 2
     ),
     PoliticsCondition.new(
         race: :house, 
         control: false, # if after the election, the chosen party/person controls the object
         change: false,  # if the election caused a change in control of the object
-        objects: [Noun.new("the House", 1)] 
+        objects: [Noun.new("the House", 1)],
+        election_interval: 2
     ),
     PoliticsCondition.new(
         race: :congress, 
         control: false, # if after the election, the chosen party/person controls the object
         change: false,  # if the election caused a change in control of the object
-        objects: [Noun.new("control of Congress", 1)] 
+        objects: [Noun.new("control of Congress", 1)],
+        election_interval: 2
     ),
 
 
@@ -348,23 +353,23 @@ module PunditBot
           ), 
 
 
-          DataClaim.new( lambda{|x, yr| x > @dataset.data[(yr.to_i-4).to_s] }, 
+          DataClaim.new( lambda{|x, yr| x > @dataset.data[(yr.to_i-politics_condition.election_interval).to_s] }, 
             {
               :v => 'grow',
               :tense => :past,
               # TODO: this is actually a complement
               :c => "from the previous election year",
             }, 
-            4
+            politics_condition.election_interval
           ), 
-          DataClaim.new( lambda{|x, yr| x < @dataset.data[(yr.to_i-4).to_s] }, 
+          DataClaim.new( lambda{|x, yr| x < @dataset.data[(yr.to_i-politics_condition.election_interval).to_s] }, 
             {
               :v => 'decline',
               :tense => :past,
               # TODO: this is actually a complement
               :c => "from the previous election year",
             }, 
-            4
+            politics_condition.election_interval
           ), 
         ],
 
@@ -490,7 +495,7 @@ module PunditBot
               exceptional_year = yr
               # puts "exceptional_year: #{yr},  #{data_claim.condition.call(@dataset.data[yr], yr)}, #{@dataset.data[yr]}"
             else # `yr` is the second year that doesn't match the pattern
-              start_year = (yr.to_i + 4).to_s 
+              start_year = (yr.to_i + politics_condition.election_interval).to_s 
               if start_year = exceptional_year
                 exceptional_year = nil
               end
@@ -504,7 +509,7 @@ module PunditBot
 
           # TODO: uncomment and test this! it's meant to be a guard against saying
           # since 1996, except 2000, X has occured,
-          if exceptional_year.to_i - start_year.to_i == 4
+          if exceptional_year.to_i - start_year.to_i == politics_condition.election_interval
             start_year = exceptional_year
             exceptional_year = nil
           end
@@ -516,9 +521,10 @@ module PunditBot
               correlate_noun: @dataset.nouns,
               start_year: start_year, #never nil
               exceptional_year: exceptional_year, # maybe nil
+              covered_years: @election_years[politics_condition.race].reject{|yr| yr < start_year || yr > @dataset.max_year },
               polarity: polarity,
               data_claim_type: @dataset.data_type,
-              dataset: @dataset.source
+              dataset_source: @dataset.source
             }
             break
           end
@@ -539,12 +545,19 @@ module PunditBot
       # REFACTOR: this #set stuff is dumb
       prediction.set(:data_claim, data[:data_claim])
       prediction.set(:correlate_noun, data[:correlate_noun])
+
       prediction.set(:start_year, data[:start_year])
+      prediction.set(:end_year, @dataset.max_year )
+      prediction.set(:election_interval, politics_condition.election_interval)
+      prediction.set(:covered_years, data[:covered_years])
+      prediction.set(:data, @dataset.data)
+
+      prediction.set(:politics_claim_truth_vector, politics_claim_truth_vector)
       prediction.set(:exceptional_year, data[:exceptional_year])
       prediction.set(:claim_polarity, data[:polarity])
       prediction.set(:politics_condition, politics_condition)
       prediction.set(:data_claim_type, data[:data_claim_type])
-      prediction.set(:dataset, data[:dataset])
+      prediction.set(:dataset, data[:dataset_source])
       prediction.templatize!
 
       prediction

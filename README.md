@@ -16,7 +16,7 @@ TODO:
   - "starting in" vs. "after" -- should this be the election year AFTER the second exception? (does "After 1992, X occurred" mean it happened in 1992 or in 1996?)
   - just be careful to note SOMEWHERE that 2014 vegetable figures are a prediction
   - make 'previous election year' predicates use the right interval for House v. President
-  - should I make a "proof" output that shows in tabular form the relevant years and the relevant number?
+  - possessive problems: 127 chars: "Starting in 1992, whenever snap/green beans use digits add up to an even number, the Democrats have never lost the White House."
 
 
 Leave this for later, focus on MVP:
