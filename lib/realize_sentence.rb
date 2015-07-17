@@ -30,9 +30,10 @@ class Prediction
 
     years = @prediction_meta[:covered_years]
     data = years.map{|yr| @prediction_meta[:data][yr] }
+    data_truth = data.zip(years).map{|datum, yr| @prediction_meta[:data_claim].condition.call(datum, yr) }
     victor = years.map{|yr| @prediction_meta[:politics_claim_truth_vector][yr] }
 
-    [years.map(&pad).join("\t"), data.map(&pad).join("\t"), victor.map(&pad).join("\t") ].join("\n")
+    [years, data, data_truth, victor].map{|row| row.map(&pad).join("\t")}.join("\n")
   end
 
   def column_type

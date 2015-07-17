@@ -353,7 +353,7 @@ module PunditBot
           ), 
 
 
-          DataClaim.new( lambda{|x, yr| x > @dataset.data[(yr.to_i-politics_condition.election_interval).to_s] }, 
+          DataClaim.new( lambda{|x, yr| puts [x,  @dataset.data[(yr.to_i-politics_condition.election_interval).to_s] ].inspect; x > @dataset.data[(yr.to_i-politics_condition.election_interval).to_s] }, 
             {
               :v => 'grow',
               :tense => :past,
@@ -506,10 +506,10 @@ module PunditBot
           # if there is no start year set yet, take the minimum election year from the dataset
           start_year = @election_years[politics_condition.race].reject{|yr| yr < @dataset.min_year }.min if start_year.nil?
 
-
-          # TODO: uncomment and test this! it's meant to be a guard against saying
+          # TODO: test this! it's meant to be a guard against saying
           # since 1996, except 2000, X has occured,
           if exceptional_year.to_i - start_year.to_i == politics_condition.election_interval
+            puts "making exceptional_year into start year"
             start_year = exceptional_year
             exceptional_year = nil
           end
