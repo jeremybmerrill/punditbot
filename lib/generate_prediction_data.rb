@@ -362,7 +362,7 @@ module PunditBot
             }, 
             politics_condition.election_interval
           ), 
-          DataClaim.new( lambda{|x, yr| x < @dataset.data[(yr.to_i-politics_condition.election_interval).to_s] }, 
+          DataClaim.new( lambda{|x, yr|  puts [x,  @dataset.data[(yr.to_i-politics_condition.election_interval).to_s] ].inspect; x < @dataset.data[(yr.to_i-politics_condition.election_interval).to_s] }, 
             {
               :v => 'decline',
               :tense => :past,
@@ -396,9 +396,11 @@ module PunditBot
             { 
               :n => lambda do |n| 
                               np = NLG.factory.create_noun_phrase('digit') 
-                              np.set_feature NLG::Feature::NUMBER, NLG::NumberAgreement::PLURAL
-                              possessive = NLG.factory.create_noun_phrase(n.word) 
-                              possessive.set_feature NLG::Feature::NUMBER, n.singular? ? NLG::NumberAgreement::SINGULAR : NLG::NumberAgreement::PLURAL
+                              np.set_plural true
+                              last_word = (split_word = n.word.split(" ")).last
+                              possessive = NLG.factory.create_noun_phrase(last_word) 
+                              possessive.add_pre_modifier(split_word[0...-1].join(" "))
+                              possessive.set_plural n.plural?
                               possessive.set_feature NLG::Feature::POSSESSIVE, true
                               np.set_specifier(possessive)
                               np
@@ -414,7 +416,9 @@ module PunditBot
               :n => lambda do |n| 
                               np = NLG.factory.create_noun_phrase('digit') 
                               np.set_feature NLG::Feature::NUMBER, NLG::NumberAgreement::PLURAL
-                              possessive = NLG.factory.create_noun_phrase(n.word) 
+                              last_word = (split_word = n.word.split(" ")).last
+                              possessive = NLG.factory.create_noun_phrase(last_word) 
+                              possessive.add_pre_modifier(split_word[0...-1].join(" "))
                               possessive.set_feature NLG::Feature::NUMBER, n.singular? ? NLG::NumberAgreement::SINGULAR : NLG::NumberAgreement::PLURAL
                               possessive.set_feature NLG::Feature::POSSESSIVE, true
                               np.set_specifier(possessive)
@@ -496,7 +500,7 @@ module PunditBot
               # puts "exceptional_year: #{yr},  #{data_claim.condition.call(@dataset.data[yr], yr)}, #{@dataset.data[yr]}"
             else # `yr` is the second year that doesn't match the pattern
               start_year = (yr.to_i + politics_condition.election_interval).to_s 
-              if start_year = exceptional_year
+              if start_year == exceptional_year
                 exceptional_year = nil
               end
               break
