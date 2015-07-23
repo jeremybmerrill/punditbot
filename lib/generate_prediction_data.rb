@@ -83,7 +83,7 @@ module PunditBot
         race: :congress, 
         control: false, # if after the election, the chosen party/person controls the object
         change: false,  # if the election caused a change in control of the object
-        objects: [Noun.new("control of Congress", 1)],
+        objects: [Noun.new("both houses of Congress", 1), Noun.new("the House and the Senate", 1), Noun.new("Congress", 1),],
         election_interval: 2
     ),
 
@@ -191,7 +191,7 @@ module PunditBot
     def cleaners
       { 
         :integral     => lambda{|n| n.gsub(/[^\d]/, '').to_i },  #removes dots, so only suitable for claims ABOUT numbers, like 'digits add up an even number'
-        :numeric     =>  lambda{|n| n.gsub(/[^\d\.]/, '').to_f }, 
+        :numeric     =>  lambda{|n| n.gsub(/[^\d\.]/, '').send(n.include?('.') ? :to_f : :to_i) }, 
         :categorical =>  lambda{|x| x}
       }
     end
@@ -223,6 +223,8 @@ module PunditBot
       ] }.flatten]
     end
     def add_units(intro, number)
+      puts "units: #{intro} #{number} #{@units.inspect}"
+      return ["#{intro} #{number}"] if @units.size == 0
       @units.map do |unit|
         unit = {"word" => unit} unless unit.respond_to?(:has_key?) && unit.has_key?("word")
 =begin
@@ -277,9 +279,9 @@ module PunditBot
 
 
       trues, falses = @dataset.data.to_a.partition.each_with_index{|val, idx| hash_of_election_results[val[0]] } #TODO: factor out; but something like it is used in data_claims
-      # data_claims need a lambda and an English template
 
-      # TODO: data_claims need to be divvied into types:
+      # data_claims need a lambda and an English template
+      # data_claims areto be divvied into types:
       #   those those apply to numbers themselves ('the number of atlantic hurricane deaths was an odd number' for noun 'atlantic hurricane deaths')
       #   those that apply to changes in numbers as the noun itself ('atlantic hurricane deaths decreased')
       #   those that apply to categorical data ('an AFC team won the World Series')
@@ -353,7 +355,7 @@ module PunditBot
           ), 
 
 
-          DataClaim.new( lambda{|x, yr| puts [x,  @dataset.data[(yr.to_i-politics_condition.election_interval).to_s] ].inspect; x > @dataset.data[(yr.to_i-politics_condition.election_interval).to_s] }, 
+          DataClaim.new( lambda{|x, yr| x > @dataset.data[(yr.to_i-politics_condition.election_interval).to_s] }, 
             {
               :v => 'grow',
               :tense => :past,
@@ -362,7 +364,7 @@ module PunditBot
             }, 
             politics_condition.election_interval
           ), 
-          DataClaim.new( lambda{|x, yr|  puts [x,  @dataset.data[(yr.to_i-politics_condition.election_interval).to_s] ].inspect; x < @dataset.data[(yr.to_i-politics_condition.election_interval).to_s] }, 
+          DataClaim.new( lambda{|x, yr| x < @dataset.data[(yr.to_i-politics_condition.election_interval).to_s] }, 
             {
               :v => 'decline',
               :tense => :past,
@@ -490,7 +492,8 @@ module PunditBot
           false 
         else
           @election_years[politics_condition.race].reverse.each_with_index do |yr, idx|
-            next if yr < (@dataset.min_year.to_i - 1).to_s || (yr.to_i - data_claim.year_buffer).to_s < (@dataset.min_year.to_i - 1).to_s
+            # next if yr < (@dataset.min_year.to_i - 1).to_s || (yr.to_i - data_claim.year_buffer).to_s < (@dataset.min_year.to_i - 1).to_s
+            break if yr < (@dataset.min_year.to_i - 1).to_s || (yr.to_i - data_claim.year_buffer).to_s < (@dataset.min_year.to_i - 1).to_s
             # find the second year for which the pattern doesn't fit
             if data_claim.condition.call(@dataset.data[yr], yr) == (hash_of_election_results[yr] == polarity) # if this year matches the pattern
               # do nothing
@@ -510,13 +513,6 @@ module PunditBot
           # if there is no start year set yet, take the minimum election year from the dataset
           start_year = @election_years[politics_condition.race].reject{|yr| yr < @dataset.min_year }.min if start_year.nil?
 
-          # TODO: test this! it's meant to be a guard against saying
-          # since 1996, except 2000, X has occured,
-          if exceptional_year.to_i - start_year.to_i == politics_condition.election_interval
-            puts "making exceptional_year into start year"
-            start_year = exceptional_year
-            exceptional_year = nil
-          end
           if start_year > TOO_RECENT_TO_CARE_CUTOFF.to_s
             false
           else

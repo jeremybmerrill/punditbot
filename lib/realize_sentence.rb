@@ -26,12 +26,13 @@ class Prediction
       7.8 	8.2 	7.9 	8.1		etc 	etc  	etc	
       true	true	false	false	true	true	false
     """
-    pad = lambda{|x| (x.to_s + "    ")[0...4]}
-
     years = @prediction_meta[:covered_years]
     data = years.map{|yr| @prediction_meta[:data][yr] }
+    max_data_length = data.map{|d| d.to_s.size }.max
     data_truth = data.zip(years).map{|datum, yr| @prediction_meta[:data_claim].condition.call(datum, yr) }
     victor = years.map{|yr| @prediction_meta[:politics_claim_truth_vector][yr] }
+    
+    pad = lambda{|x| (x.to_s + "    ")[0...max_data_length]}
 
     [years, data, data_truth, victor].map{|row| row.map(&pad).join("\t")}.join("\n")
   end

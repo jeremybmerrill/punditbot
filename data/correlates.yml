@@ -72,6 +72,8 @@
       noun: "Super Bowl attendance"
       noun_number: 1
       type: numeric
+      units: 
+       - ''
 - html_source: http://www.ers.usda.gov/data-products/vegetables-and-pulses-data/yearbook-tables.aspx
   source: http://www.ers.usda.gov/datafiles/Vegetable_and_Pulses_Yearbook_Tables/General/YRBK2015_Section%201_General.xlsx
   notes: I combined tables 1a-d.

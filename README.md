@@ -17,7 +17,7 @@ TODO:
   - just be careful to note SOMEWHERE that 2014 vegetable figures are a prediction
   - make 'previous election year' predicates use the right interval for House v. President
   - possessive problems: 127 chars: "Starting in 1992, whenever snap/green beans use digits add up to an even number, the Democrats have never lost the White House."
-
+  - for integral claims, truncate to shortest length (or pad zeros?)
 
 Leave this for later, focus on MVP:
     - add categorical data sets (how does this work??) {:s => "weather on election day", :v => 'is', :o => "rainy"} {:s => "the Super Bowl winner", :v => 'is', :o => "the Patriots"}
