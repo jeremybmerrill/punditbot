@@ -42,8 +42,9 @@ module PunditBot
       config.access_token        = creds["access_token"]
       config.access_token_secret = creds["access_token_secret"]
     end
+    puts "trying to tweet: #{prediction}"
     client.update(prediction.to_s)
-    puts "tweeted: #{prediction}"
+    puts "success"
   else 
     claim_types = Hash.new(0)
     predictions = []

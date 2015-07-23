@@ -223,7 +223,6 @@ module PunditBot
       ] }.flatten]
     end
     def add_units(intro, number)
-      puts "units: #{intro} #{number} #{@units.inspect}"
       return ["#{intro} #{number}"] if @units.size == 0
       @units.map do |unit|
         unit = {"word" => unit} unless unit.respond_to?(:has_key?) && unit.has_key?("word")
@@ -234,10 +233,11 @@ module PunditBot
         direction: "suffix"
         include_space: false
 =end
+        rounded = number.to_s.include?(".") ? number.round(1) : number
         if unit["direction"] == "prefix"
-          intro + " " + (unit["include_space"] == false ? '' : " ") + unit["word"] + number.round(1).to_s
+          intro + " " + (unit["include_space"] == false ? '' : " ") + unit["word"] + rounded.to_s
         else # suffix
-          intro + " " + number.round(1).to_s + (unit["include_space"] == false ? '' : " ") + unit["word"]
+          intro + " " + rounded.to_s + (unit["include_space"] == false ? '' : " ") + unit["word"]
         end
       end
     end

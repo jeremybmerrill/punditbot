@@ -9,15 +9,10 @@ These claims are stupid. They have no predictive power. Let's mock them.
 
 TODO:
   - add "Every year BUT 1992"
+  
   DO NOW: 
   - weather, temperature on election day
-  - looks like a polarity issue 124 chars: "Starting 1988, in years fresh carrot use ended in an odd number, the Democratic Party has never lost the presidency."
-  - Do I even need this Noun class? Will the Lexicon thing deal with noun number for me?
-  - "starting in" vs. "after" -- should this be the election year AFTER the second exception? (does "After 1992, X occurred" mean it happened in 1992 or in 1996?)
   - just be careful to note SOMEWHERE that 2014 vegetable figures are a prediction
-  - make 'previous election year' predicates use the right interval for House v. President
-  - possessive problems: 127 chars: "Starting in 1992, whenever snap/green beans use digits add up to an even number, the Democrats have never lost the White House."
-  - for integral claims, truncate to shortest length (or pad zeros?)
 
 Leave this for later, focus on MVP:
     - add categorical data sets (how does this work??) {:s => "weather on election day", :v => 'is', :o => "rainy"} {:s => "the Super Bowl winner", :v => 'is', :o => "the Patriots"}
@@ -26,6 +21,7 @@ Leave this for later, focus on MVP:
     - MAYBE: add support for candidate based exceptions ("Without a Clinton on the ballot, ")
     - boolean type (e.g. "had a trade deficit")?? ( already in correlates.yml )
   - can I make a hash that represents a whole sentence?? (then isolate linguistics stuff)
+  - Do I even need this Noun class? Will the Lexicon thing deal with noun number for me?
 
 
 sudo apt-get remove linux-headers-3.19.0-20 linux-headers-3.19.0-20-generic linux-image-3.19.0-20-generic
