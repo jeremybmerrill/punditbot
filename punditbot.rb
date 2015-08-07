@@ -42,18 +42,22 @@ module PunditBot
       config.access_token        = creds["access_token"]
       config.access_token_secret = creds["access_token_secret"]
     end
-    puts "trying to tweet: #{prediction}"
-    client.update(prediction.to_s)
+    puts "trying to tweet: #{prediction.inspect}"
+    client.update(prediction.to_s) # unless prediction.to_s.match(/((odd|even) number)|Dem/)
     puts "success"
   else 
     claim_types = Hash.new(0)
+    data_claim_counts = Hash.new(0)
     predictions = []
     loop do 
       pundit = PunditBot.new
       prediction = pundit.generate_prediction
       next if prediction.nil?
+      next if prediction.column_type == "integral" && rand < 0.8 # exclude 80% of integral claims
       # available methods: dataset, column, column_type
+      next if data_claim_counts[prediction.metadata[:data_claim]] > (data_claim_counts.values.reduce(&:+) || 0) / 5.0
       claim_types[prediction.column_type] += 1
+      data_claim_counts[prediction.metadata[:data_claim]] += 1
       predictions << prediction.inspect
       predictions.compact!
       predictions.uniq!

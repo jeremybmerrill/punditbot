@@ -28,7 +28,7 @@ class Prediction
     """
     years = @prediction_meta[:covered_years]
     data = years.map{|yr| @prediction_meta[:data][yr] }
-    max_data_length = data.map{|d| d.to_s.size }.max
+    max_data_length = [data.map{|d| d.to_s.size }.max, 4].max
     data_truth = data.zip(years).map{|datum, yr| @prediction_meta[:data_claim].condition.call(datum, yr) }
     victor = years.map{|yr| @prediction_meta[:politics_claim_truth_vector][yr] }
     
@@ -40,6 +40,13 @@ class Prediction
   def column_type
     # e.g. integral, whatever
     @prediction_meta[:data_claim_type]
+  end
+
+  def metadata
+  	{
+  		column_type: column_type,
+  		data_claim: @prediction_meta[:data_claim].template.values.map(&:to_s).sort.join(" ")
+  	}
   end
 
   def initialize()
