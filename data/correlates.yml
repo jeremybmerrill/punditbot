@@ -718,3 +718,211 @@
       - word: "°"
         direction: "suffix"
         include_space: false
+  - header: Anomaly
+    nouns: 
+      - noun: "average annual U.S. temperature anomaly"
+        noun_number: 1
+      - noun: "avg. U.S. temperature anomaly"
+        noun_number: 1
+      - noun: "average U.S. temperature anomaly"
+        noun_number: 1
+    type: numeric
+    units: 
+      - degrees
+      - word: "°"
+        direction: "suffix"
+        include_space: false        
+- html_source: http://www.erh.noaa.gov/okx/climate/holidays/electiondaywx.htm
+  source: http://www.erh.noaa.gov/okx/climate/holidays/electiondaywx.htm
+  notes: Central Park weather on Election Day (I replaced trace precip with 0.01)
+  year_column_header: YEAR
+  filename: central_park_election_day_weather.csv
+  data_columns: 
+  - header: MAX
+    nouns: 
+      - noun: "NYC's election day temperature"
+        noun_number: 1
+      - noun: "NYC's temperature"
+        noun_number: 1
+      - noun: "the temperature at Central Park on election day"
+        noun_number: 1
+    type: numeric
+    units: 
+      - degrees
+      - word: "°"
+        direction: "suffix"
+        include_space: false
+  - header: MIN
+    nouns: 
+      - noun: "NYC's election day low temperature"
+        noun_number: 1
+      - noun: "NYC's low temperature"
+        noun_number: 1
+      - noun: "the low temperature at Central Park on election day"
+        noun_number: 1
+    type: numeric
+    units: 
+      - degrees
+      - word: "°"
+        direction: "suffix"
+        include_space: false        
+  - header: PCPN
+    nouns: 
+      - noun: "NYC's election day low temperature"
+        noun_number: 1
+      - noun: "NYC's low temperature"
+        noun_number: 1
+      - noun: "the low temperature at Central Park on election day"
+        noun_number: 1
+    type: numeric
+    units: 
+      - inches
+      - word: "in"
+        direction: "suffix"
+        include_space: false        
+- notes: Central Park annual snowfall (and monthly) [Trace converted to 0 by me.] (using STARTYEAR)
+  html_source: http://www.erh.noaa.gov/okx/climate_cms.html
+  source: http://www.weather.gov/media/okx/Climate/CentralPark/monthlyseasonalsnowfall.pdf
+  filename: monthly-central-park-snowfall.csv
+  year_column_header: STARTYEAR
+  data_columns: 
+  - header: TOTALJANDEC
+    nouns: 
+      - noun: "total NYC snowfall"
+        noun_number: 1
+      - noun: "total Central Park snowfall"
+        noun_number: 1
+      - noun: "total snowfall in Central Park"
+        noun_number: 1
+    type: numeric
+    units: 
+      - inches
+      - word: "in"
+        direction: "suffix"
+        include_space: false
+  - header: DEC
+    nouns: 
+      - noun: "December NYC snowfall"
+        noun_number: 1
+      - noun: "December Central Park snowfall"
+        noun_number: 1
+      - noun: "December snowfall in Central Park"
+        noun_number: 1
+      - noun: "Dec. NYC snowfall"
+        noun_number: 1
+      - noun: "Dec. Central Park snowfall"
+        noun_number: 1
+      - noun: "Dec. snowfall in Central Park"
+        noun_number: 1
+    type: numeric
+    units: 
+      - inches
+      - word: "in"
+        direction: "suffix"
+        include_space: false
+  - header: NOV
+    nouns: 
+      - noun: "November NYC snowfall"
+        noun_number: 1
+      - noun: "November Central Park snowfall"
+        noun_number: 1
+      - noun: "November snowfall in Central Park"
+        noun_number: 1
+      - noun: "Nov. NYC snowfall"
+        noun_number: 1
+      - noun: "Nov. Central Park snowfall"
+        noun_number: 1
+      - noun: "Nov. snowfall in Central Park"
+        noun_number: 1
+    type: numeric
+    units: 
+      - inches
+      - word: "in"
+        direction: "suffix"
+        include_space: false
+- notes: Central Park annual snowfall (and monthly) [Trace converted to 0 by me.] (using ENDYEAR)
+  html_source: http://www.erh.noaa.gov/okx/climate_cms.html
+  source: http://www.weather.gov/media/okx/Climate/CentralPark/monthlyseasonalsnowfall.pdf
+  filename: monthly-central-park-snowfall.csv
+  year_column_header: STARTYEAR
+  data_columns: 
+  - header: JAN
+    nouns: 
+      - noun: "January NYC snowfall"
+        noun_number: 1
+      - noun: "January Central Park snowfall"
+        noun_number: 1
+      - noun: "January snowfall in Central Park"
+        noun_number: 1
+      - noun: "Jan. NYC snowfall"
+        noun_number: 1
+      - noun: "Jan. Central Park snowfall"
+        noun_number: 1
+      - noun: "Jan. snowfall in Central Park"
+        noun_number: 1
+    type: numeric
+    units: 
+      - inches
+      - word: "in"
+        direction: "suffix"
+        include_space: false
+  - header: FEB
+    nouns: 
+      - noun: "February NYC snowfall"
+        noun_number: 1
+      - noun: "February Central Park snowfall"
+        noun_number: 1
+      - noun: "February snowfall in Central Park"
+        noun_number: 1
+      - noun: "Feb. NYC snowfall"
+        noun_number: 1
+      - noun: "Feb. Central Park snowfall"
+        noun_number: 1
+      - noun: "Feb. snowfall in Central Park"
+        noun_number: 1
+    type: numeric
+    units: 
+      - inches
+      - word: "in"
+        direction: "suffix"
+        include_space: false
+  - header: MAR
+    nouns: 
+      - noun: "March NYC snowfall"
+        noun_number: 1
+      - noun: "March Central Park snowfall"
+        noun_number: 1
+      - noun: "March snowfall in Central Park"
+        noun_number: 1
+      - noun: "Mar. NYC snowfall"
+        noun_number: 1
+      - noun: "Mar. Central Park snowfall"
+        noun_number: 1
+      - noun: "Mar. snowfall in Central Park"
+        noun_number: 1
+    type: numeric
+    units: 
+      - inches
+      - word: "in"
+        direction: "suffix"
+        include_space: false
+  - header: APR
+    nouns: 
+      - noun: "April NYC snowfall"
+        noun_number: 1
+      - noun: "April Central Park snowfall"
+        noun_number: 1
+      - noun: "April snowfall in Central Park"
+        noun_number: 1
+      - noun: "Apr. NYC snowfall"
+        noun_number: 1
+      - noun: "Apr. Central Park snowfall"
+        noun_number: 1
+      - noun: "Apr. snowfall in Central Park"
+        noun_number: 1
+    type: numeric
+    units: 
+      - inches
+      - word: "in"
+        direction: "suffix"
+        include_space: false

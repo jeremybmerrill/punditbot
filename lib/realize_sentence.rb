@@ -5,7 +5,7 @@ module PunditBot
 
 
 class Prediction
-  attr_reader :prediction
+  attr_reader :prediction_text
   attr_accessor :complements
   # PHRASE_TYPES = [:s, :v, :o, :c, ]
   MODIFIERS = [:add_post_modifier, :add_pre_modifier, :add_front_modifier]
@@ -28,8 +28,14 @@ class Prediction
     """
     years = @prediction_meta[:covered_years]
     data = years.map{|yr| @prediction_meta[:data][yr] }
-    max_data_length = [data.map{|d| d.to_s.size }.max, 4].max
-    data_truth = data.zip(years).map{|datum, yr| @prediction_meta[:data_claim].condition.call(datum, yr) }
+    max_data_length = [data.map{|d| d.to_s.size }.max, 4].max #max length in chars of each of the numbers from the dataset
+    data_truth = data.zip(years).map do |datum, yr| 
+      begin
+        @prediction_meta[:data_claim].condition.call(datum, yr)
+      rescue ArgumentError
+        nil
+      end
+    end
     victor = years.map{|yr| @prediction_meta[:politics_claim_truth_vector][yr] }
     
     pad = lambda{|x| (x.to_s + "    ")[0...max_data_length]}
@@ -81,13 +87,13 @@ class Prediction
     sentence = NLG.phrase(main_clause)
 
     @prediction_meta[:data_claim].template[:o] = (rephraseables[:prediction_meta_data_claim_o].nil?) ? nil : rephraseables[:prediction_meta_data_claim_o].first 
-    data_phrase = @prediction_meta[:data_claim].phrase(rephraseables[:correlate_nouns].first) #TODO correlate_noun should be rephraseable
+    @data_phrase = @prediction_meta[:data_claim].phrase(rephraseables[:correlate_nouns].first) #TODO correlate_noun should be rephraseable
 
     since_pp = NLG.factory.create_preposition_phrase(rephraseables[:since_after].first, NLG.factory.create_noun_phrase(@prediction_meta[:start_year]))
     if (exceptional_year = @prediction_meta[:exceptional_year])
       year_noun_phrase = NLG.factory.create_noun_phrase(claim_polarity ? 'every' : 'any', rephraseables[:year_election].first)
-      data_phrase.set_feature(NLG::Feature::COMPLEMENTISER, 'when') # requires 3eed77f5bf6ce0e2655d80ce3ba453696ad5bb8a in my fork of SimpleNLG
-      year_noun_phrase.add_complement(data_phrase) # was add_post_modifier
+      @data_phrase.set_feature(NLG::Feature::COMPLEMENTISER, 'when') # requires 3eed77f5bf6ce0e2655d80ce3ba453696ad5bb8a in my fork of SimpleNLG
+      year_noun_phrase.add_complement(@data_phrase) # was add_post_modifier
       prep_phrase = NLG.factory.create_preposition_phrase('in', year_noun_phrase)
 
       with MODIFIERS.sample do |modifier_position|
@@ -118,8 +124,8 @@ class Prediction
     else
       sentence.add_pre_modifier(claim_polarity ? 'always' : 'never')
       sentence.set_feature(NLG::Feature::NEGATED, false) if !claim_polarity
-      data_phrase.set_feature(NLG::Feature::SUPRESSED_COMPLEMENTISER, true) # note to self: what does this do??
-      prep_phrase = NLG.factory.create_preposition_phrase(rephraseables[:when].first, data_phrase)
+      @data_phrase.set_feature(NLG::Feature::SUPRESSED_COMPLEMENTISER, true) # note to self: what does this do??
+      prep_phrase = NLG.factory.create_preposition_phrase(rephraseables[:when].first, @data_phrase)
       since_pp.set_feature(NLG::Feature::APPOSITIVE, true)
       prep_phrase.send( (MODIFIERS - [:add_front_modifier]).sample, since_pp) # TODO why does :add_front_modifier not work here?
       prep_phrase.set_feature(NLG::Feature::APPOSITIVE, true)
@@ -199,10 +205,102 @@ class Prediction
     @prediction_text || templatize!
   end
 
+  def exhortation
+    @data_phrase || templatize!
+    claim_polarity = @prediction_meta[:claim_polarity]
+    @data_phrase.set_feature(NLG::Feature::TENSE, NLG::Tense::PRESENT)
+    @data_phrase.set_feature(NLG::Feature::SUPRESSED_COMPLEMENTISER, true)
+    @data_phrase.set_feature(NLG::Feature::NEGATED, claim_polarity)
+    party_member_name = @prediction_meta[:party].member_name
+    pp = NLG.factory.create_preposition_phrase(NLG.factory.create_noun_phrase('this', 'year'))
+    # What I can generate:
+    #   Democrats should hope that bears killed more than 10 people this year.
+    #   This year, Democrats, you need to hope that bears killed more than 10 people.
+    #   If you're a Democrat, this year, you should hope that bears killed more than 10 people.
+    #   Democrats, hope that bears killed more than 10 people this year.
+    # What I'd like to generate:
+    #   Democrats should hope for more snow this year...
+    #   Democrats should hope Central Park snow increases year over year.
+    #   If you're a Democrat, you should hope _________
+    #   If you're a Democrat, you want vegetable use to increase this year.
+    #   Republicans, you need to hope that DDDDDDD is an even number this year.
+
+    case [:bare, :you, :if, :imperative].sample
+    when :bare
+      np = NLG.factory.create_noun_phrase(party_member_name)
+      np.set_feature(NLG::Feature::NUMBER, NLG::NumberAgreement::PLURAL)
+      phrase = NLG.phrase({
+        :s => np,
+        :number => :plural,
+        :v => 'hope',
+        :modal => "should",
+        :tense => :present,
+      })
+      phrase.add_complement(@data_phrase)
+      modifiers = [:add_post_modifier, :add_front_modifier]
+      phrase.send(modifiers.sample,  pp)
+
+      NLG.realizer.setCommaSepCuephrase(true)
+    when :you
+      phrase = NLG.phrase({
+        :s => "you",
+        :number => :plural,
+        :v => 'need',
+        :tense => :present,
+      })
+
+      inner = NLG.phrase({
+        :v => "hope"
+      })
+
+      inner.add_complement(@data_phrase)
+
+      modifiers = [:add_post_modifier, :add_front_modifier]
+      phrase.send(modifiers.sample,  pp)
+      inner.set_feature(NLG::Feature::FORM, NLG::Form::INFINITIVE)
+      phrase.add_complement(inner)
+      np = NLG.factory.create_noun_phrase(party_member_name)
+      np.set_feature(NLG::Feature::NUMBER, NLG::NumberAgreement::PLURAL)
+      phrase.add_front_modifier(np) # cue phrase
+      NLG.realizer.setCommaSepCuephrase(true)
+    when :if
+      phrase = NLG.phrase({
+        :s => "you",
+        :number => :plural,
+        :v => 'hope',
+        :modal => "should",
+        :tense => :present,
+      })
+      phrase.add_complement(@data_phrase)
+      phrase.add_front_modifier("if you're a " + party_member_name)
+      modifiers = [:add_post_modifier, :add_front_modifier]
+      phrase.send(modifiers.sample,  pp)
+
+      NLG.realizer.setCommaSepCuephrase(true)
+    when :imperative
+      phrase = NLG.phrase({
+        :number => :plural,
+        :v => ['hope', 'pray'].sample,
+        :tense => :present,
+      })
+      phrase.add_complement(@data_phrase)
+      modifiers = [:add_post_modifier, :add_front_modifier]
+      phrase.send(modifiers.sample,  pp)
+      phrase.set_feature(NLG::Feature::FORM, NLG::Form::IMPERATIVE)
+      np = NLG.factory.create_noun_phrase(party_member_name)
+      np.set_feature(NLG::Feature::NUMBER, NLG::NumberAgreement::PLURAL)
+      phrase.add_front_modifier( np ) # cue phrase
+      NLG.realizer.setCommaSepCuephrase(true)
+    end
+
+    @exhortation =       NLG.realizer.realise_sentence(phrase).gsub("the previous", "last")
+    @exhortation
+  end
+
   def inspect
     @prediction_text || templatize!
     # [#{dataset}, #{column}, #{column_type}]
-    @prediction_text.nil? ? nil : "#{@prediction_text.size} chars: \"#{@prediction_text}\"\n#{self.prove_it!}"
+    @prediction_text.nil? ? nil : "#{@prediction_text.size} chars: \"#{@prediction_text}\"\n#{exhortation}\n#{self.prove_it!}\n"
   end
 end # ends the class
 

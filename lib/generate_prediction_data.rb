@@ -120,11 +120,14 @@ module PunditBot
     ]
 
   class Party
-    attr_reader :name, :alt_names, :wikipedia_symbol
-    def initialize(name, alt_names, wikipedia_symbol)
+
+    # TODO: formalize the relationship between the third alt-name ("Democrats") and the member_name ("Democrat")
+    attr_reader :name, :alt_names, :wikipedia_symbol, :member_name
+    def initialize(name, alt_names, wikipedia_symbol,  member_name)
       @name = name.first
       @alt_names = ([name] + alt_names).map{|name, num| Noun.new(name, num) }
       @wikipedia_symbol = wikipedia_symbol
+      @member_name = member_name
     end
 
     def rephrase
@@ -139,8 +142,8 @@ module PunditBot
     end
   end
   PARTIES = [
-    Party.new(["Democratic Party", 1], [["Dems", 2], ["Democrats", 2]], 'D'), 
-    Party.new(["Republican Party", 1], [["G.O.P.", 1], ["Republicans", 2]], 'R')
+    Party.new(["Democratic Party", 1], [["Dems", 2], ["Democrats", 2]], 'D', "Democrat"), 
+    Party.new(["Republican Party", 1], [["G.O.P.", 1], ["Republicans", 2]], 'R', "Republican")
   ]
 
   class DataClaim
@@ -190,8 +193,8 @@ module PunditBot
 
     def cleaners
       { 
-        :integral     => lambda{|n| n.gsub(/[^\d]/, '').to_i },  #removes dots, so only suitable for claims ABOUT numbers, like 'digits add up an even number'
-        :numeric     =>  lambda{|n| n.gsub(/[^\d\.]/, '').send(n.include?('.') ? :to_f : :to_i) }, 
+        :integral     => lambda{|n| n.gsub(/[^\d\.]/, '').to_f.round },  #removes dots, so only suitable for claims ABOUT numbers, like 'digits add up an even number'
+        :numeric     =>  lambda{|n| n.gsub(/[^\d\.]/, '').to_f.send(n.include?('.') ? :to_f : :round) }, 
         :categorical =>  lambda{|x| x}
       }
     end
@@ -222,6 +225,10 @@ module PunditBot
         end
       ] }.flatten]
     end
+    def commaify(number)
+      # http://stackoverflow.com/questions/1078347/is-there-a-rails-trick-to-adding-commas-to-large-numbers
+      number.to_s.reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse
+    end
     def add_units(intro, number)
       return ["#{intro} #{number}"] if @units.size == 0
       @units.map do |unit|
@@ -233,7 +240,7 @@ module PunditBot
         direction: "suffix"
         include_space: false
 =end
-        rounded = number.to_s.include?(".") ? number.round(1) : number
+        rounded = commaify(number.to_s.include?(".") ? number.round(1) : number)
         if unit["direction"] == "prefix"
           intro + " " + (unit["include_space"] == false ? '' : " ") + unit["word"] + rounded.to_s
         else # suffix
@@ -301,6 +308,22 @@ module PunditBot
               :o => @dataset.add_units("less than", trues.map{|a, b| b}.max) # obvi true for trues; if true for all of falses, unemployment was less than trues.min all the time,
             }
           ),
+
+          DataClaim.new( lambda{|x, _| x > 0 }, 
+            {
+              :v => 'is',
+              :tense => :past,
+              :o => "positive" 
+            }
+          ),
+          DataClaim.new( lambda{|x, _| x < 0 }, 
+            {
+              :v => 'is',
+              :tense => :past,
+              :o => "negative" 
+            }
+          ),
+
 
           # these are duplicates
           DataClaim.new( lambda{|x, yr| x > @dataset.data[(yr.to_i-1).to_s] }, 
@@ -431,22 +454,23 @@ module PunditBot
               :c => 'to an odd number'
             }
           ), 
-          DataClaim.new( lambda{|x, _| x/10 > 0 && x.to_s.chars.to_a.last.to_i.even? }, 
-            {
-              :v => 'end',
-              :tense => :past,
-              # TODO: this is actually a complement
-              :c => "in an even number"
-            }
-          ), 
-          DataClaim.new( lambda{|x, _| x/10 > 0 && x.to_s.chars.to_a.last.to_i.odd? }, #TODO: figure out how to get rid of these dupes (odd/even)
-            {
-              :v => 'end',
-              :tense => :past,
-              # TODO: this is actually a complement
-              :c => "in an odd number"
-            }
-          ), 
+          # removed for being kind of dumb.
+          # DataClaim.new( lambda{|x, _| x/10 > 0 && x.to_s.chars.to_a.last.to_i.even? }, 
+          #   {
+          #     :v => 'end',
+          #     :tense => :past,
+          #     # TODO: this is actually a complement
+          #     :c => "in an even number"
+          #   }
+          # ), 
+          # DataClaim.new( lambda{|x, _| x/10 > 0 && x.to_s.chars.to_a.last.to_i.odd? }, #TODO: figure out how to get rid of these dupes (odd/even)
+          #   {
+          #     :v => 'end',
+          #     :tense => :past,
+          #     # TODO: this is actually a complement
+          #     :c => "in an odd number"
+          #   }
+          # ), 
           DataClaim.new( lambda{|x, _| x/10 > 0 && x.to_s.chars.to_a.first.to_i.even? }, 
             {
               :v => 'start',
@@ -608,6 +632,4 @@ module PunditBot
       @elections[:pres][usa_winner["State"]] = usa_winner
     end
   end
-
-
 end

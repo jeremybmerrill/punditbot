@@ -7,21 +7,21 @@ PunditBot
 
 These claims are stupid. They have no predictive power. Let's mock them.
 
+
+
 TODO:
-  - add "Every year BUT 1992"
-  
+
   DO NOW: 
-  - weather, temperature on election day
+  - miles traveled (RITA file in data, http://www.rita.dot.gov/bts/sites/rita.dot.gov.bts/files/publications/national_transportation_statistics/html/table_01_40.html)
+  - updated vegetable figures?
   - just be careful to note SOMEWHERE that 2014 vegetable figures are a prediction
+  - add airline delays, amtrak stations served, oil prices (http://www.eia.gov/dnav/pet/pet_pri_spt_s1_a.htm)
 
 Leave this for later, focus on MVP:
     - add categorical data sets (how does this work??) {:s => "weather on election day", :v => 'is', :o => "rainy"} {:s => "the Super Bowl winner", :v => 'is', :o => "the Patriots"}
     - commas and dashes (fixed, but for bugs, e.g. https://github.com/simplenlg/simplenlg/issues/13 )
     - state based "without winning Iowa or Pennsylvania"
     - MAYBE: add support for candidate based exceptions ("Without a Clinton on the ballot, ")
-    - boolean type (e.g. "had a trade deficit")?? ( already in correlates.yml )
+    - boolean type (e.g. "had a trade deficit", "was warmer than usual")?? ( already in correlates.yml )
   - can I make a hash that represents a whole sentence?? (then isolate linguistics stuff)
   - Do I even need this Noun class? Will the Lexicon thing deal with noun number for me?
-
-
-sudo apt-get remove linux-headers-3.19.0-20 linux-headers-3.19.0-20-generic linux-image-3.19.0-20-generic

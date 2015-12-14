@@ -27,46 +27,45 @@ end
 module PunditBot
   MAX_OUTPUT_LENGTH = 140
 
-  if ENV["TWEET"] == "true"
-    require 'twitter'
-    until !(prediction ||= nil).nil?
-      pundit = PunditBot.new
-      prediction = pundit.generate_prediction
-      prediction = nil if !prediction.nil? && prediction.column_type == "integral" && rand < 0.8
+  def self.generate_prediction
+    if false || __FILE__ != $0 # if called from a library, do this, unless I set my magic false/true variable to choose what I want to happen
+      until !(prediction ||= nil).nil?
+        pundit = PunditBot.new
+        prediction = pundit.generate_prediction
+        puts prediction.to_s
+        prediction = nil if !prediction.nil? && prediction.column_type == "integral" && rand < 0.8
+      end
+      puts prediction.to_s
+      return prediction
+    else # counting prediction types, used to figure out some of these weights
+      claim_types = Hash.new(0)
+      data_claim_counts = Hash.new(0)
+      predictions = []
+      loop do 
+        pundit = PunditBot.new
+        prediction = pundit.generate_prediction
+        next if prediction.nil?
+                                                                   #0.80 ==> {:integral=>834, :numeric=>290}
+        next if prediction.column_type == :integral && rand < 0.80 # exclude 80% of integral claims
+        # available methods: dataset, column, column_type
+        next if data_claim_counts[prediction.metadata[:data_claim]] > (data_claim_counts.values.reduce(&:+) || 0) / 5.0
+        claim_types[prediction.column_type] += 1
+        data_claim_counts[prediction.metadata[:data_claim].inspect.split("merrillj")[-1]] += 1
+        predictions << prediction.inspect
+        predictions.compact!
+        predictions.uniq!
+        puts predictions.size
+        break if predictions.size >= 10 # was 10
+      end
+      puts claim_types
+      puts data_claim_counts
+      puts predictions
     end
-
-    creds = YAML.load_file("creds.yml")
-    client = Twitter::REST::Client.new do |config|
-      config.consumer_key        = creds["consumer_key"]
-      config.consumer_secret     = creds["consumer_secret"]
-      config.access_token        = creds["access_token"]
-      config.access_token_secret = creds["access_token_secret"]
-    end
-    puts "trying to tweet: #{prediction.inspect}"
-    client.update(prediction.to_s) # unless prediction.to_s.match(/((odd|even) number)|Dem/)
-    puts "success"
-  else 
-    claim_types = Hash.new(0)
-    data_claim_counts = Hash.new(0)
-    predictions = []
-    loop do 
-      pundit = PunditBot.new
-      prediction = pundit.generate_prediction
-      next if prediction.nil?
-      next if prediction.column_type == "integral" && rand < 0.8 # exclude 80% of integral claims
-      # available methods: dataset, column, column_type
-      next if data_claim_counts[prediction.metadata[:data_claim]] > (data_claim_counts.values.reduce(&:+) || 0) / 5.0
-      claim_types[prediction.column_type] += 1
-      data_claim_counts[prediction.metadata[:data_claim]] += 1
-      predictions << prediction.inspect
-      predictions.compact!
-      predictions.uniq!
-      puts predictions.size
-      break if predictions.size >= 10 # was 10
-    end
-    puts predictions
-    # puts claim_types
   end
+end
+
+if __FILE__ == $0
+  PunditBot.generate_prediction
 end
 
 # Since 1975, in every year fake unemployment had declined over the past year, the GOP has  won the presidency save 2012.
