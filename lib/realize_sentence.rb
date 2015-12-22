@@ -207,11 +207,12 @@ class Prediction
 
   def exhortation
     @data_phrase || templatize!
-    claim_polarity = @prediction_meta[:claim_polarity]
+    party_member_name, claim_polarity = *[[@prediction_meta[:party].member_name, @prediction_meta[:claim_polarity]], [@prediction_meta[:party].member_name.downcase.include?("democrat") ? "Republican" : "Democrat", !@prediction_meta[:claim_polarity]]].sample 
     @data_phrase.set_feature(NLG::Feature::TENSE, NLG::Tense::PRESENT)
-    @data_phrase.set_feature(NLG::Feature::SUPRESSED_COMPLEMENTISER, true)
+    # @data_phrase.set_feature(NLG::Feature::SUPRESSED_COMPLEMENTISER, true)
+    @data_phrase.set_feature(NLG::Feature::COMPLEMENTISER, 'that') # requires 3eed77f5bf6ce0e2655d80ce3ba453696ad5bb8a in my fork of SimpleNLG
     @data_phrase.set_feature(NLG::Feature::NEGATED, claim_polarity)
-    party_member_name = @prediction_meta[:party].member_name
+
     pp = NLG.factory.create_preposition_phrase(NLG.factory.create_noun_phrase('this', 'year'))
     # What I can generate:
     #   Democrats should hope that bears killed more than 10 people this year.
@@ -225,7 +226,7 @@ class Prediction
     #   If you're a Democrat, you want vegetable use to increase this year.
     #   Republicans, you need to hope that DDDDDDD is an even number this year.
 
-    case [:bare, :you, :if, :imperative].sample
+    case [:you, :if, :imperative].sample # removed :bare because it sucks
     when :bare
       np = NLG.factory.create_noun_phrase(party_member_name)
       np.set_feature(NLG::Feature::NUMBER, NLG::NumberAgreement::PLURAL)
@@ -255,13 +256,14 @@ class Prediction
 
       inner.add_complement(@data_phrase)
 
+      party_np = NLG.factory.create_noun_phrase(party_member_name)
+      party_np.set_feature(NLG::Feature::NUMBER, NLG::NumberAgreement::PLURAL)
+      phrase.add_front_modifier(party_np) # cue phrase
+
       modifiers = [:add_post_modifier, :add_front_modifier]
       phrase.send(modifiers.sample,  pp)
       inner.set_feature(NLG::Feature::FORM, NLG::Form::INFINITIVE)
       phrase.add_complement(inner)
-      np = NLG.factory.create_noun_phrase(party_member_name)
-      np.set_feature(NLG::Feature::NUMBER, NLG::NumberAgreement::PLURAL)
-      phrase.add_front_modifier(np) # cue phrase
       NLG.realizer.setCommaSepCuephrase(true)
     when :if
       phrase = NLG.phrase({
@@ -294,6 +296,10 @@ class Prediction
     end
 
     @exhortation =       NLG.realizer.realise_sentence(phrase).gsub("the previous", "last")
+     # Democrats, you need to hope carrot use grows from last year this year.
+     
+    @exhortation.gsub!(" does not ", " doesn't ") if [true, false].sample
+
     @exhortation
   end
 

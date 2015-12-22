@@ -28,14 +28,14 @@ module PunditBot
   MAX_OUTPUT_LENGTH = 140
 
   def self.generate_prediction
-    if false || __FILE__ != $0 # if called from a library, do this, unless I set my magic false/true variable to choose what I want to happen
+    if true || __FILE__ != $0 # if called from a library, do this, unless I set my magic false/true variable to choose what I want to happen
       until !(prediction ||= nil).nil?
         pundit = PunditBot.new
         prediction = pundit.generate_prediction
         puts prediction.to_s
         prediction = nil if !prediction.nil? && prediction.column_type == "integral" && rand < 0.8
       end
-      puts prediction.to_s
+      puts prediction.exhortation
       return prediction
     else # counting prediction types, used to figure out some of these weights
       claim_types = Hash.new(0)

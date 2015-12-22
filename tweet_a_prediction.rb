@@ -8,7 +8,10 @@ if __FILE__ == $0
     config.access_token        = creds["access_token"]
     config.access_token_secret = creds["access_token_secret"]
   end
-  prediction = PunditBot.generate_prediction
+  while 1
+    prediction = PunditBot.generate_prediction
+    break unless prediction.nil?
+  end
   tweet = client.update(prediction.prediction_text)
   exhortation_tweet = client.update(prediction.exhortation + " #{tweet.url}")
   # a quoted tweet just appends at the end the link https://dev.twitter.com/rest/reference/post/statuses/update
