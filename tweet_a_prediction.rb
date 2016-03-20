@@ -10,7 +10,7 @@ if __FILE__ == $0
   end
   while 1
     prediction = PunditBot.generate_prediction
-    break unless prediction.nil?
+    break unless prediction.nil? || prediction.prediction_text.nil?
   end
   puts "trying to tweet `#{prediction.prediction_text}` (an attempt to solve the occasional missing status error from the Twitter gem.)"
   tweet = client.update(prediction.prediction_text)
