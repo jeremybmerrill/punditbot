@@ -152,14 +152,14 @@ class Prediction
     # which perhaps should implement a Rephraseable mix-in so they can have min_by, max_by
 
     rephraseables = {}
-    rephraseables[:politics_condition_object] = @prediction_meta[:politics_condition].objects.dup
+    rephraseables[:politics_condition_object] =  @prediction_meta[:politics_condition].objects.dup
     rephraseables[:party] = @prediction_meta[:party].alt_names.dup
     rephraseables[:since_after] = ['since', 'after', 'starting in']
     rephraseables[:except] = ['except', 'besides'] 
     rephraseables[:when] = ['when', 'in years when', 'whenever', 'in years']
     rephraseables[:year_election] = ["year", "election year"]
     rephraseables[:correlate_nouns] = @prediction_meta[:correlate_noun]
-    rephraseables[:prediction_meta_data_claim_o] = @prediction_meta[:data_claim].template[:o] if @prediction_meta[:data_claim].template.has_key?(:o)
+    rephraseables[:prediction_meta_data_claim_o] = (@prediction_meta[:data_claim].template[:o].respond_to?(:min_by) ? @prediction_meta[:data_claim].template[:o] : [@prediction_meta[:data_claim].template[:o]]) if @prediction_meta[:data_claim].template.has_key?(:o) && @prediction_meta[:data_claim].template[:o]
     # collect all the rephraseable elements
     # rephraseables[:data_claim_object] = [] if [].respond_to?(:rephrase)
     rephraseables.compact!

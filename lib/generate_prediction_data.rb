@@ -79,19 +79,27 @@ module PunditBot
         objects: [Noun.new("the House", 1)],
         election_interval: 2
     ),
-    PoliticsCondition.new(
-        race: :congress, 
-        control: false, # if after the election, the chosen party/person controls the object
-        change: false,  # if the election caused a change in control of the object
-        objects: [Noun.new("both houses of Congress", 1), Noun.new("the House and the Senate", 1), Noun.new("Congress", 1),],
-        election_interval: 2
-    ),
+    # TODO: what, if anything, does 'control' do?
+    # and is it working rihgt?
+
+
+    # TODO: this is broken because so much logic based on comparing strings
+    # but, the "Split" condition is a problem here
+    # it's not the case that if the Democrats control one house (i.e. "Split")
+    # that the Democrats have lost both houses
+    # PoliticsCondition.new(
+    #     race: :congress, 
+    #     control: false, # if after the election, the chosen party/person controls the object
+    #     change: false,  # if the election caused a change in control of the object
+    #     objects: [Noun.new("both houses of Congress", 1), Noun.new("the House and the Senate", 1), Noun.new("Congress", 1),],
+    #     election_interval: 2
+    # ),
 
 
     # PoliticsCondition.new(
     #     race: :pres, 
     #     control: true, # if after the election, the chosen party/person controls the object
-    #     change: false,  # if the election caused a change in control of the object
+    #     change: true,  # if the election caused a change in control of the object
     #     objects: [Noun.new("White House", 1), Noun.new("presidency", 1)] 
     # ),
     # PoliticsCondition.new(
@@ -193,7 +201,7 @@ module PunditBot
 
     def cleaners
       { 
-        :integral     => lambda{|n| n.gsub(/[^\d\.]/, '').to_f.round },  #removes dots, so only suitable for claims ABOUT numbers, like 'digits add up an even number'
+        :integral     => lambda{|n| n.gsub(/[^\d\.]/, '').to_f.round(n.include?('.') ? 1 : 0) },  #removes dots, so only suitable for claims ABOUT numbers, like 'digits add up an even number
         :numeric     =>  lambda{|n| n.gsub(/[^\d\.]/, '').to_f.send(n.include?('.') ? :to_f : :round) }, 
         :categorical =>  lambda{|x| x}
       }
@@ -279,7 +287,7 @@ module PunditBot
     def find_data(hash_of_election_results, politics_condition)
       # for our data sets, find the earliest election year where the data condition matches that year's value in the vector_to_match every year or all but once.
       raise JeremyMessedUpError, "hash_of_election_results is not a hash! and everything follows from a contradiction..." unless hash_of_election_results.is_a? Hash
-      # like {2012 => true, 2008 => true, 2004 => false} if we're talking about Dems winning WH
+      # hash_of_election_results like {2012 => true, 2008 => true, 2004 => false} if we're talking about Dems winning WH
 
       # datasets must all look like this {2004 => 5.5, 2008 => 5.8, 2012 => 8.1 }
       get_a_dataset! # seems more exciting with the ! at the end, no?
@@ -430,9 +438,9 @@ module PunditBot
                               np.set_specifier(possessive)
                               np
                            end,
-              :v => 'add up',
+              :v => 'add',
               :tense => :present,
-              :c => 'to an even number'
+              :c => 'up to an even number'
             }
           ), 
           DataClaim.new( lambda{|x, _| x.to_s.chars.map(&:to_i).reduce(&:+).odd? }, 
@@ -449,13 +457,13 @@ module PunditBot
                               np.set_specifier(possessive)
                               np
                            end,
-              :v => 'add up',
+              :v => 'add',
               :tense => :present,
-              :c => 'to an odd number'
+              :c => 'up to an odd number'
             }
           ), 
           # removed for being kind of dumb.
-          # DataClaim.new( lambda{|x, _| x/10 > 0 && x.to_s.chars.to_a.last.to_i.even? }, 
+          # DataClaim.new( lambda{|x, _| x.to_s.chars.to_a.last.to_i.even? }, 
           #   {
           #     :v => 'end',
           #     :tense => :past,
@@ -463,7 +471,7 @@ module PunditBot
           #     :c => "in an even number"
           #   }
           # ), 
-          # DataClaim.new( lambda{|x, _| x/10 > 0 && x.to_s.chars.to_a.last.to_i.odd? }, #TODO: figure out how to get rid of these dupes (odd/even)
+          # DataClaim.new( lambda{|x, _| x.to_s.chars.to_a.last.to_i.odd? }, #TODO: figure out how to get rid of these dupes (odd/even)
           #   {
           #     :v => 'end',
           #     :tense => :past,
@@ -471,7 +479,7 @@ module PunditBot
           #     :c => "in an odd number"
           #   }
           # ), 
-          DataClaim.new( lambda{|x, _| x/10 > 0 && x.to_s.chars.to_a.first.to_i.even? }, 
+          DataClaim.new( lambda{|x, _| x.to_s.chars.to_a.first.to_i.even? }, 
             {
               :v => 'start',
               :tense => :past,
@@ -479,7 +487,7 @@ module PunditBot
               :c => "with an even number"
             }
           ), 
-          DataClaim.new( lambda{|x, _| x/10 > 0 && x.to_s.chars.to_a.first.to_i.odd? }, 
+          DataClaim.new( lambda{|x, _| x.to_s.chars.to_a.first.to_i.odd? }, 
             {
               :v => 'start',
               :tense => :past,
@@ -487,7 +495,7 @@ module PunditBot
               :c => "with an odd number"
             }
           ), 
-          DataClaim.new( lambda{|x, _| x.even? }, 
+          DataClaim.new( lambda{|x, _| x.round.even? }, 
             {
               :v => 'be',
               :tense => :past,
@@ -495,7 +503,7 @@ module PunditBot
               :c => "an even number"
             }
           ), 
-          DataClaim.new( lambda{|x, _| x.odd? }, 
+          DataClaim.new( lambda{|x, _| x.round.odd? }, 
             {
               :v => 'be',
               :tense => :past,
@@ -512,15 +520,40 @@ module PunditBot
         # find the most recent two years where the pattern is broken
         exceptional_year = nil
         start_year = nil
+        data_claim_has_been_true_at_least_once = false
         if @dataset.max_year < @election_years[politics_condition.race].last
           false 
         else
           @election_years[politics_condition.race].reverse.each_with_index do |yr, idx|
-            # next if yr < (@dataset.min_year.to_i - 1).to_s || (yr.to_i - data_claim.year_buffer).to_s < (@dataset.min_year.to_i - 1).to_s
-            break if yr < (@dataset.min_year.to_i - 1).to_s || (yr.to_i - data_claim.year_buffer).to_s < (@dataset.min_year.to_i - 1).to_s
+            break if yr < (@dataset.min_year.to_i).to_s || (yr.to_i - data_claim.year_buffer).to_s < (@dataset.min_year.to_i - 1).to_s
             # find the second year for which the pattern doesn't fit
-            if data_claim.condition.call(@dataset.data[yr], yr) == (hash_of_election_results[yr] == polarity) # if this year matches the pattern
-              # do nothing
+
+
+
+            # this might be wrong vv
+            # if polarity is true
+            #   if the condition is false this year, great
+            #   or, if condition is true AND the hash_of_election_results is true, great
+            # if polarity is false
+            #   if the condition is true this year, great
+            #   or, if condition is false AND the hash_of_election_results is false, great
+            # otherwise, fail
+
+            # in years where X occurs, Y occurs (exception)
+            # for years where X does not occur, we don't care what happened.
+
+
+
+            # I used to have this: if data_claim.condition.call(@dataset.data[yr], yr) == (hash_of_election_results[yr] == polarity) # if this year matches the pattern
+            # but worried that it was too strict (because the converse of a statement was tested too, hence the error https://twitter.com/PunditBot/status/710460772900536320)
+            # where "besides 2004" implies the GOP lost the WH then, but really it's just the time that the data claim was false (hurricane deaths declined yoy)
+            # TODO: we need the condition to be true at least once. (otherwise, we get stuff like the Dems win every time hurricanes count is negative, which is only sort of true)
+            if (!data_claim.condition.call(@dataset.data[yr], yr))
+              # do nothing, because if we're talking about, e.g., when unemployment was an odd number, if it's even, we don't care.
+              # puts "irrelevant: #{yr},  #{data_claim.condition.call(@dataset.data[yr], yr)}, #{@dataset.data[yr]}"
+            elsif data_claim.condition.call(@dataset.data[yr], yr) && (hash_of_election_results[yr] == polarity) # if this year matches the pattern
+              data_claim_has_been_true_at_least_once = true
+              # do nothing, because it's true here
               # puts "match: #{yr},  #{data_claim.condition.call(@dataset.data[yr], yr)}, #{@dataset.data[yr]}"
             elsif exceptional_year.nil? # if this is the first year that doesn't match the pattern
               exceptional_year = yr
@@ -528,29 +561,33 @@ module PunditBot
             else # `yr` is the second year that doesn't match the pattern
               start_year = (yr.to_i + politics_condition.election_interval).to_s 
               if start_year == exceptional_year
+                start_year = (exceptional_year.to_i + politics_condition.election_interval).to_s 
                 exceptional_year = nil
               end
               break
             end
           end
+          if data_claim_has_been_true_at_least_once
+            # if there is no start year set yet, take the minimum election year from the dataset
+            start_year = @election_years[politics_condition.race].reject{|yr| yr < @dataset.min_year }.min if start_year.nil?
 
-          # if there is no start year set yet, take the minimum election year from the dataset
-          start_year = @election_years[politics_condition.race].reject{|yr| yr < @dataset.min_year }.min if start_year.nil?
-
-          if start_year > TOO_RECENT_TO_CARE_CUTOFF.to_s
-            false
+            if start_year > TOO_RECENT_TO_CARE_CUTOFF.to_s
+              false
+            else
+              prediction_meta = {
+                data_claim: data_claim,
+                correlate_noun: @dataset.nouns,
+                start_year: start_year, #never nil
+                exceptional_year: exceptional_year, # maybe nil
+                covered_years: @election_years[politics_condition.race].reject{|yr| yr < start_year || yr > @dataset.max_year },
+                polarity: polarity,
+                data_claim_type: @dataset.data_type,
+                dataset_source: @dataset.source
+              }
+              break
+            end
           else
-            prediction_meta = {
-              data_claim: data_claim,
-              correlate_noun: @dataset.nouns,
-              start_year: start_year, #never nil
-              exceptional_year: exceptional_year, # maybe nil
-              covered_years: @election_years[politics_condition.race].reject{|yr| yr < start_year || yr > @dataset.max_year },
-              polarity: polarity,
-              data_claim_type: @dataset.data_type,
-              dataset_source: @dataset.source
-            }
-            break
+            false
           end
         end
       end

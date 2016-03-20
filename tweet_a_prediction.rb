@@ -12,6 +12,7 @@ if __FILE__ == $0
     prediction = PunditBot.generate_prediction
     break unless prediction.nil?
   end
+  puts "trying to tweet `#{prediction.prediction_text}` (an attempt to solve the occasional missing status error from the Twitter gem.)"
   tweet = client.update(prediction.prediction_text)
   exhortation_tweet = client.update(prediction.exhortation + " #{tweet.url}")
   # a quoted tweet just appends at the end the link https://dev.twitter.com/rest/reference/post/statuses/update
