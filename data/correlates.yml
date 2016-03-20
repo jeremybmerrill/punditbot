@@ -43,6 +43,12 @@
           noun_number: 1
         - noun: Atlantic tropical storm damage
           noun_number: 1
+      units:
+        - dollars
+        - USD
+        - word: "$"
+          direction: prefix
+          include_space: false
       type: numeric
     - header: Retired Names
       nouns: 
