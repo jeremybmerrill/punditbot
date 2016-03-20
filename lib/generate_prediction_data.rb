@@ -5,6 +5,24 @@ require 'simplernlg' if RUBY_PLATFORM == 'java'
 puts "Warning, this only works on JRuby but you can check for syntax errors more quickly in MRE" if RUBY_PLATFORM != 'java'
 NLG = SimplerNLG::NLG
 
+$settings_for_testing = {
+  :dataset  => nil,  
+                     # unemployment.csv, atlantic_hurricanes.csv, super_bowl.csv, 
+                     # vegetables.csv, us_international_trade_in_goods.csv, avg_temperature.csv, 
+                     # central_park_election_day_weather.csv, monthly-central-park-snowfall.csv
+  :data_column => nil,
+  :politics_condition => nil, # [:sen_lost, :pres_lost, :house_lost]
+  :political_party => nil,          # [:dem, :gop]
+  :data_claim => nil 
+                    # "greater than", "less than", "is positive", "is negative", 
+                    # "grew from the previous year", "declined from the previous year",
+                    # "grew year over year", "declined year over year", "increased", "declined",
+                    # "grew from the previous election year", "declined from the previous election year",
+                    # "was", "adds up to an even number", "adds up to an odd number", 
+                    # "starts up to an even number", "starts up to an odd number", "is an even number", 
+                    # "is an odd number", 
+}
+
 
 module PunditBot
   POLARITIES = [true, false]
@@ -57,22 +75,22 @@ module PunditBot
   end
 
   #TODO: reorganize code to put settings (like this, data claims, etc.) in one place
-  POLITICS_CONDITIONS = [
-    PoliticsCondition.new(
+  POLITICS_CONDITIONS = {
+    :pres_lost => PoliticsCondition.new(
         race: :pres, 
         control: false, # if after the election, the chosen party/person controls the object
         change: false,  # if the election caused a change in control of the object
         objects: [Noun.new("the White House", 1), Noun.new("the presidency", 1)],
         election_interval: 4
     ),
-    PoliticsCondition.new(
+    :sen_lost => PoliticsCondition.new(
         race: :senate, 
         control: false, # if after the election, the chosen party/person controls the object
         change: false,  # if the election caused a change in control of the object
         objects: [Noun.new("the Senate", 1)],
         election_interval: 2
     ),
-    PoliticsCondition.new(
+    :house_lost => PoliticsCondition.new(
         race: :house, 
         control: false, # if after the election, the chosen party/person controls the object
         change: false,  # if the election caused a change in control of the object
@@ -87,7 +105,7 @@ module PunditBot
     # but, the "Split" condition is a problem here
     # it's not the case that if the Democrats control one house (i.e. "Split")
     # that the Democrats have lost both houses
-    # PoliticsCondition.new(
+    # :cong_lost => PoliticsCondition.new(
     #     race: :congress, 
     #     control: false, # if after the election, the chosen party/person controls the object
     #     change: false,  # if the election caused a change in control of the object
@@ -96,25 +114,18 @@ module PunditBot
     # ),
 
 
-    # PoliticsCondition.new(
+    # :pres_gain_control => PoliticsCondition.new(
     #     race: :pres, 
     #     control: true, # if after the election, the chosen party/person controls the object
     #     change: true,  # if the election caused a change in control of the object
     #     objects: [Noun.new("White House", 1), Noun.new("presidency", 1)] 
     # ),
-    # PoliticsCondition.new(
+    # :pres_lose_control => PoliticsCondition.new(
     #     race: :pres, 
     #     control: false, # if after the election, the chosen party/person controls the object
     #     change: true,  # if the election caused a change in control of the object
     #     objects: [Noun.new("White House", 1), Noun.new("presidency", 1)] 
     # ),
-    # PoliticsCondition.new(
-    #     race: :pres, 
-    #     control: true, # if after the election, the chosen party/person controls the object
-    #     change: true,  # if the election caused a change in control of the object
-    #     objects: [Noun.new("White House", 1), Noun.new("presidency", 1)] 
-    # ),
-
                           # },
                             # "hasn't controlled the Senate" => {},
                             # "hasn't controlled the House" => {},
@@ -125,7 +136,7 @@ module PunditBot
                             #TODO: "hasn't won <state>'s electoral votes"
                             #TODO: "hasn't won both of <state>'s Senate seats"
                             #TODO: "hasn't won the White House without <state>",
-    ]
+    }
 
   class Party
 
@@ -149,16 +160,17 @@ module PunditBot
       @alt_names.min_by(&blk)
     end
   end
-  PARTIES = [
-    Party.new(["Democratic Party", 1], [["Dems", 2], ["Democrats", 2]], 'D', "Democrat"), 
-    Party.new(["Republican Party", 1], [["G.O.P.", 1], ["Republicans", 2]], 'R', "Republican")
-  ]
+  PARTIES = {
+    :dem => Party.new(["Democratic Party", 1], [["Dems", 2], ["Democrats", 2]], 'D', "Democrat"), 
+    :gop => Party.new(["Republican Party", 1], [["G.O.P.", 1], ["Republicans", 2]], 'R', "Republican")
+  }
 
   class DataClaim
-    attr_reader :condition, :year_buffer
+    attr_reader :condition, :year_buffer, :name
     attr_accessor :template
-    def initialize(condition, template, year_buffer = nil)
+    def initialize(condition, template, name, year_buffer = nil)
       @template = template
+      @name = name
       raise ArgumentError, "DataClaim condition is not callable" unless condition.respond_to? :call
       @condition = condition
       @year_buffer = year_buffer || 0
@@ -214,7 +226,7 @@ module PunditBot
       @data_columns += @data_columns.select{|column| column["type"] == "numeric"}.map{|column| c = column.dup; c["type"] = "integral"; c}
       # reject those columns whose type doesn't have a cleaner (i.e. I haven't figured out categorical yet, but some are in the yaml file)
       @data_columns.reject!{|column| cleaners[column["type"].to_sym].nil? }
-      column = @data_columns.sample
+      column = @data_columns.find{|col| col["header"] == $settings_for_testing[:data_column] } || @data_columns.sample
       if column["nouns"]
         @nouns = column["nouns"].map{|n| Noun.new(n["noun"], n["noun_number"])}
       else
@@ -280,7 +292,9 @@ module PunditBot
     end
 
     def get_a_dataset!
-      @dataset = Dataset.new(@datasets.select{|y| y["filename"] }.sample)
+      # @dataset = Dataset.new(  @datasets.select{|y| y["filename"] }.sample   )
+      valid_datasets = @datasets.select{|y| y["filename"] }
+      @dataset = Dataset.new(  valid_datasets.find{|d| d["filename"] == $settings_for_testing[:dataset] } || valid_datasets.sample )
       @dataset.get_data!
     end
 
@@ -304,9 +318,12 @@ module PunditBot
         # claims that apply to changes in numbers as the noun itself ('atlantic hurricane deaths decreased')
         :numeric => [
           DataClaim.new( lambda{|x, _|  x > trues.map{|a, b| b}.min }, 
-            :v => 'be',
-            :tense => :past,
-            :o => @dataset.add_units("greater than", trues.map{|a, b| b}.min) # obvi true for trues; if true for all of falses, unemployment was less than trues.min all the time,
+            {
+              :v => 'be',
+              :tense => :past,
+              :o => @dataset.add_units("greater than", trues.map{|a, b| b}.min) # obvi true for trues; if true for all of falses, unemployment was less than trues.min all the time,
+            },
+            "greater than"
           ),
           
           DataClaim.new( lambda{|x, _| x < trues.map{|a, b| b}.max }, 
@@ -314,7 +331,8 @@ module PunditBot
               :v => 'be',
               :tense => :past,
               :o => @dataset.add_units("less than", trues.map{|a, b| b}.max) # obvi true for trues; if true for all of falses, unemployment was less than trues.min all the time,
-            }
+            },
+            "less than"
           ),
 
           DataClaim.new( lambda{|x, _| x > 0 }, 
@@ -322,14 +340,16 @@ module PunditBot
               :v => 'is',
               :tense => :past,
               :o => "positive" 
-            }
+            },
+            "is positive"
           ),
           DataClaim.new( lambda{|x, _| x < 0 }, 
             {
               :v => 'is',
               :tense => :past,
               :o => "negative" 
-            }
+            },
+            "is negative"
           ),
 
 
@@ -341,6 +361,7 @@ module PunditBot
               # TODO: this is actually a complement
               :c => "from the previous year",
             }, 
+            "grew from the previous year",
             1
           ), 
           DataClaim.new( lambda{|x, yr| x < @dataset.data[(yr.to_i-1).to_s] }, 
@@ -350,6 +371,7 @@ module PunditBot
               # TODO: this is actually a complement
               :c => "from the previous year",
             }, 
+            "declined from the previous year",
             1
           ), 
           DataClaim.new( lambda{|x, yr| x > @dataset.data[(yr.to_i-1).to_s] }, 
@@ -359,6 +381,7 @@ module PunditBot
               # TODO: this is actually a complement
               :c => "year over year",
             }, 
+            "grew year over year",
             1
           ), 
           DataClaim.new( lambda{|x, yr| x < @dataset.data[(yr.to_i-1).to_s] }, 
@@ -368,6 +391,7 @@ module PunditBot
               # TODO: this is actually a complement
               :c => "year over year",
             }, 
+            "declined year over year",
             1
           ),           
           DataClaim.new( lambda{|x, yr| x > @dataset.data[(yr.to_i-1).to_s] }, 
@@ -375,6 +399,7 @@ module PunditBot
               :v => 'increase',
               :tense => :past,
             }, 
+            "increased",
             1
           ), 
           DataClaim.new( lambda{|x, yr| x < @dataset.data[(yr.to_i-1).to_s] }, 
@@ -382,6 +407,7 @@ module PunditBot
               :v => 'decline',
               :tense => :past,
             }, 
+            "declined",
             1
           ), 
 
@@ -393,6 +419,7 @@ module PunditBot
               # TODO: this is actually a complement
               :c => "from the previous election year",
             }, 
+            "grew from the previous election year",
             politics_condition.election_interval
           ), 
           DataClaim.new( lambda{|x, yr| x < @dataset.data[(yr.to_i-politics_condition.election_interval).to_s] }, 
@@ -402,6 +429,7 @@ module PunditBot
               # TODO: this is actually a complement
               :c => "from the previous election year",
             }, 
+            "declined from the previous election year",
             politics_condition.election_interval
           ), 
         ],
@@ -418,7 +446,8 @@ module PunditBot
               :tense => :past,
               :o => "asfd asdf TK"
               # TODO: this is actually a complement
-            }
+            },
+            "was"
           ), 
       ],
 
@@ -441,7 +470,8 @@ module PunditBot
               :v => 'add',
               :tense => :present,
               :c => 'up to an even number'
-            }
+            },
+            "adds up to an even number"
           ), 
           DataClaim.new( lambda{|x, _| x.to_s.chars.map(&:to_i).reduce(&:+).odd? }, 
             # "<noun>'s digits add up to an odd number",
@@ -460,7 +490,8 @@ module PunditBot
               :v => 'add',
               :tense => :present,
               :c => 'up to an odd number'
-            }
+            },
+            "adds up to an odd number"
           ), 
           # removed for being kind of dumb.
           # DataClaim.new( lambda{|x, _| x.to_s.chars.to_a.last.to_i.even? }, 
@@ -485,7 +516,8 @@ module PunditBot
               :tense => :past,
               # TODO: this is actually a complement
               :c => "with an even number"
-            }
+            },
+            "starts up to an even number"
           ), 
           DataClaim.new( lambda{|x, _| x.to_s.chars.to_a.first.to_i.odd? }, 
             {
@@ -493,7 +525,8 @@ module PunditBot
               :tense => :past,
               # TODO: this is actually a complement
               :c => "with an odd number"
-            }
+            },
+            "starts up to an odd number"
           ), 
           DataClaim.new( lambda{|x, _| x.round.even? }, 
             {
@@ -501,7 +534,8 @@ module PunditBot
               :tense => :past,
               # TODO: this is actually a complement
               :c => "an even number"
-            }
+            },
+            "is an even number"
           ), 
           DataClaim.new( lambda{|x, _| x.round.odd? }, 
             {
@@ -509,7 +543,8 @@ module PunditBot
               :tense => :past,
               # TODO: this is actually a complement
               :c => "an odd number"
-            }
+            },
+            "is an odd number"
           ), 
 
         ],
@@ -517,6 +552,8 @@ module PunditBot
 
       prediction_meta = nil
       data_claims[@dataset.data_type || "numeric"].product(POLARITIES).shuffle.find do |data_claim, polarity|
+        next false unless $settings_for_testing[:data_claim].nil? || data_claim.name == $settings_for_testing[:data_claim]
+
         # find the most recent two years where the pattern is broken
         exceptional_year = nil
         start_year = nil
@@ -598,8 +635,8 @@ module PunditBot
 
     def generate_prediction
       prediction = Prediction.new
-      prediction.set(:party, party = @parties.sample) # TODO: party is our subj
-      politics_condition = POLITICS_CONDITIONS.sample
+      prediction.set(:party, party = @parties[ $settings_for_testing[:political_party] || @parties.keys.sample]) # TODO: party is our subj
+      politics_condition = POLITICS_CONDITIONS[$settings_for_testing[:politics_condition] || POLITICS_CONDITIONS.keys.sample]
       politics_claim_truth_vector = vectorize_politics_condition(politics_condition, party)
       data = find_data(politics_claim_truth_vector, politics_condition)
       return nil if data.nil?
