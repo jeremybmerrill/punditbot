@@ -932,3 +932,234 @@
       - word: "in"
         direction: "suffix"
         include_space: false
+
+
+- filename: PCOFFROBUSDA.csv
+  year_column_header: DATE
+  source: "https://research.stlouisfed.org/fred2/series/PCOFFROBUSDA"
+  data_columns:
+    - header: VALUE
+      nouns: 
+        - noun: price of coffee
+          noun_number: 1
+        - noun: price of a lb of coffee
+          noun_number: 1
+        - noun: price of a pound of coffee
+          noun_number: 1
+        - noun: cost of a pound of coffee
+          noun_number: 1
+        - noun: cost of a lb of coffee
+          noun_number: 1
+        - noun: price of robusta coffee beans
+          noun_number: 1
+        - noun: price of a lb of robusta coffee beans
+          noun_number: 1
+        - noun: price of a pound of robusta coffee beans
+          noun_number: 1
+        - noun: cost of a pound of robusta coffee beans
+          noun_number: 1
+        - noun: cost of a lb of robusta coffee beans
+          noun_number: 1
+        - noun: price per-lb of coffee
+          noun_number: 1
+        - noun: price per-pound of coffee
+          noun_number: 1
+      type: numeric
+      units: 
+        - dollars
+        - word: "$"
+          direction: "prefix"
+          include_space: false
+- filename: GOLDAMGBD228NLBM.csv
+  year_column_header: DATE
+  source: "https://research.stlouisfed.org/fred2/series/GOLDAMGBD228NLBM"
+  data_columns:
+    - header: VALUE
+      nouns: 
+        - noun: the gold price 
+          noun_number: 1
+        - noun: the price of gold
+          noun_number: 1
+        - noun: the LBMA gold fixing price
+          noun_number: 1
+        - noun: the price of an ounce of gold
+          noun_number: 1
+        - noun: the price of a troy ounce of gold
+          noun_number: 1
+      type: numeric
+      units: 
+        - dollars
+        - word: "$"
+          direction: "prefix"
+          include_space: false
+- filename: PSOYBUSDQ.csv
+  year_column_header: DATE
+  source: "https://research.stlouisfed.org/fred2/series/PSOYBUSDQ"
+  data_columns:
+    - header: VALUE
+      nouns: 
+        - noun: price of soybeans
+          noun_number: 1
+        - noun: price of a ton of soybeans
+          noun_number: 1
+        - noun: cost of a ton of soybeans
+          noun_number: 1
+      type: numeric
+      units: 
+        - dollars
+        - word: "$"
+          direction: "prefix"
+          include_space: false
+- filename: PWHEAMTUSDA.csv
+  year_column_header: DATE
+  source: "https://research.stlouisfed.org/fred2/series/PWHEAMTUSDA"
+  data_columns:
+    - header: VALUE
+      nouns: 
+        - noun: price of wheat
+          noun_number: 1
+        - noun: price of a ton of wheat
+          noun_number: 1
+        - noun: cost of a ton of wheat
+          noun_number: 1
+      type: numeric
+      units: 
+        - dollars
+        - word: "$"
+          direction: "prefix"
+          include_space: false
+- filename: PBEEFUSDA.csv
+  year_column_header: DATE
+  source: "https://research.stlouisfed.org/fred2/series/PBEEFUSDA"
+  data_columns:
+    - header: VALUE
+      nouns: 
+        - noun: price of beef
+          noun_number: 1
+        - noun: price of a lb of beef
+          noun_number: 1
+        - noun: price of a pound of beef
+          noun_number: 1
+        - noun: cost of a pound of beef
+          noun_number: 1
+        - noun: cost of a lb of beef
+          noun_number: 1
+      type: numeric
+      units: 
+        - dollars
+        - word: "$"
+          direction: "prefix"
+          include_space: false
+- filename: PIORECRUSDM.csv
+  year_column_header: DATE
+  source: "https://research.stlouisfed.org/fred2/series/PIORECRUSDM"
+  data_columns:
+    - header: VALUE
+      nouns: 
+        - noun: price of iron
+          noun_number: 1
+        - noun: price of a ton of iron
+          noun_number: 1
+        - noun: price of iron ore
+          noun_number: 1
+        - noun: price of a ton of iron ore
+          noun_number: 1
+      type: numeric
+      units: 
+        - dollars
+        - word: "$"
+          direction: "prefix"
+          include_space: false
+- filename: OILPRICE.csv
+  year_column_header: DATE
+  source: "https://research.stlouisfed.org/fred2/series/OILPRICE"
+  data_columns:
+    - header: VALUE
+      nouns: 
+        - noun: unemployment
+          noun_number: 1
+      type: numeric
+      units: 
+        - percent
+        - word: "%"
+          direction: "suffix"
+          include_space: false
+- filename: HOUSTNSA.csv
+  year_column_header: DATE
+  source: "https://research.stlouisfed.org/fred2/series/HOUSTNSA"
+  data_columns:
+    - header: VALUE
+      nouns: 
+        - noun: new privately-owned housing units started
+          noun_number: 1
+        - noun: the number of new privately-owned housing units started
+          noun_number: 1
+        - noun: the number of housing starts
+          noun_number: 1
+        - noun: housing starts
+          noun_number: 2
+      type: numeric
+- filename: PCECA.csv
+  year_column_header: DATE
+  source: "https://research.stlouisfed.org/fred2/series/PCECA"
+  data_columns:
+    - header: VALUE
+      nouns: 
+        - noun: consumption
+          noun_number: 1
+        - noun: personal consumption expenditures
+          noun_number: 1
+        - noun: consumption expenditures
+          noun_number: 1
+      type: numeric
+      units: 
+        - billion dollars
+        - word: "B dollars"
+          include_space: false
+- filename: PSAVERT.csv
+  year_column_header: DATE
+  source: "https://research.stlouisfed.org/fred2/series/PSAVERT"
+  data_columns:
+    - header: VALUE
+      nouns: 
+        - noun: the personal savings rate
+          noun_number: 1
+        - noun: the savings rate
+          noun_number: 1
+      type: numeric
+      units: 
+        - percent
+        - word: "%"
+          direction: "suffix"
+          include_space: false
+- filename: RRVRUSQ156N.csv
+  year_column_header: DATE
+  source: "https://research.stlouisfed.org/fred2/series/RRVRUSQ156N"
+  data_columns:
+    - header: VALUE
+      nouns: 
+        - noun: the rental vacancy rate
+          noun_number: 1
+      type: numeric
+      units: 
+        - percent
+        - word: "%"
+          direction: "suffix"
+          include_space: false
+- filename: TRFVOLUSM227NFWA.csv
+  year_column_header: DATE
+  source: "https://research.stlouisfed.org/fred2/series/TRFVOLUSM227NFWA"
+  data_columns:
+    - header: VALUE
+      nouns: 
+        - noun: vehicle miles traveled
+          noun_number: 1
+        - noun: miles cars traveled
+          noun_number: 1
+        - noun: miles traveled
+          noun_number: 1
+      type: numeric
+      units: 
+        - word: "M"
+          direction: "suffix"
+          include_space: false
