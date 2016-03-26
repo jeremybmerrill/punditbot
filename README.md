@@ -31,6 +31,7 @@ Leave this for later, focus on MVP:
   - Replace binary logic with ternary, so we can deal with both-houses-of-Congress control, which can be R, D or Split
   - replace units prefix/suffix thing with a template string, to allow to specify something like "$7.55/oz"
   - find or make a better oil price (Fred's is 1940s-2013, and another is 1986-pres, neither of which is great)
+  - are prices truncated/rounded yet?
 
 Fred is a great source for data to feed to PunditBot:
 https://alfred.stlouisfed.org/category?cid=32217&et=&pageID=3&t=
