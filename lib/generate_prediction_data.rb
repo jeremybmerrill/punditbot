@@ -294,8 +294,6 @@ module PunditBot
     def get_a_dataset!
       # @dataset = Dataset.new(  @datasets.select{|y| y["filename"] }.sample   )
       valid_datasets = @datasets.select{|y| y["filename"] }
-      puts "#{valid_datasets.size} valid datasets"
-
       @dataset = Dataset.new(  valid_datasets.find{|d| d["filename"] == $settings_for_testing[:dataset] } || valid_datasets.sample )
       @dataset.get_data!
     end
