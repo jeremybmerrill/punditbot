@@ -1108,9 +1108,9 @@
         - noun: consumption
           noun_number: 1
         - noun: personal consumption expenditures
-          noun_number: 1
+          noun_number: 2
         - noun: consumption expenditures
-          noun_number: 1
+          noun_number: 2
       type: numeric
       units: 
         - billion dollars
