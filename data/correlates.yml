@@ -940,29 +940,29 @@
   data_columns:
     - header: VALUE
       nouns: 
-        - noun: price of coffee
+        - noun: the price of coffee
           noun_number: 1
-        - noun: price of a lb of coffee
+        - noun: the price of a lb of coffee
           noun_number: 1
-        - noun: price of a pound of coffee
+        - noun: the price of a pound of coffee
           noun_number: 1
-        - noun: cost of a pound of coffee
+        - noun: the cost of a pound of coffee
           noun_number: 1
-        - noun: cost of a lb of coffee
+        - noun: the cost of a lb of coffee
           noun_number: 1
-        - noun: price of robusta coffee beans
+        - noun: the price of robusta coffee beans
           noun_number: 1
-        - noun: price of a lb of robusta coffee beans
+        - noun: the price of a lb of robusta coffee beans
           noun_number: 1
-        - noun: price of a pound of robusta coffee beans
+        - noun: the price of a pound of robusta coffee beans
           noun_number: 1
-        - noun: cost of a pound of robusta coffee beans
+        - noun: the cost of a pound of robusta coffee beans
           noun_number: 1
-        - noun: cost of a lb of robusta coffee beans
+        - noun: the cost of a lb of robusta coffee beans
           noun_number: 1
-        - noun: price per-lb of coffee
+        - noun: the price per-lb of coffee
           noun_number: 1
-        - noun: price per-pound of coffee
+        - noun: the price per-pound of coffee
           noun_number: 1
       type: numeric
       units: 
@@ -998,11 +998,11 @@
   data_columns:
     - header: VALUE
       nouns: 
-        - noun: price of soybeans
+        - noun: the price of soybeans
           noun_number: 1
-        - noun: price of a ton of soybeans
+        - noun: the price of a ton of soybeans
           noun_number: 1
-        - noun: cost of a ton of soybeans
+        - noun: the cost of a ton of soybeans
           noun_number: 1
       type: numeric
       units: 
@@ -1016,11 +1016,11 @@
   data_columns:
     - header: VALUE
       nouns: 
-        - noun: price of wheat
+        - noun: the price of wheat
           noun_number: 1
-        - noun: price of a ton of wheat
+        - noun: the price of a ton of wheat
           noun_number: 1
-        - noun: cost of a ton of wheat
+        - noun: the cost of a ton of wheat
           noun_number: 1
       type: numeric
       units: 
@@ -1034,15 +1034,15 @@
   data_columns:
     - header: VALUE
       nouns: 
-        - noun: price of beef
+        - noun: the price of beef
           noun_number: 1
-        - noun: price of a lb of beef
+        - noun: the price of a lb of beef
           noun_number: 1
-        - noun: price of a pound of beef
+        - noun: the price of a pound of beef
           noun_number: 1
-        - noun: cost of a pound of beef
+        - noun: the cost of a pound of beef
           noun_number: 1
-        - noun: cost of a lb of beef
+        - noun: the cost of a lb of beef
           noun_number: 1
       type: numeric
       units: 
@@ -1056,13 +1056,13 @@
   data_columns:
     - header: VALUE
       nouns: 
-        - noun: price of iron
+        - noun: the price of iron
           noun_number: 1
-        - noun: price of a ton of iron
+        - noun: the price of a ton of iron
           noun_number: 1
-        - noun: price of iron ore
+        - noun: the price of iron ore
           noun_number: 1
-        - noun: price of a ton of iron ore
+        - noun: the price of a ton of iron ore
           noun_number: 1
       type: numeric
       units: 
