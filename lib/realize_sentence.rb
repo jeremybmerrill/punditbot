@@ -211,7 +211,7 @@ class Prediction
     @data_phrase.set_feature(NLG::Feature::TENSE, NLG::Tense::PRESENT)
     # @data_phrase.set_feature(NLG::Feature::SUPRESSED_COMPLEMENTISER, true)
     @data_phrase.set_feature(NLG::Feature::COMPLEMENTISER, 'that') # requires 3eed77f5bf6ce0e2655d80ce3ba453696ad5bb8a in my fork of SimpleNLG
-    @data_phrase.set_feature(NLG::Feature::NEGATED, claim_polarity)
+    @data_phrase.set_feature(NLG::Feature::NEGATED,  @prediction_meta[:politics_condition].control ? !claim_polarity : claim_polarity)
 
     pp = NLG.factory.create_preposition_phrase(NLG.factory.create_noun_phrase('this', 'year'))
     # What I can generate:

@@ -11,7 +11,7 @@ $settings_for_testing = {
                      # vegetables.csv, us_international_trade_in_goods.csv, avg_temperature.csv, 
                      # central_park_election_day_weather.csv, monthly-central-park-snowfall.csv
   :data_column => nil,
-  :politics_condition => nil, # [:sen_lost, :pres_lost, :house_lost]
+  :politics_condition => nil, # [:sen_lost, :pres_lost, :house_lost, :sen_won, :pres_won, :house_won]
   :political_party => nil,          # [:dem, :gop]
   :data_claim => nil
                     # "greater than", "less than", "is positive", "is negative", 
@@ -99,6 +99,27 @@ module PunditBot
     ),
     # TODO: what, if anything, does 'control' do?
     # and is it working rihgt?
+    :pres_won => PoliticsCondition.new(
+        race: :pres, 
+        control: true, # if after the election, the chosen party/person controls the object
+        change: false,  # if the election caused a change in control of the object
+        objects: [Noun.new("the White House", 1), Noun.new("the presidency", 1)],
+        election_interval: 4
+    ),
+    :sen_won => PoliticsCondition.new(
+        race: :senate, 
+        control: true, # if after the election, the chosen party/person controls the object
+        change: false,  # if the election caused a change in control of the object
+        objects: [Noun.new("the Senate", 1)],
+        election_interval: 2
+    ),
+    :house_won => PoliticsCondition.new(
+        race: :house, 
+        control: true, # if after the election, the chosen party/person controls the object
+        change: false,  # if the election caused a change in control of the object
+        objects: [Noun.new("the House", 1)],
+        election_interval: 2
+    ),
 
 
     # TODO: this is broken because so much logic based on comparing strings
