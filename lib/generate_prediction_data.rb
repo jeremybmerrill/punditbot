@@ -10,6 +10,10 @@ $settings_for_testing = {
                      # unemployment.csv, atlantic_hurricanes.csv, super_bowl.csv, 
                      # vegetables.csv, us_international_trade_in_goods.csv, avg_temperature.csv, 
                      # central_park_election_day_weather.csv, monthly-central-park-snowfall.csv
+                     # PCOFFROBUSDA.csv,  GOLDAMGBD228NLBM.csv,  PSOYBUSDQ.csv,  PWHEAMTUSDA.csv,  
+                     # PBEEFUSDA.csv,  PIORECRUSDM.csv,  OILPRICE.csv,  HOUSTNSA.csv,  PCECA.csv, 
+                     # PSAVERT.csv,  RRVRUSQ156N.csv,  TRFVOLUSM227NFWA.csv, 
+
   :data_column => nil,
   :politics_condition => nil, # [:sen_lost, :pres_lost, :house_lost, :sen_won, :pres_won, :house_won]
   :political_party => nil,          # [:dem, :gop]
@@ -97,8 +101,6 @@ module PunditBot
         objects: [Noun.new("the House", 1)],
         election_interval: 2
     ),
-    # TODO: what, if anything, does 'control' do?
-    # and is it working rihgt?
     :pres_won => PoliticsCondition.new(
         race: :pres, 
         control: true, # if after the election, the chosen party/person controls the object
@@ -120,12 +122,15 @@ module PunditBot
         objects: [Noun.new("the House", 1)],
         election_interval: 2
     ),
+    # TODO: what, if anything, does 'control' do?
+    # and is it working right?
 
 
-    # TODO: this is broken because so much logic based on comparing strings
-    # but, the "Split" condition is a problem here
-    # it's not the case that if the Democrats control one house (i.e. "Split")
-    # that the Democrats have lost both houses
+    # TODO: this is broken because so much logic is based on string comparison generating a true/false
+    #       without a good way to handle the third case, where one house is controlled by the Democrats
+    #       and one by the Republicans. Without a third case, PunditBot assumes that, if the Democrats don't
+    #       control both houses of Congress, then the Republicans do. (But in fact, it's split, no one does!)
+
     # :cong_lost => PoliticsCondition.new(
     #     race: :congress, 
     #     control: false, # if after the election, the chosen party/person controls the object
@@ -133,8 +138,6 @@ module PunditBot
     #     objects: [Noun.new("both houses of Congress", 1), Noun.new("the House and the Senate", 1), Noun.new("Congress", 1),],
     #     election_interval: 2
     # ),
-
-
     # :pres_gain_control => PoliticsCondition.new(
     #     race: :pres, 
     #     control: true, # if after the election, the chosen party/person controls the object
@@ -274,13 +277,6 @@ module PunditBot
       return ["#{intro} #{number}"] if @units.size == 0
       @units.map do |unit|
         unit = {"word" => unit} unless unit.respond_to?(:has_key?) && unit.has_key?("word")
-=begin
-    units: 
-      - degrees
-      - word: "°"
-        direction: "suffix"
-        include_space: false
-=end
         rounded = commaify(number.to_s.include?(".") ? number.round(1) : number)
         if unit["direction"] == "prefix"
           intro + " " + (unit["include_space"] == false ? '' : " ") + unit["word"] + rounded.to_s

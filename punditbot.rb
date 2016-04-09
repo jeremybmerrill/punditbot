@@ -33,6 +33,7 @@ module PunditBot
         pundit = PunditBot.new
         prediction = pundit.generate_prediction
         puts prediction.to_s
+        puts prediction.inspect
         prediction = nil if !prediction.nil? && prediction.column_type == "integral" && rand < 0.8
       end
       puts prediction.exhortation
