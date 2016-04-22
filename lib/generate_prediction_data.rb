@@ -1,7 +1,7 @@
 require 'csv'
 require 'yaml'
 
-require 'simplernlg' if RUBY_PLATFORM == 'java'
+require 'simplernlg' # if RUBY_PLATFORM == 'java'
 puts "Warning, this only works on JRuby but you can check for syntax errors more quickly in MRE" if RUBY_PLATFORM != 'java'
 NLG = SimplerNLG::NLG
 
@@ -185,8 +185,8 @@ module PunditBot
     end
   end
   PARTIES = {
-    :dem => Party.new(["Democratic Party", 1], [["Dems", 2], ["Democrats", 2]], 'D', "Democrat"), 
-    :gop => Party.new(["Republican Party", 1], [["G.O.P.", 1], ["Republicans", 2]], 'R', "Republican")
+    :dem => Party.new(["The Democratic Party", 1], [["The Dems", 2], ["The Democrats", 2], ["A Democrat", 1]], 'D', "Democrat"), 
+    :gop => Party.new(["The Republican Party", 1], [["The G.O.P.", 1], ["The Republicans", 2], ["A Republican", 1]], 'R', "Republican")
   }
 
   class DataClaim
@@ -216,7 +216,7 @@ module PunditBot
 
 
   class Dataset
-    attr_reader :name, :nouns, :min_year, :max_year, :data, :source, :data_type
+    attr_reader :name, :nouns, :min_year, :max_year, :data, :source, :data_type, :template_string
     def initialize(obj) 
       # create a dataset object from it
       # Notably: only one dataset object per spreadsheet
@@ -258,7 +258,8 @@ module PunditBot
       end
       @data_type = column["type"].to_sym
 
-      @units = column["units"] || []
+      # @units = column["units"] || []
+      @template_string = column["template_string"]
       @data = Hash[*@csv.map{|row| [row[@year_column_header].match(/\d{4}/)[0], 
         begin 
           cleaners[@data_type].call(row[column["header"]])
@@ -269,22 +270,22 @@ module PunditBot
         end
       ] }.flatten]
     end
-    def commaify(number)
-      # http://stackoverflow.com/questions/1078347/is-there-a-rails-trick-to-adding-commas-to-large-numbers
-      number.to_s.reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse
-    end
-    def add_units(intro, number)
-      return ["#{intro} #{number}"] if @units.size == 0
-      @units.map do |unit|
-        unit = {"word" => unit} unless unit.respond_to?(:has_key?) && unit.has_key?("word")
-        rounded = commaify(number.to_s.include?(".") ? number.round(1) : number)
-        if unit["direction"] == "prefix"
-          intro + " " + (unit["include_space"] == false ? '' : " ") + unit["word"] + rounded.to_s
-        else # suffix
-          intro + " " + rounded.to_s + (unit["include_space"] == false ? '' : " ") + unit["word"]
-        end
-      end
-    end
+    # def commaify(number)
+    #   # http://stackoverflow.com/questions/1078347/is-there-a-rails-trick-to-adding-commas-to-large-numbers
+    #   number.to_s.reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse
+    # end
+    # def add_units(intro, number)
+    #   return ["#{intro} #{number}"] if @units.size == 0
+    #   @units.map do |unit|
+    #     unit = {"word" => unit} unless unit.respond_to?(:has_key?) && unit.has_key?("word")
+    #     rounded = commaify(number.to_s.include?(".") ? number.round(1) : number)
+    #     if unit["direction"] == "prefix"
+    #       intro + " " + (unit["include_space"] == false ? '' : " ") + unit["word"] + rounded.to_s
+    #     else # suffix
+    #       intro + " " + rounded.to_s + (unit["include_space"] == false ? '' : " ") + unit["word"]
+    #     end
+    #   end
+    # end
 
 
   end
@@ -315,7 +316,7 @@ module PunditBot
       @dataset.get_data!
     end
 
-    def find_data(hash_of_election_results, politics_condition)
+    def find_correlating_time_series(hash_of_election_results, politics_condition)
       # for our data sets, find the earliest election year where the data condition matches that year's value in the vector_to_match every year or all but once.
       raise JeremyMessedUpError, "hash_of_election_results is not a hash! and everything follows from a contradiction..." unless hash_of_election_results.is_a? Hash
       # hash_of_election_results like {2012 => true, 2008 => true, 2004 => false} if we're talking about Dems winning WH
@@ -338,7 +339,14 @@ module PunditBot
             {
               :v => 'be',
               :tense => :past,
-              :o => @dataset.add_units("greater than", trues.map{|a, b| b}.min) # obvi true for trues; if true for all of falses, unemployment was less than trues.min all the time,
+              :o => "greater",
+              :prepositional_phrases => [{
+                  :preposition => "than",
+                  :rest => {
+                      :noun => trues.map{|a, b| b}.min.to_s,  # obvi true for trues; if true for all of falses, unemployment was less than trues.min all the time,
+                      :template_string => (ts = @dataset.template_string).respond_to?(:sample) ? ts.sample : ts # TODO should be rephraseable
+                  }
+              }],
             },
             "greater than"
           ),
@@ -347,7 +355,14 @@ module PunditBot
             {
               :v => 'be',
               :tense => :past,
-              :o => @dataset.add_units("less than", trues.map{|a, b| b}.max) # obvi true for trues; if true for all of falses, unemployment was less than trues.min all the time,
+              :o => "less" ,
+              :prepositional_phrases => [{
+                  :preposition => "than",
+                  :rest => {
+                      :noun => trues.map{|a, b| b}.max.to_s,
+                      :template_string => (ts = @dataset.template_string).respond_to?(:sample) ? ts.sample : ts # TODO should be rephraseable
+                  }
+              }],
             },
             "less than"
           ),
@@ -476,7 +491,7 @@ module PunditBot
               :n => lambda do |n| 
                               np = NLG.factory.create_noun_phrase('digit') 
                               np.set_plural true
-                              last_word = (split_word = n.word.split(" ")).last
+                              last_word = (split_word = (n.respond_to?(:word) ? n.word : n).split(" ")).last
                               possessive = NLG.factory.create_noun_phrase(last_word) 
                               possessive.add_pre_modifier(split_word[0...-1].join(" "))
                               possessive.set_plural n.plural?
@@ -510,23 +525,6 @@ module PunditBot
             },
             "adds up to an odd number"
           ), 
-          # removed for being kind of dumb.
-          # DataClaim.new( lambda{|x, _| x.to_s.chars.to_a.last.to_i.even? }, 
-          #   {
-          #     :v => 'end',
-          #     :tense => :past,
-          #     # TODO: this is actually a complement
-          #     :c => "in an even number"
-          #   }
-          # ), 
-          # DataClaim.new( lambda{|x, _| x.to_s.chars.to_a.last.to_i.odd? }, #TODO: figure out how to get rid of these dupes (odd/even)
-          #   {
-          #     :v => 'end',
-          #     :tense => :past,
-          #     # TODO: this is actually a complement
-          #     :c => "in an odd number"
-          #   }
-          # ), 
           DataClaim.new( lambda{|x, _| x.to_s.chars.to_a.first.to_i.even? }, 
             {
               :v => 'start',
@@ -563,11 +561,28 @@ module PunditBot
             },
             "is an odd number"
           ), 
+          # removed for being kind of dumb.
+          # DataClaim.new( lambda{|x, _| x.to_s.chars.to_a.last.to_i.even? }, 
+          #   {
+          #     :v => 'end',
+          #     :tense => :past,
+          #     # TODO: this is actually a complement
+          #     :c => "in an even number"
+          #   }
+          # ), 
+          # DataClaim.new( lambda{|x, _| x.to_s.chars.to_a.last.to_i.odd? }, #TODO: figure out how to get rid of these dupes (odd/even)
+          #   {
+          #     :v => 'end',
+          #     :tense => :past,
+          #     # TODO: this is actually a complement
+          #     :c => "in an odd number"
+          #   }
+          # ), 
 
         ],
       }
 
-      prediction_meta = nil
+      correlate_meta = nil
       data_claims[@dataset.data_type || "numeric"].product(POLARITIES).shuffle.find do |data_claim, polarity|
         next false unless $settings_for_testing[:data_claim].nil? || data_claim.name == $settings_for_testing[:data_claim]
 
@@ -637,7 +652,7 @@ module PunditBot
             if start_year > TOO_RECENT_TO_CARE_CUTOFF.to_s
               false
             else
-              prediction_meta = {
+              correlate_meta = {
                 data_claim: data_claim,
                 correlate_noun: @dataset.nouns,
                 start_year: start_year, #never nil
@@ -655,34 +670,36 @@ module PunditBot
         end
       end
 
-      puts "Results: #{prediction_meta}" unless prediction_meta.nil?
-      prediction_meta
+      puts "Results: #{correlate_meta}" unless correlate_meta.nil?
+      correlate_meta
     end
 
     def generate_prediction
       prediction = Prediction.new
-      prediction.set(:party, party = @parties[ $settings_for_testing[:political_party] || @parties.keys.sample]) # TODO: party is our subj
+      # prediction.set(:party, party = @parties[ $settings_for_testing[:political_party] || @parties.keys.sample]) # TODO: party is our subj
+      party = @parties[ $settings_for_testing[:political_party] || @parties.keys.sample]
       politics_condition = POLITICS_CONDITIONS[$settings_for_testing[:politics_condition] || POLITICS_CONDITIONS.keys.sample]
       politics_claim_truth_vector = vectorize_politics_condition(politics_condition, party)
-      data = find_data(politics_claim_truth_vector, politics_condition)
-      return nil if data.nil?
-      # REFACTOR: this #set stuff is dumb
-      prediction.set(:data_claim, data[:data_claim])
-      prediction.set(:correlate_noun, data[:correlate_noun])
+      correlating_time_series = find_correlating_time_series(politics_claim_truth_vector, politics_condition)
+      return nil if correlating_time_series.nil?
 
-      prediction.set(:start_year, data[:start_year])
-      prediction.set(:end_year, @dataset.max_year )
-      prediction.set(:election_interval, politics_condition.election_interval)
-      prediction.set(:covered_years, data[:covered_years])
-      prediction.set(:data, @dataset.data)
+      # used in the actual template
+      prediction.prediction_meta[:party] =               party
+      prediction.prediction_meta[:claim_polarity] =      correlating_time_series[:polarity]
+      prediction.prediction_meta[:start_year] =          correlating_time_series[:start_year]
+      prediction.prediction_meta[:data_claim_template] = correlating_time_series[:data_claim].template
+      prediction.prediction_meta[:exceptional_year]  =   correlating_time_series[:exceptional_year]
+      prediction.prediction_meta[:politics_condition] =  politics_condition
+      prediction.prediction_meta[:correlate_noun] =      correlating_time_series[:correlate_noun].map{|n| n.respond_to?(:word) ? n.word : n}
 
-      prediction.set(:politics_claim_truth_vector, politics_claim_truth_vector)
-      prediction.set(:exceptional_year, data[:exceptional_year])
-      prediction.set(:claim_polarity, data[:polarity])
-      prediction.set(:politics_condition, politics_condition)
-      prediction.set(:data_claim_type, data[:data_claim_type])
-      prediction.set(:dataset, data[:dataset_source])
-      prediction.templatize!
+      # used for debug
+      prediction.prediction_debug[:covered_years] =               correlating_time_series[:covered_years]
+      prediction.prediction_debug[:data] =                        @dataset.data
+      prediction.prediction_debug[:data_claim] =                  correlating_time_series[:data_claim] # DataClaim objcet
+      prediction.prediction_debug[:politics_claim_truth_vector] = politics_claim_truth_vector
+      # prediction.prediction_debug[:end_year] =                    @dataset.max_year )
+      # prediction.prediction_debug[:data_claim_type] =             correlating_time_series[:data_claim_type])
+      # prediction.prediction_debug[:election_interval] =           politics_condition.election_interval)
 
       prediction
     end

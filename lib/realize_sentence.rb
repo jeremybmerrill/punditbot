@@ -1,143 +1,190 @@
 require 'simplernlg' if RUBY_PLATFORM == 'java'
 puts "Warning, this only works on JRuby but you can check for syntax errors more quickly in MRE" if RUBY_PLATFORM != 'java'
 
+class Hash
+  def self.recursive
+    new { |hash, key| hash[key] = recursive }
+  end
+end
+def dupnil(obj)
+  obj.nil? ? nil : obj.dup
+end
+
 module PunditBot
 
 
+# post refactor, "except in YR", attached to the main phrase should be acceptable
+# post refactor, party rephrase options should include "a Democrat"
+# post refactor: rename @sentence_digram and @final_sentence_diagram
+
 class Prediction
-  attr_reader :prediction_text
-  attr_accessor :complements
-  # PHRASE_TYPES = [:s, :v, :o, :c, ]
-  MODIFIERS = [:add_post_modifier, :add_pre_modifier, :add_front_modifier]
+  attr_accessor :prediction_meta, :prediction_debug
+  # MODIFIERS = [:add_post_modifier, :add_pre_modifier, :add_front_modifier]
+  MAX_OUTPUT_LENGTH ||= 140
 
-  def column
-    # hurricanes, unemployment, veggies,etc.
-    @prediction_meta[:correlate_noun].first.word
+  def initialize
+
+    @final_sentence_diagram = {}
+    @prediction_meta  = {}
+
+    # this should only be used for debugging, e.g. prove_it!
+    @prediction_debug = {}
   end
 
-  def dataset
-    # e.g. integral, whatever
-    @prediction_meta[:dataset]
+  def self.realize_sentence(sentence_diagram)
+    SimplerNLG::NLG.render(sentence_diagram)
   end
 
-  def prove_it!
-    """ e.g.
-      2012	2008	2004	2000	1996	1992	1988
-      7.8 	8.2 	7.9 	8.1		etc 	etc  	etc	
-      true	true	false	false	true	true	false
-    """
-    years = @prediction_meta[:covered_years]
-    data = years.map{|yr| @prediction_meta[:data][yr] }
-    max_data_length = [data.map{|d| d.to_s.size }.max, 4].max #max length in chars of each of the numbers from the dataset
-    data_truth = data.zip(years).map do |datum, yr| 
-      begin
-        @prediction_meta[:data_claim].condition.call(datum, yr)
-      rescue ArgumentError
-        nil
-      end
-    end
-    victor = years.map{|yr| @prediction_meta[:politics_claim_truth_vector][yr] }
-    
-    pad = lambda{|x| (x.to_s + "    ")[0...max_data_length]}
-
-    [years, data, data_truth, victor].map{|row| row.map(&pad).join("\t")}.join("\n")
+  def actually_make_the_sentence
+    rephrased = rephrase(rephraseables)
+    @prediction_text = _realize_sentence(rephrased)
+    @prediction_text
   end
 
-  def column_type
-    # e.g. integral, whatever
-    @prediction_meta[:data_claim_type]
+  # TODO:
+  def magically_get_number_from(obj)
+    1
   end
 
-  def metadata
-  	{
-  		column_type: column_type,
-  		data_claim: @prediction_meta[:data_claim].template.values.map(&:to_s).sort.join(" ")
-  	}
+  def rephraseables
+    rephrased = {}
+    rephrased[:party_noun] =               dupnil(@prediction_meta[:party].alt_names)            # the democrats
+    rephrased[:politics_condition_verb]  = dupnil(@prediction_meta[:politics_condition].verb)    # lost
+    rephrased[:politics_condition_object]= dupnil(@prediction_meta[:politics_condition].objects) # the white house
+    rephrased[:data_claim_obj] =           (@prediction_meta[:data_claim_template][:o].respond_to?(:min_by) ? @prediction_meta[:data_claim_template][:o] : [@prediction_meta[:data_claim_template][:o]]) if @prediction_meta[:data_claim_template].has_key?(:o) && @prediction_meta[:data_claim_template][:o]                                              # greater
+    rephrased[:correlate_noun] =           dupnil(@prediction_meta[:correlate_noun])             # unemployment
+    puts "correlate noun: #{dupnil(@prediction_meta[:correlate_noun])   }"
+    rephrased[:since_pp_position] =        [:pre, :post, :front]
+    rephrased[:every_year_pp_position] =   [:pre, :post, :front]
+    rephrased[:since_after] =              ['since', 'after', 'starting in']
+    rephrased[:except] =                   ['except', 'besides', 'except in'] 
+    rephrased[:year_or_election] =         ["year", "election year"]
+    rephrased[:when] =                     ['when', 'in years when', 'whenever', 'in years']
+    rephrased
   end
 
-  def initialize()
-    @prediction_meta = {
-    }
-    @complements = []
-  end
-
-  def set(key, val=nil)
-    @prediction_meta[key] = val
-  end
-
-  def _realize_sentence(rephraseables)
-        #TODO: maybe nlg.phrase should understand nested phrases, render them automatically as complements
-    # so that they're specified as :complements => []
-    # which then automatically randomizes post/pre/front
-
-    # create main phrase
-    # e.g. "the Republicans have won the Presidency"
-    party_word = rephraseables[:party].first
-    subj = NLG.factory.create_noun_phrase('the', party_word.word)
-    claim_polarity = @prediction_meta[:claim_polarity]
-    main_clause = {
-      :s => subj,
-      :number => party_word.number,
-      :v => @prediction_meta[:politics_condition].verb, 
+  def _realize_sentence(rephrased)
+    # should pull only from @prediction_meta and rephrased
+    # I don't think we ever will need to vary anything from @prediction_meta
+    puts "s: #{@prediction_meta[:data_claim_template][:n].nil? ? rephrased[:correlate_noun] : @prediction_meta[:data_claim_template][:n].call(rephrased[:correlate_noun])}"
+    sentence_template = {
+      :s => rephrased[:party_noun].word,
+      :number => rephrased[:party_noun].number, # 1 or 2, depending on grammatical number of rephrased[:party_noun]
+      :v => rephrased[:politics_condition_verb], 
       :perfect => true,
       :tense => :present,
-      :o => NLG.factory.create_noun_phrase(rephraseables[:politics_condition_object].first.word),
-      :negation => !claim_polarity
+      :o => { :det => 'the', 
+              :noun => rephrased[:politics_condition_object].word
+      },
+      :negation => !@prediction_meta[:claim_polarity],
+      :prepositional_phrases => [ # these should be randomly assigned as modifiers
+        {
+          :preposition => rephrased[:since_after],
+          :rest => @prediction_meta[:start_year],
+          :appositive => true, # maybe this should just check for whether it's a word or more than one word
+          :position => rephrased[:since_pp_position]
+        },
+        {
+          :preposition => "in",
+          :rest => {
+                    :determiner => @prediction_meta[:claim_polarity] ? 'every' : 'any',
+                    :noun =>       rephrased[:year_or_election],
+                    :complements => [{
+                        :complementizer => rephrased[:when], # NLG::Feature::COMPLEMENTISER, 'when' # requires 3eed77f5bf6ce0e2655d80ce3ba453696ad5bb8a in my fork of SimpleNLG
+                    }.
+                    merge(@prediction_meta[:data_claim_template]).
+                    merge(:s => @prediction_meta[:data_claim_template][:n].nil? ? rephrased[:correlate_noun] : @prediction_meta[:data_claim_template][:n].call(rephrased[:correlate_noun]) )],
+                  },
+          :appositive => true,
+          :position => rephrased[:every_year_pp_position]
+        }
+      ]
     }
-    sentence = NLG.phrase(main_clause)
-
-    @prediction_meta[:data_claim].template[:o] = (rephraseables[:prediction_meta_data_claim_o].nil?) ? nil : rephraseables[:prediction_meta_data_claim_o].first 
-    @data_phrase = @prediction_meta[:data_claim].phrase(rephraseables[:correlate_nouns].first) #TODO correlate_noun should be rephraseable
-
-    since_pp = NLG.factory.create_preposition_phrase(rephraseables[:since_after].first, NLG.factory.create_noun_phrase(@prediction_meta[:start_year]))
-    if (exceptional_year = @prediction_meta[:exceptional_year])
-      year_noun_phrase = NLG.factory.create_noun_phrase(claim_polarity ? 'every' : 'any', rephraseables[:year_election].first)
-      @data_phrase.set_feature(NLG::Feature::COMPLEMENTISER, 'when') # requires 3eed77f5bf6ce0e2655d80ce3ba453696ad5bb8a in my fork of SimpleNLG
-      year_noun_phrase.add_complement(@data_phrase) # was add_post_modifier
-      prep_phrase = NLG.factory.create_preposition_phrase('in', year_noun_phrase)
-
-      with MODIFIERS.sample do |modifier_position|
-        case modifier_position 
-        when :add_front_modifier
-          since_pp.set_feature(NLG::Feature::APPOSITIVE, true)
-          modified = sentence
-          # sentence.subject = (modified == sentence ? "sentence" : "prep_phrase") + " front"  # for testing
-        when :add_pre_modifier
-          since_pp.set_feature(NLG::Feature::APPOSITIVE, true)
-          modified = [sentence, prep_phrase].sample
-          # sentence.subject = (modified == sentence ? "sentence" : "prep_phrase") + " pre" # for testing
-        when :add_post_modifier
-          since_pp.set_feature(NLG::Feature::APPOSITIVE, true)
-          modified = [sentence, prep_phrase].sample
-          # sentence.subject = (modified == sentence ? "sentence" : "prep_phrase") + " post" # for testing
-        end
-        modified.send(modifier_position, since_pp)
-        
-      end
-      except_phrase = NLG.factory.create_preposition_phrase(rephraseables[:except].first, NLG.factory.create_noun_phrase(exceptional_year) )
-      with  [ [prep_phrase, :add_post_modifier]].sample do |modified, method| # used to include [sentence,(MODIFIERS - [:add_pre_modifier] ).sample],
-        except_phrase.set_feature(NLG::Feature::APPOSITIVE, true)
-        modified.send(method, except_phrase)#TODO: get pre_modifiers working with commas
-      end
-
-      sentence.send((MODIFIERS - [:add_pre_modifier] ).sample,  prep_phrase) #TODO: get pre_modifiers working with commas (right now it's "SUBJ has, PREPOSITION whatever VERBed OBJ", lacking the second comma)
-    else
-      sentence.add_pre_modifier(claim_polarity ? 'always' : 'never')
-      sentence.set_feature(NLG::Feature::NEGATED, false) if !claim_polarity
-      @data_phrase.set_feature(NLG::Feature::SUPRESSED_COMPLEMENTISER, true) # note to self: what does this do??
-      prep_phrase = NLG.factory.create_preposition_phrase(rephraseables[:when].first, @data_phrase)
-      since_pp.set_feature(NLG::Feature::APPOSITIVE, true)
-      prep_phrase.send( (MODIFIERS - [:add_front_modifier]).sample, since_pp) # TODO why does :add_front_modifier not work here?
-      prep_phrase.set_feature(NLG::Feature::APPOSITIVE, true)
-      sentence.send((MODIFIERS - [:add_pre_modifier] ).sample, prep_phrase) #TODO: get pre_modifiers working with commas (right now it's "SUBJ has, PREPOSITION whatever VERBed OBJ", lacking the second comma)
+    if @prediction_meta[:exceptional_year]
+      sentence_template[:prepositional_phrases] <<  {
+                                                      :preposition => rephrased[:except],
+                                                      :rest => @prediction_meta[:exceptional_year],
+                                                      :appositive => true,
+                                                      :position => :post
+                                                    }
     end
-    NLG.realizer.setCommaSepCuephrase(true) # for "front modifier" sentences, puts a comma after the modifier.
-    NLG.realizer.setCommaSepPremodifiers(true) # for pre-modifier sentences
-    # puts sentence
-    NLG.realizer.realise_sentence(sentence).gsub(/,,+/, ',')
+    puts sentence_template.inspect
+    Prediction.realize_sentence(sentence_template)
   end
 
-  def templatize!
+
+
+###############################################################
+
+  # def _realize_sentence(rephraseables)
+  #   # create main phrase
+  #   # e.g. "the Republicans have won the Presidency"
+  #   party_word = rephraseables[:party].first
+  #   subj = NLG.factory.create_noun_phrase('the', party_word.word)
+  #   claim_polarity = @prediction_meta[:claim_polarity]
+  #   main_clause = {
+  #     :s => subj,
+  #     :number => party_word.number,
+  #     :v => @prediction_meta[:politics_condition].verb, 
+  #     :perfect => true,
+  #     :tense => :present,
+  #     :o => NLG.factory.create_noun_phrase(rephraseables[:politics_condition_object].first.word),
+  #     :negation => !claim_polarity
+  #   }
+  #   sentence = NLG.phrase(main_clause)
+
+  #   @prediction_meta[:data_claim_template][:o] = (rephraseables[:data_claim_obj].nil?) ? nil : rephraseables[:data_claim_obj].first 
+  #   @data_phrase = @prediction_meta[:data_claim].phrase(rephraseables[:correlate_nouns].first) #TODO correlate_noun should be rephraseable
+
+  #   since_pp = NLG.factory.create_preposition_phrase(rephraseables[:since_after].first, NLG.factory.create_noun_phrase(@prediction_meta[:start_year]))
+  #   if (exceptional_year = @prediction_meta[:exceptional_year])
+  #     year_noun_phrase = NLG.factory.create_noun_phrase(claim_polarity ? 'every' : 'any', rephraseables[:year_election].first)
+  #     @data_phrase.set_feature(NLG::Feature::COMPLEMENTISER, 'when') # requires 3eed77f5bf6ce0e2655d80ce3ba453696ad5bb8a in my fork of SimpleNLG
+  #     year_noun_phrase.add_complement(@data_phrase) # was add_post_modifier
+  #     prep_phrase = NLG.factory.create_preposition_phrase('in', year_noun_phrase)
+
+  #     with MODIFIERS.sample do |modifier_position|
+  #       case modifier_position 
+  #       when :add_front_modifier
+  #         since_pp.set_feature(NLG::Feature::APPOSITIVE, true)
+  #         modified = sentence
+  #         # sentence.subject = (modified == sentence ? "sentence" : "prep_phrase") + " front"  # for testing
+  #       when :add_pre_modifier
+  #         since_pp.set_feature(NLG::Feature::APPOSITIVE, true)
+  #         modified = [sentence, prep_phrase].sample
+  #         # sentence.subject = (modified == sentence ? "sentence" : "prep_phrase") + " pre" # for testing
+  #       when :add_post_modifier
+  #         since_pp.set_feature(NLG::Feature::APPOSITIVE, true)
+  #         modified = [sentence, prep_phrase].sample
+  #         # sentence.subject = (modified == sentence ? "sentence" : "prep_phrase") + " post" # for testing
+  #       end
+  #       modified.send(modifier_position, since_pp)
+        
+  #     end
+  #     except_phrase = NLG.factory.create_preposition_phrase(rephraseables[:except].first, NLG.factory.create_noun_phrase(exceptional_year) )
+  #     with  [ [prep_phrase, :add_post_modifier]].sample do |modified, method| # used to include [sentence,(MODIFIERS - [:add_pre_modifier] ).sample],
+  #       except_phrase.set_feature(NLG::Feature::APPOSITIVE, true)
+  #       modified.send(method, except_phrase)#TODO: get pre_modifiers working with commas
+  #     end
+
+  #     sentence.send((MODIFIERS - [:add_pre_modifier] ).sample,  prep_phrase) #TODO: get pre_modifiers working with commas (right now it's "SUBJ has, PREPOSITION whatever VERBed OBJ", lacking the second comma)
+  #   else
+  #     sentence.add_pre_modifier(claim_polarity ? 'always' : 'never')
+  #     sentence.set_feature(NLG::Feature::NEGATED, false) if !claim_polarity
+  #     @data_phrase.set_feature(NLG::Feature::SUPRESSED_COMPLEMENTISER, true) # note to self: what does this do??
+  #     prep_phrase = NLG.factory.create_preposition_phrase(rephraseables[:when].first, @data_phrase)
+  #     since_pp.set_feature(NLG::Feature::APPOSITIVE, true)
+  #     prep_phrase.send( (MODIFIERS - [:add_front_modifier]).sample, since_pp) # TODO why does :add_front_modifier not work here?
+  #     prep_phrase.set_feature(NLG::Feature::APPOSITIVE, true)
+  #     sentence.send((MODIFIERS - [:add_pre_modifier] ).sample, prep_phrase) #TODO: get pre_modifiers working with commas (right now it's "SUBJ has, PREPOSITION whatever VERBed OBJ", lacking the second comma)
+  #   end
+  #   NLG.realizer.setCommaSepCuephrase(true) # for "front modifier" sentences, puts a comma after the modifier.
+  #   NLG.realizer.setCommaSepPremodifiers(true) # for pre-modifier sentences
+  #   # puts sentence
+  #   NLG.realizer.realise_sentence(sentence).gsub(/,,+/, ',')
+  # end
+
+  def rephrase(rephraseables)
 
     # this is mostly 140-char awareness
     # to do this, we realize the sentence with the shortest option for each "rephraseable" piece of the sentence
@@ -151,35 +198,30 @@ class Prediction
     # rephraseable objects like Party are also handled here.
     # which perhaps should implement a Rephraseable mix-in so they can have min_by, max_by
 
-    rephraseables = {}
-    rephraseables[:politics_condition_object] =  @prediction_meta[:politics_condition].objects.dup
-    rephraseables[:party] = @prediction_meta[:party].alt_names.dup
-    rephraseables[:since_after] = ['since', 'after', 'starting in']
-    rephraseables[:except] = ['except', 'besides'] 
-    rephraseables[:when] = ['when', 'in years when', 'whenever', 'in years']
-    rephraseables[:year_election] = ["year", "election year"]
-    rephraseables[:correlate_nouns] = @prediction_meta[:correlate_noun]
-    rephraseables[:prediction_meta_data_claim_o] = (@prediction_meta[:data_claim].template[:o].respond_to?(:min_by) ? @prediction_meta[:data_claim].template[:o] : [@prediction_meta[:data_claim].template[:o]]) if @prediction_meta[:data_claim].template.has_key?(:o) && @prediction_meta[:data_claim].template[:o]
-    # collect all the rephraseable elements
-    # rephraseables[:data_claim_object] = [] if [].respond_to?(:rephrase)
     rephraseables.compact!
     rephraseables.reject!{|k, v| v.empty? }
+    rephrased = {}
+    shortest_rephrase_options = {}
+
+    rephraseables.each do |k, v|
+      rephrased[k] = shortest_rephrase_options[k] = rephraseables.delete(k) unless v.respond_to?(:min_by)
+    end
 
     min_rephraseable_length = 0
     max_rephraseable_length = 0
     unrephraseable_length = 0 
     rephraseables.each do |k, v|
-      if v.respond_to?(:rephrase) && v.size > 0
+      if v.respond_to?(:min_by) && v.size > 0
         max_rephraseable_length += v.max_by(&:size).size # +1 for spaces
         min_rephraseable_length += v.min_by(&:size).size # +1 for spaces
       end
     end
 
     # render sentence!
-    shortest_rephrase_options = {}
     rephraseables.each do |k, v|
-      shortest_rephrase_options[k] = [v.min_by(&:size)]
+      shortest_rephrase_options[k] = v.min_by(&:size)
     end
+    puts shortest_rephrase_options.inspect
     shortest_possible_sentence_length = _realize_sentence(shortest_rephrase_options).size
     puts "way too long: #{_realize_sentence(shortest_rephrase_options)}" if MAX_OUTPUT_LENGTH < shortest_possible_sentence_length
     return nil if MAX_OUTPUT_LENGTH < shortest_possible_sentence_length
@@ -194,19 +236,122 @@ class Prediction
       chosen_word = weighted.first
       # puts "Buffer: #{buffer.to_s.size == 1 ? ' ' : ''}#{buffer}, chose '#{chosen_word}' from #{v}"
       redo if buffer - (chosen_word.size - weighted.min_by(&:size).size) < 0 # I think this is bad. I think this'll never end.
-      rephraseables[k] = [chosen_word]
+      rephrased[k] = chosen_word
+      puts "chosen word: #{chosen_word}"
       buffer -= (chosen_word.size - weighted.min_by(&:size).size)
     end
-
-    @prediction_text = _realize_sentence(rephraseables)
+    puts rephrased.inspect
+    rephrased
   end
 
+
+
+
   def to_s
-    @prediction_text || templatize!
+    @prediction_text ||  actually_make_the_sentence
   end
 
   def exhortation
-    @data_phrase || templatize!
+    @data_phrase
+    party_member_name, claim_polarity = *[[@prediction_meta[:party].member_name, @prediction_meta[:claim_polarity]], [@prediction_meta[:party].member_name.downcase.include?("democrat") ? "Republican" : "Democrat", !@prediction_meta[:claim_polarity]]].sample 
+    @data_phrase.set_feature(NLG::Feature::TENSE, NLG::Tense::PRESENT)
+    # @data_phrase.set_feature(NLG::Feature::SUPRESSED_COMPLEMENTISER, true)
+    @data_phrase.set_feature(NLG::Feature::COMPLEMENTISER, 'that') # requires 3eed77f5bf6ce0e2655d80ce3ba453696ad5bb8a in my fork of SimpleNLG
+    @data_phrase.set_feature(NLG::Feature::NEGATED,  @prediction_meta[:politics_condition].control ? !claim_polarity : claim_polarity)
+
+    pp = NLG.factory.create_preposition_phrase(NLG.factory.create_noun_phrase('this', 'year'))
+    # What I can generate:
+    #   Democrats should hope that bears killed more than 10 people this year.
+    #   This year, Democrats, you need to hope that bears killed more than 10 people.
+    #   If you're a Democrat, this year, you should hope that bears killed more than 10 people.
+    #   Democrats, hope that bears killed more than 10 people this year.
+    # What I'd like to generate:
+    #   Democrats should hope for more snow this year...
+    #   Democrats should hope Central Park snow increases year over year.
+    #   If you're a Democrat, you should hope _________
+    #   If you're a Democrat, you want vegetable use to increase this year.
+    #   Republicans, you need to hope that DDDDDDD is an even number this year.
+
+    case [:you, :if, :imperative].sample # removed :bare because it sucks
+    when :bare
+      np = NLG.factory.create_noun_phrase(party_member_name)
+      np.set_feature(NLG::Feature::NUMBER, NLG::NumberAgreement::PLURAL)
+      phrase = NLG.phrase({
+        :s => np,
+        :number => :plural,
+        :v => 'hope',
+        :modal => "should",
+        :tense => :present,
+      })
+      phrase.add_complement(@data_phrase)
+      modifiers = [:add_post_modifier, :add_front_modifier]
+      phrase.send(modifiers.sample,  pp)
+
+      NLG.realizer.setCommaSepCuephrase(true)
+    when :you
+      phrase = NLG.phrase({
+        :s => "you",
+        :number => :plural,
+        :v => 'need',
+        :tense => :present,
+      })
+
+      inner = NLG.phrase({
+        :v => "hope"
+      })
+
+      inner.add_complement(@data_phrase)
+
+      party_np = NLG.factory.create_noun_phrase(party_member_name)
+      party_np.set_feature(NLG::Feature::NUMBER, NLG::NumberAgreement::PLURAL)
+      phrase.add_front_modifier(party_np) # cue phrase
+
+      modifiers = [:add_post_modifier, :add_front_modifier]
+      phrase.send(modifiers.sample,  pp)
+      inner.set_feature(NLG::Feature::FORM, NLG::Form::INFINITIVE)
+      phrase.add_complement(inner)
+      NLG.realizer.setCommaSepCuephrase(true)
+    when :if
+      phrase = NLG.phrase({
+        :s => "you",
+        :number => :plural,
+        :v => 'hope',
+        :modal => "should",
+        :tense => :present,
+      })
+      phrase.add_complement(@data_phrase)
+      phrase.add_front_modifier("if you're a " + party_member_name)
+      modifiers = [:add_post_modifier, :add_front_modifier]
+      phrase.send(modifiers.sample,  pp)
+
+      NLG.realizer.setCommaSepCuephrase(true)
+    when :imperative
+      phrase = NLG.phrase({
+        :number => :plural,
+        :v => ['hope', 'pray'].sample,
+        :tense => :present,
+      })
+      phrase.add_complement(@data_phrase)
+      modifiers = [:add_post_modifier, :add_front_modifier]
+      phrase.send(modifiers.sample,  pp)
+      phrase.set_feature(NLG::Feature::FORM, NLG::Form::IMPERATIVE)
+      np = NLG.factory.create_noun_phrase(party_member_name)
+      np.set_feature(NLG::Feature::NUMBER, NLG::NumberAgreement::PLURAL)
+      phrase.add_front_modifier( np ) # cue phrase
+      NLG.realizer.setCommaSepCuephrase(true)
+    end
+
+    @exhortation =       NLG.realizer.realise_sentence(phrase).gsub("the previous", "last")
+     # Democrats, you need to hope carrot use grows from last year this year.
+     
+    @exhortation.gsub!(" does not ", " doesn't ") if [true, false].sample
+
+    @exhortation
+
+  end
+
+  def old_exhortation
+    @data_phrase
     party_member_name, claim_polarity = *[[@prediction_meta[:party].member_name, @prediction_meta[:claim_polarity]], [@prediction_meta[:party].member_name.downcase.include?("democrat") ? "Republican" : "Democrat", !@prediction_meta[:claim_polarity]]].sample 
     @data_phrase.set_feature(NLG::Feature::TENSE, NLG::Tense::PRESENT)
     # @data_phrase.set_feature(NLG::Feature::SUPRESSED_COMPLEMENTISER, true)
@@ -303,11 +448,64 @@ class Prediction
     @exhortation
   end
 
+  # important debugging stuff 
+
+  def prove_it!
+    """ e.g.
+      2012  2008  2004  2000  1996  1992  1988
+      7.8   8.2   7.9   8.1   etc   etc   etc 
+      true  true  false false true  true  false
+    """
+    years = @prediction_debug[:covered_years]
+    data = years.map{|yr| @prediction_debug[:data][yr] }
+    max_data_length = [data.map{|d| d.to_s.size }.max, 4].max #max length in chars of each of the numbers from the dataset
+    data_truth = data.zip(years).map do |datum, yr| 
+      begin
+        @prediction_debug[:data_claim].condition.call(datum, yr)
+      rescue ArgumentError
+        nil
+      end
+    end
+    victor = years.map{|yr| @prediction_debug[:politics_claim_truth_vector][yr] }
+    
+    pad = lambda{|x| (x.to_s + "    ")[0...max_data_length]}
+
+    [years, data, data_truth, victor].map{|row| row.map(&pad).join("\t")}.join("\n")
+  end
+
+  def column
+    # hurricanes, unemployment, veggies,etc.
+    @prediction_meta[:correlate_noun].first.word
+  end
+
+  def dataset
+    # e.g. integral, whatever
+    @prediction_meta[:dataset]
+  end
+
+  def column_type
+    # e.g. integral, whatever
+    @prediction_meta[:data_claim_type]
+  end
+
+  def metadata
+    {
+      column_type: column_type,
+      data_claim: @prediction_meta[:data_claim_template].values.map(&:to_s).sort.join(" ")
+    }
+  end
+
+
   def inspect
-    @prediction_text || templatize!
+    @prediction_text
     # [#{dataset}, #{column}, #{column_type}]
     @prediction_text.nil? ? nil : "#{@prediction_text.size} chars: \"#{@prediction_text}\"\n#{exhortation}\n#{self.prove_it!}\n"
   end
 end # ends the class
 
 end # ends the module
+
+
+if __FILE__ == $0
+  Prediction.new(MOCKUP, nil)
+end

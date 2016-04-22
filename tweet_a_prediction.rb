@@ -12,6 +12,11 @@ if __FILE__ == $0
     prediction = PunditBot.generate_prediction
     break unless prediction.nil? || prediction.prediction_text.nil?
   end
+  
+  if prediction.prediction_text.size > 140 && prediction.prediction_text[-1] == "."
+    prediction.prediction_text = prediction.prediction_text[0...-1]
+  end
+
   puts "trying to tweet `#{prediction.prediction_text}` (an attempt to solve the occasional missing status error from the Twitter gem.)"
   tweet = client.update(prediction.prediction_text)
   exhortation_tweet = client.update(prediction.exhortation + " #{tweet.url}")

@@ -14,11 +14,9 @@
         - noun: unemployment
           noun_number: 1
       type: numeric
-      units: 
-        - percent
-        - word: "%"
-          direction: "suffix"
-          include_space: false
+      template_string: 
+        - "%.1f%"
+        - "%.1f percent"
 - filename: atlantic_hurricanes.csv
   year_column_header: Year
   source: http://www.wunderground.com/hurricane/hurrarchive.asp
@@ -43,12 +41,9 @@
           noun_number: 1
         - noun: Atlantic tropical storm damage
           noun_number: 1
-      units:
-        - dollars
-        - USD
-        - word: "$"
-          direction: prefix
-          include_space: false
+      template_string: 
+        - "$%i"
+        - "%i dollars"
       type: numeric
     - header: Retired Names
       nouns: 
@@ -78,8 +73,6 @@
       noun: "Super Bowl attendance"
       noun_number: 1
       type: numeric
-      units: 
-       - ''
 - html_source: http://www.ers.usda.gov/data-products/vegetables-and-pulses-data/yearbook-tables.aspx
   source: http://www.ers.usda.gov/datafiles/Vegetable_and_Pulses_Yearbook_Tables/General/YRBK2015_Section%201_General.xlsx
   notes: I combined tables 1a-d.
@@ -89,578 +82,578 @@
   - header: Asparagus
     noun: "asparagus use"
     noun_number: 1
-    units: 
-      - lbs per-capita
-      - lbs pp.
-      - pounds pp.
-      - lbs
-      - pounds
-      - pounds per-capita
-      - farm-weight pounds per-capita
+    template_string:
+      - "%.1f lbs"
+      - "%.1f lbs per-capita"
+      - "%.1f lbs each"
+      - "%.1f pounds"
+      - "%.1f pounds per-capita"
+      - "%.1f pounds each"
+      - "%.1f farm-weight pounds per-capita"
     type: numeric
   - header: Fresh asparagus
     noun: "fresh asparagus use"
     noun_number: 1
-    units: 
-      - lbs per-capita
-      - lbs pp.
-      - pounds pp.
-      - lbs
-      - pounds
-      - pounds per-capita
-      - farm-weight pounds per-capita
+    template_string:
+      - "%.1f lbs"
+      - "%.1f lbs per-capita"
+      - "%.1f lbs each"
+      - "%.1f pounds"
+      - "%.1f pounds per-capita"
+      - "%.1f pounds each"
+      - "%.1f farm-weight pounds per-capita"
     type: numeric
   - header: Canning asparagus
     noun: "canning asparagus use"
     noun_number: 1
-    units: 
-      - lbs per-capita
-      - lbs pp.
-      - pounds pp.
-      - lbs
-      - pounds
-      - pounds per-capita
-      - farm-weight pounds per-capita
+    template_string:
+      - "%.1f lbs"
+      - "%.1f lbs per-capita"
+      - "%.1f lbs each"
+      - "%.1f pounds"
+      - "%.1f pounds per-capita"
+      - "%.1f pounds each"
+      - "%.1f farm-weight pounds per-capita"
     type: numeric
   - header: Freezing asparagus
     noun: "freezing asparagus use"
     noun_number: 1
-    units: 
-      - lbs per-capita
-      - lbs pp.
-      - pounds pp.
-      - lbs
-      - pounds
-      - pounds per-capita
-      - farm-weight pounds per-capita
+    template_string:
+      - "%.1f lbs"
+      - "%.1f lbs per-capita"
+      - "%.1f lbs each"
+      - "%.1f pounds"
+      - "%.1f pounds per-capita"
+      - "%.1f pounds each"
+      - "%.1f farm-weight pounds per-capita"
     type: numeric
   - header: Snap/green beans
     noun: "snap/green beans use"
     noun_number: 1
-    units: 
-      - lbs per-capita
-      - lbs pp.
-      - pounds pp.
-      - lbs
-      - pounds
-      - pounds per-capita
-      - farm-weight pounds per-capita
+    template_string:
+      - "%.1f lbs"
+      - "%.1f lbs per-capita"
+      - "%.1f lbs each"
+      - "%.1f pounds"
+      - "%.1f pounds per-capita"
+      - "%.1f pounds each"
+      - "%.1f farm-weight pounds per-capita"
     type: numeric
   - header: Fresh snap/green beans
     noun: "fresh snap/green beans use"
     noun_number: 1
-    units: 
-      - lbs per-capita
-      - lbs pp.
-      - pounds pp.
-      - lbs
-      - pounds
-      - pounds per-capita
-      - farm-weight pounds per-capita
+    template_string:
+      - "%.1f lbs"
+      - "%.1f lbs per-capita"
+      - "%.1f lbs each"
+      - "%.1f pounds"
+      - "%.1f pounds per-capita"
+      - "%.1f pounds each"
+      - "%.1f farm-weight pounds per-capita"
     type: numeric
   - header: Canning snap/green beans
     noun: "canning snap/green beans use"
     noun_number: 1
-    units: 
-      - lbs per-capita
-      - lbs pp.
-      - pounds pp.
-      - lbs
-      - pounds
-      - pounds per-capita
-      - farm-weight pounds per-capita
+    template_string:
+      - "%.1f lbs"
+      - "%.1f lbs per-capita"
+      - "%.1f lbs each"
+      - "%.1f pounds"
+      - "%.1f pounds per-capita"
+      - "%.1f pounds each"
+      - "%.1f farm-weight pounds per-capita"
     type: numeric
   - header: Freezing snap/green beans
     noun: "freezing snap/green beans use"
     noun_number: 1
-    units: 
-      - lbs per-capita
-      - lbs pp.
-      - pounds pp.
-      - lbs
-      - pounds
-      - pounds per-capita
-      - farm-weight pounds per-capita
+    template_string:
+      - "%.1f lbs"
+      - "%.1f lbs per-capita"
+      - "%.1f lbs each"
+      - "%.1f pounds"
+      - "%.1f pounds per-capita"
+      - "%.1f pounds each"
+      - "%.1f farm-weight pounds per-capita"
     type: numeric
   - header: Broccoli
     noun: "broccoli use"
     noun_number: 1
-    units: 
-      - lbs per-capita
-      - lbs pp.
-      - pounds pp.
-      - lbs
-      - pounds
-      - pounds per-capita
-      - farm-weight pounds per-capita
+    template_string:
+      - "%.1f lbs"
+      - "%.1f lbs per-capita"
+      - "%.1f lbs each"
+      - "%.1f pounds"
+      - "%.1f pounds per-capita"
+      - "%.1f pounds each"
+      - "%.1f farm-weight pounds per-capita"
     type: numeric
   - header: Fresh broccoli
     noun: "fresh broccoli use"
     noun_number: 1
-    units: 
-      - lbs per-capita
-      - lbs pp.
-      - pounds pp.
-      - lbs
-      - pounds
-      - pounds per-capita
-      - farm-weight pounds per-capita
+    template_string:
+      - "%.1f lbs"
+      - "%.1f lbs per-capita"
+      - "%.1f lbs each"
+      - "%.1f pounds"
+      - "%.1f pounds per-capita"
+      - "%.1f pounds each"
+      - "%.1f farm-weight pounds per-capita"
     type: numeric
   - header: Freezing broccoli
     noun: "freezing broccoli use"
     noun_number: 1
-    units: 
-      - lbs per-capita
-      - lbs pp.
-      - pounds pp.
-      - lbs
-      - pounds
-      - pounds per-capita
-      - farm-weight pounds per-capita
+    template_string:
+      - "%.1f lbs"
+      - "%.1f lbs per-capita"
+      - "%.1f lbs each"
+      - "%.1f pounds"
+      - "%.1f pounds per-capita"
+      - "%.1f pounds each"
+      - "%.1f farm-weight pounds per-capita"
     type: numeric
   - header: Cabbage
     noun: "cabbage use"
     noun_number: 1
-    units: 
-      - lbs per-capita
-      - lbs pp.
-      - pounds pp.
-      - lbs
-      - pounds
-      - pounds per-capita
-      - farm-weight pounds per-capita
+    template_string:
+      - "%.1f lbs"
+      - "%.1f lbs per-capita"
+      - "%.1f lbs each"
+      - "%.1f pounds"
+      - "%.1f pounds per-capita"
+      - "%.1f pounds each"
+      - "%.1f farm-weight pounds per-capita"
     type: numeric
   - header: Fresh cabbage
     noun: "fresh cabbage use"
     noun_number: 1
-    units: 
-      - lbs per-capita
-      - lbs pp.
-      - pounds pp.
-      - lbs
-      - pounds
-      - pounds per-capita
-      - farm-weight pounds per-capita
+    template_string:
+      - "%.1f lbs"
+      - "%.1f lbs per-capita"
+      - "%.1f lbs each"
+      - "%.1f pounds"
+      - "%.1f pounds per-capita"
+      - "%.1f pounds each"
+      - "%.1f farm-weight pounds per-capita"
     type: numeric
   - header: Canning (kraut) cabbage
     noun: "canning (kraut) cabbage use"
     noun_number: 1
-    units: 
-      - lbs per-capita
-      - lbs pp.
-      - pounds pp.
-      - lbs
-      - pounds
-      - pounds per-capita
-      - farm-weight pounds per-capita
+    template_string:
+      - "%.1f lbs"
+      - "%.1f lbs per-capita"
+      - "%.1f lbs each"
+      - "%.1f pounds"
+      - "%.1f pounds per-capita"
+      - "%.1f pounds each"
+      - "%.1f farm-weight pounds per-capita"
     type: numeric
   - header: Carrots
     noun: "carrot use"
     noun_number: 1
-    units: 
-      - lbs per-capita
-      - lbs pp.
-      - pounds pp.
-      - lbs
-      - pounds
-      - pounds per-capita
-      - farm-weight pounds per-capita
+    template_string:
+      - "%.1f lbs"
+      - "%.1f lbs per-capita"
+      - "%.1f lbs each"
+      - "%.1f pounds"
+      - "%.1f pounds per-capita"
+      - "%.1f pounds each"
+      - "%.1f farm-weight pounds per-capita"
     type: numeric
   - header: Fresh carrots
     noun: "fresh carrot use"
     noun_number: 1
-    units: 
-      - lbs per-capita
-      - lbs pp.
-      - pounds pp.
-      - lbs
-      - pounds
-      - pounds per-capita
-      - farm-weight pounds per-capita
+    template_string:
+      - "%.1f lbs"
+      - "%.1f lbs per-capita"
+      - "%.1f lbs each"
+      - "%.1f pounds"
+      - "%.1f pounds per-capita"
+      - "%.1f pounds each"
+      - "%.1f farm-weight pounds per-capita"
     type: numeric
   - header: Canning carrots
     noun: "canning carrots use"
     noun_number: 1
-    units: 
-      - lbs per-capita
-      - lbs pp.
-      - pounds pp.
-      - lbs
-      - pounds
-      - pounds per-capita
-      - farm-weight pounds per-capita
+    template_string:
+      - "%.1f lbs"
+      - "%.1f lbs per-capita"
+      - "%.1f lbs each"
+      - "%.1f pounds"
+      - "%.1f pounds per-capita"
+      - "%.1f pounds each"
+      - "%.1f farm-weight pounds per-capita"
     type: numeric
   - header: Freezing carrots
     noun: "freezing carrots use"
     noun_number: 1
-    units: 
-      - lbs per-capita
-      - lbs pp.
-      - pounds pp.
-      - lbs
-      - pounds
-      - pounds per-capita
-      - farm-weight pounds per-capita
+    template_string:
+      - "%.1f lbs"
+      - "%.1f lbs per-capita"
+      - "%.1f lbs each"
+      - "%.1f pounds"
+      - "%.1f pounds per-capita"
+      - "%.1f pounds each"
+      - "%.1f farm-weight pounds per-capita"
     type: numeric
   - header: Cauliflower
     noun: "cauliflower use"
     noun_number: 1
-    units: 
-      - lbs per-capita
-      - lbs pp.
-      - pounds pp.
-      - lbs
-      - pounds
-      - pounds per-capita
-      - farm-weight pounds per-capita
+    template_string:
+      - "%.1f lbs"
+      - "%.1f lbs per-capita"
+      - "%.1f lbs each"
+      - "%.1f pounds"
+      - "%.1f pounds per-capita"
+      - "%.1f pounds each"
+      - "%.1f farm-weight pounds per-capita"
     type: numeric
   - header: Fresh cauliflower
     noun: "fresh cauliflower use"
     noun_number: 1
-    units: 
-      - lbs per-capita
-      - lbs pp.
-      - pounds pp.
-      - lbs
-      - pounds
-      - pounds per-capita
-      - farm-weight pounds per-capita
+    template_string:
+      - "%.1f lbs"
+      - "%.1f lbs per-capita"
+      - "%.1f lbs each"
+      - "%.1f pounds"
+      - "%.1f pounds per-capita"
+      - "%.1f pounds each"
+      - "%.1f farm-weight pounds per-capita"
     type: numeric
   - header: Freezing cauliflower
     noun: "freezing cauliflower use"
     noun_number: 1
-    units: 
-      - lbs per-capita
-      - lbs pp.
-      - pounds pp.
-      - lbs
-      - pounds
-      - pounds per-capita
-      - farm-weight pounds per-capita
+    template_string:
+      - "%.1f lbs"
+      - "%.1f lbs per-capita"
+      - "%.1f lbs each"
+      - "%.1f pounds"
+      - "%.1f pounds per-capita"
+      - "%.1f pounds each"
+      - "%.1f farm-weight pounds per-capita"
     type: numeric
   - header: Celery
     noun: "celery use"
     noun_number: 1
-    units: 
-      - lbs per-capita
-      - lbs pp.
-      - pounds pp.
-      - lbs
-      - pounds
-      - pounds per-capita
-      - farm-weight pounds per-capita
+    template_string:
+      - "%.1f lbs"
+      - "%.1f lbs per-capita"
+      - "%.1f lbs each"
+      - "%.1f pounds"
+      - "%.1f pounds per-capita"
+      - "%.1f pounds each"
+      - "%.1f farm-weight pounds per-capita"
     type: numeric
   - header: Sweet corn
     noun: "sweet corn use"
     noun_number: 1
-    units: 
-      - lbs per-capita
-      - lbs pp.
-      - pounds pp.
-      - lbs
-      - pounds
-      - pounds per-capita
-      - farm-weight pounds per-capita
+    template_string:
+      - "%.1f lbs"
+      - "%.1f lbs per-capita"
+      - "%.1f lbs each"
+      - "%.1f pounds"
+      - "%.1f pounds per-capita"
+      - "%.1f pounds each"
+      - "%.1f farm-weight pounds per-capita"
     type: numeric
   - header: Fresh sweet corn
     noun: "fresh sweet corn use"
     noun_number: 1
-    units: 
-      - lbs per-capita
-      - lbs pp.
-      - pounds pp.
-      - lbs
-      - pounds
-      - pounds per-capita
-      - farm-weight pounds per-capita
+    template_string:
+      - "%.1f lbs"
+      - "%.1f lbs per-capita"
+      - "%.1f lbs each"
+      - "%.1f pounds"
+      - "%.1f pounds per-capita"
+      - "%.1f pounds each"
+      - "%.1f farm-weight pounds per-capita"
     type: numeric
   - header: Canning sweet corn
     noun: "canning sweet corn use"
     noun_number: 1
-    units: 
-      - lbs per-capita
-      - lbs pp.
-      - pounds pp.
-      - lbs
-      - pounds
-      - pounds per-capita
-      - farm-weight pounds per-capita
+    template_string:
+      - "%.1f lbs"
+      - "%.1f lbs per-capita"
+      - "%.1f lbs each"
+      - "%.1f pounds"
+      - "%.1f pounds per-capita"
+      - "%.1f pounds each"
+      - "%.1f farm-weight pounds per-capita"
     type: numeric
   - header: Freezing sweet corn
     noun: "freezing sweet corn use"
     noun_number: 1
-    units: 
-      - lbs per-capita
-      - lbs pp.
-      - pounds pp.
-      - lbs
-      - pounds
-      - pounds per-capita
-      - farm-weight pounds per-capita
+    template_string:
+      - "%.1f lbs"
+      - "%.1f lbs per-capita"
+      - "%.1f lbs each"
+      - "%.1f pounds"
+      - "%.1f pounds per-capita"
+      - "%.1f pounds each"
+      - "%.1f farm-weight pounds per-capita"
     type: numeric
   - header: Cucumbers
     noun: "cucumbers use"
     noun_number: 1
-    units: 
-      - lbs per-capita
-      - lbs pp.
-      - pounds pp.
-      - lbs
-      - pounds
-      - pounds per-capita
-      - farm-weight pounds per-capita
+    template_string:
+      - "%.1f lbs"
+      - "%.1f lbs per-capita"
+      - "%.1f lbs each"
+      - "%.1f pounds"
+      - "%.1f pounds per-capita"
+      - "%.1f pounds each"
+      - "%.1f farm-weight pounds per-capita"
     type: numeric
   - header: Fresh cucumbers
     noun: "fresh cucumbers use"
     noun_number: 1
-    units: 
-      - lbs per-capita
-      - lbs pp.
-      - pounds pp.
-      - lbs
-      - pounds
-      - pounds per-capita
-      - farm-weight pounds per-capita
+    template_string:
+      - "%.1f lbs"
+      - "%.1f lbs per-capita"
+      - "%.1f lbs each"
+      - "%.1f pounds"
+      - "%.1f pounds per-capita"
+      - "%.1f pounds each"
+      - "%.1f farm-weight pounds per-capita"
     type: numeric
   - header: Pickling cucumbers
     noun: "pickling cucumbers use"
     noun_number: 1
-    units: 
-      - lbs per-capita
-      - lbs pp.
-      - pounds pp.
-      - lbs
-      - pounds
-      - pounds per-capita
-      - farm-weight pounds per-capita
+    template_string:
+      - "%.1f lbs"
+      - "%.1f lbs per-capita"
+      - "%.1f lbs each"
+      - "%.1f pounds"
+      - "%.1f pounds per-capita"
+      - "%.1f pounds each"
+      - "%.1f farm-weight pounds per-capita"
     type: numeric
   - header: Melons
     noun: "melons use"
     noun_number: 1
-    units: 
-      - lbs per-capita
-      - lbs pp.
-      - pounds pp.
-      - lbs
-      - pounds
-      - pounds per-capita
-      - farm-weight pounds per-capita
+    template_string:
+      - "%.1f lbs"
+      - "%.1f lbs per-capita"
+      - "%.1f lbs each"
+      - "%.1f pounds"
+      - "%.1f pounds per-capita"
+      - "%.1f pounds each"
+      - "%.1f farm-weight pounds per-capita"
     type: numeric
   - header: Watermelon
     noun: "watermelon use"
     noun_number: 1
-    units: 
-      - lbs per-capita
-      - lbs pp.
-      - pounds pp.
-      - lbs
-      - pounds
-      - pounds per-capita
-      - farm-weight pounds per-capita
+    template_string:
+      - "%.1f lbs"
+      - "%.1f lbs per-capita"
+      - "%.1f lbs each"
+      - "%.1f pounds"
+      - "%.1f pounds per-capita"
+      - "%.1f pounds each"
+      - "%.1f farm-weight pounds per-capita"
     type: numeric
   - header: Cantaloupe
     noun: "cantaloupe use"
     noun_number: 1
-    units: 
-      - lbs per-capita
-      - lbs pp.
-      - pounds pp.
-      - lbs
-      - pounds
-      - pounds per-capita
-      - farm-weight pounds per-capita
+    template_string:
+      - "%.1f lbs"
+      - "%.1f lbs per-capita"
+      - "%.1f lbs each"
+      - "%.1f pounds"
+      - "%.1f pounds per-capita"
+      - "%.1f pounds each"
+      - "%.1f farm-weight pounds per-capita"
     type: numeric
   - header: Honeydew
     noun: "honeydew use"
     noun_number: 1
-    units: 
-      - lbs per-capita
-      - lbs pp.
-      - pounds pp.
-      - lbs
-      - pounds
-      - pounds per-capita
-      - farm-weight pounds per-capita
+    template_string:
+      - "%.1f lbs"
+      - "%.1f lbs per-capita"
+      - "%.1f lbs each"
+      - "%.1f pounds"
+      - "%.1f pounds per-capita"
+      - "%.1f pounds each"
+      - "%.1f farm-weight pounds per-capita"
     type: numeric
   - header: Lettuce
     noun: "lettuce use"
     noun_number: 1
-    units: 
-      - lbs per-capita
-      - lbs pp.
-      - pounds pp.
-      - lbs
-      - pounds
-      - pounds per-capita
-      - farm-weight pounds per-capita
+    template_string:
+      - "%.1f lbs"
+      - "%.1f lbs per-capita"
+      - "%.1f lbs each"
+      - "%.1f pounds"
+      - "%.1f pounds per-capita"
+      - "%.1f pounds each"
+      - "%.1f farm-weight pounds per-capita"
     type: numeric
   - header: Head lettuce
     noun: "head lettuce use"
     noun_number: 1
-    units: 
-      - lbs per-capita
-      - lbs pp.
-      - pounds pp.
-      - lbs
-      - pounds
-      - pounds per-capita
-      - farm-weight pounds per-capita
+    template_string:
+      - "%.1f lbs"
+      - "%.1f lbs per-capita"
+      - "%.1f lbs each"
+      - "%.1f pounds"
+      - "%.1f pounds per-capita"
+      - "%.1f pounds each"
+      - "%.1f farm-weight pounds per-capita"
     type: numeric
   - header: Romaine & leaf lettuce
     noun: "romaine & leaf lettuce use"
     noun_number: 1
-    units: 
-      - lbs per-capita
-      - lbs pp.
-      - pounds pp.
-      - lbs
-      - pounds
-      - pounds per-capita
-      - farm-weight pounds per-capita
+    template_string:
+      - "%.1f lbs"
+      - "%.1f lbs per-capita"
+      - "%.1f lbs each"
+      - "%.1f pounds"
+      - "%.1f pounds per-capita"
+      - "%.1f pounds each"
+      - "%.1f farm-weight pounds per-capita"
     type: numeric
   - header: Onions
     noun: "onions use"
     noun_number: 1
-    units: 
-      - lbs per-capita
-      - lbs pp.
-      - pounds pp.
-      - lbs
-      - pounds
-      - pounds per-capita
-      - farm-weight pounds per-capita
+    template_string:
+      - "%.1f lbs"
+      - "%.1f lbs per-capita"
+      - "%.1f lbs each"
+      - "%.1f pounds"
+      - "%.1f pounds per-capita"
+      - "%.1f pounds each"
+      - "%.1f farm-weight pounds per-capita"
     type: numeric
   - header: Fresh onions
     noun: "fresh onions use"
     noun_number: 1
-    units: 
-      - lbs per-capita
-      - lbs pp.
-      - pounds pp.
-      - lbs
-      - pounds
-      - pounds per-capita
-      - farm-weight pounds per-capita
+    template_string:
+      - "%.1f lbs"
+      - "%.1f lbs per-capita"
+      - "%.1f lbs each"
+      - "%.1f pounds"
+      - "%.1f pounds per-capita"
+      - "%.1f pounds each"
+      - "%.1f farm-weight pounds per-capita"
     type: numeric
   - header: Dehydrating onions
     noun: "dehydrating onions use"
     noun_number: 1
-    units: 
-      - lbs per-capita
-      - lbs pp.
-      - pounds pp.
-      - lbs
-      - pounds
-      - pounds per-capita
-      - farm-weight pounds per-capita
+    template_string:
+      - "%.1f lbs"
+      - "%.1f lbs per-capita"
+      - "%.1f lbs each"
+      - "%.1f pounds"
+      - "%.1f pounds per-capita"
+      - "%.1f pounds each"
+      - "%.1f farm-weight pounds per-capita"
     type: numeric
   - header: Green peas
     noun: "green peas use"
     noun_number: 1
-    units: 
-      - lbs per-capita
-      - lbs pp.
-      - pounds pp.
-      - lbs
-      - pounds
-      - pounds per-capita
-      - farm-weight pounds per-capita
+    template_string:
+      - "%.1f lbs"
+      - "%.1f lbs per-capita"
+      - "%.1f lbs each"
+      - "%.1f pounds"
+      - "%.1f pounds per-capita"
+      - "%.1f pounds each"
+      - "%.1f farm-weight pounds per-capita"
     type: numeric
   - header: Canning green peas
     noun: "canning green peas use"
     noun_number: 1
-    units: 
-      - lbs per-capita
-      - lbs pp.
-      - pounds pp.
-      - lbs
-      - pounds
-      - pounds per-capita
-      - farm-weight pounds per-capita
+    template_string:
+      - "%.1f lbs"
+      - "%.1f lbs per-capita"
+      - "%.1f lbs each"
+      - "%.1f pounds"
+      - "%.1f pounds per-capita"
+      - "%.1f pounds each"
+      - "%.1f farm-weight pounds per-capita"
     type: numeric
   - header: Freezing green peas
     noun: "freezing green peas use"
     noun_number: 1
-    units: 
-      - lbs per-capita
-      - lbs pp.
-      - pounds pp.
-      - lbs
-      - pounds
-      - pounds per-capita
-      - farm-weight pounds per-capita
+    template_string:
+      - "%.1f lbs"
+      - "%.1f lbs per-capita"
+      - "%.1f lbs each"
+      - "%.1f pounds"
+      - "%.1f pounds per-capita"
+      - "%.1f pounds each"
+      - "%.1f farm-weight pounds per-capita"
     type: numeric
   - header: Peppers
     noun: "peppers use"
     noun_number: 1
-    units: 
-      - lbs per-capita
-      - lbs pp.
-      - pounds pp.
-      - lbs
-      - pounds
-      - pounds per-capita
-      - farm-weight pounds per-capita
+    template_string:
+      - "%.1f lbs"
+      - "%.1f lbs per-capita"
+      - "%.1f lbs each"
+      - "%.1f pounds"
+      - "%.1f pounds per-capita"
+      - "%.1f pounds each"
+      - "%.1f farm-weight pounds per-capita"
     type: numeric
   - header: Bell peppers
     noun: "bell peppers use"
     noun_number: 1
-    units: 
-      - lbs per-capita
-      - lbs pp.
-      - pounds pp.
-      - lbs
-      - pounds
-      - pounds per-capita
-      - farm-weight pounds per-capita
+    template_string:
+      - "%.1f lbs"
+      - "%.1f lbs per-capita"
+      - "%.1f lbs each"
+      - "%.1f pounds"
+      - "%.1f pounds per-capita"
+      - "%.1f pounds each"
+      - "%.1f farm-weight pounds per-capita"
     type: numeric
   - header: Chile peppers
     noun: "chile peppers use"
     noun_number: 1
-    units: 
-      - lbs per-capita
-      - lbs pp.
-      - pounds pp.
-      - lbs
-      - pounds
-      - pounds per-capita
-      - farm-weight pounds per-capita
+    template_string:
+      - "%.1f lbs"
+      - "%.1f lbs per-capita"
+      - "%.1f lbs each"
+      - "%.1f pounds"
+      - "%.1f pounds per-capita"
+      - "%.1f pounds each"
+      - "%.1f farm-weight pounds per-capita"
     type: numeric
   - header: Tomatoes
     noun: "tomatoes use"
     noun_number: 1
-    units: 
-      - lbs per-capita
-      - lbs pp.
-      - pounds pp.
-      - lbs
-      - pounds
-      - pounds per-capita
-      - farm-weight pounds per-capita
+    template_string:
+      - "%.1f lbs"
+      - "%.1f lbs per-capita"
+      - "%.1f lbs each"
+      - "%.1f pounds"
+      - "%.1f pounds per-capita"
+      - "%.1f pounds each"
+      - "%.1f farm-weight pounds per-capita"
     type: numeric
   - header: Fresh tomatoes
     noun: "fresh tomatoes use"
     noun_number: 1
-    units: 
-      - lbs per-capita
-      - lbs pp.
-      - pounds pp.
-      - lbs
-      - pounds
-      - pounds per-capita
-      - farm-weight pounds per-capita
+    template_string:
+      - "%.1f lbs"
+      - "%.1f lbs per-capita"
+      - "%.1f lbs each"
+      - "%.1f pounds"
+      - "%.1f pounds per-capita"
+      - "%.1f pounds each"
+      - "%.1f farm-weight pounds per-capita"
     type: numeric
   - header: Canning tomatoes
     noun: "canning tomatoes use"
     noun_number: 1
-    units: 
-      - lbs per-capita
-      - lbs pp.
-      - pounds pp.
-      - lbs
-      - pounds
-      - pounds per-capita
-      - farm-weight pounds per-capita
+    template_string:
+      - "%.1f lbs"
+      - "%.1f lbs per-capita"
+      - "%.1f lbs each"
+      - "%.1f pounds"
+      - "%.1f pounds per-capita"
+      - "%.1f pounds each"
+      - "%.1f farm-weight pounds per-capita"
     type: numeric
 - html_source: http://www.census.gov/foreign-trade/statistics/historical/index.html
   source: http://www.census.gov/foreign-trade/statistics/historical/goods.xls
@@ -672,32 +665,23 @@
     noun: "U.S. balance of trade"
     noun_number: 1
     type: numeric
-    units:
-      - dollars
-      - USD
-      - word: "$"
-        direction: prefix
-        include_space: false
+    template_string: 
+      - "$%i"
+      - "%i dollars"
   - header: Exports BOP Basis
     noun: "U.S. exports"
     noun_number: 2
     type: numeric
-    units:
-      - dollars
-      - USD
-      - word: "$"
-        direction: prefix
-        include_space: false
+    template_string: 
+      - "$%i"
+      - "%i dollars"
   - header: Imports BOP Basis
     noun: "U.S. imports"
     noun_number: 2
     type: numeric
-    units:
-      - dollars
-      - USD
-      - word: "$"
-        direction: prefix
-        include_space: false
+    template_string: 
+      - "$%i"
+      - "%i dollars"
   - header: Trade Deficit?
     noun: "had a trade deficit"
     type: boolean
@@ -719,11 +703,9 @@
       - noun: "average U.S. temperature"
         noun_number: 1
     type: numeric
-    units: 
-      - degrees
-      - word: "°"
-        direction: "suffix"
-        include_space: false
+    template_string: 
+      - "%i°"
+      - "%i degrees"
   - header: Anomaly
     nouns: 
       - noun: "average annual U.S. temperature anomaly"
@@ -733,11 +715,9 @@
       - noun: "average U.S. temperature anomaly"
         noun_number: 1
     type: numeric
-    units: 
-      - degrees
-      - word: "°"
-        direction: "suffix"
-        include_space: false        
+    template_string: 
+      - "%i°"
+      - "%i degrees"
 - html_source: http://www.erh.noaa.gov/okx/climate/holidays/electiondaywx.htm
   source: http://www.erh.noaa.gov/okx/climate/holidays/electiondaywx.htm
   notes: Central Park weather on Election Day (I replaced trace precip with 0.01)
@@ -753,11 +733,9 @@
       - noun: "the temperature at Central Park on election day"
         noun_number: 1
     type: numeric
-    units: 
-      - degrees
-      - word: "°"
-        direction: "suffix"
-        include_space: false
+    template_string: 
+      - "%i°"
+      - "%i degrees"
   - header: MIN
     nouns: 
       - noun: "NYC's election day low temperature"
@@ -767,25 +745,26 @@
       - noun: "the low temperature at Central Park on election day"
         noun_number: 1
     type: numeric
-    units: 
-      - degrees
-      - word: "°"
-        direction: "suffix"
-        include_space: false        
+    template_string: 
+      - "%i°"
+      - "%i degrees"
   - header: PCPN
     nouns: 
-      - noun: "NYC's election day low temperature"
+      - noun: "NYC election day precipition"
         noun_number: 1
-      - noun: "NYC's low temperature"
+      - noun: "election day precipition in NYC"
         noun_number: 1
-      - noun: "the low temperature at Central Park on election day"
+      - noun: "election day precipition in NYC"
+        noun_number: 1
+      - noun: "NYC precipitation"
+        noun_number: 1
+      - noun: "precipitation in Central Park on election day"
         noun_number: 1
     type: numeric
-    units: 
-      - inches
-      - word: "in"
-        direction: "suffix"
-        include_space: false        
+    template_string: 
+      - "%.2f\""
+      - "%f inches"
+      - "%.2fin"
 - notes: Central Park annual snowfall (and monthly) [Trace converted to 0 by me.] (using STARTYEAR)
   html_source: http://www.erh.noaa.gov/okx/climate_cms.html
   source: http://www.weather.gov/media/okx/Climate/CentralPark/monthlyseasonalsnowfall.pdf
@@ -801,11 +780,10 @@
       - noun: "total snowfall in Central Park"
         noun_number: 1
     type: numeric
-    units: 
-      - inches
-      - word: "in"
-        direction: "suffix"
-        include_space: false
+    template_string: 
+      - "%.2f\""
+      - "%f inches"
+      - "%.2fin"
   - header: DEC
     nouns: 
       - noun: "December NYC snowfall"
@@ -821,11 +799,10 @@
       - noun: "Dec. snowfall in Central Park"
         noun_number: 1
     type: numeric
-    units: 
-      - inches
-      - word: "in"
-        direction: "suffix"
-        include_space: false
+    template_string: 
+      - "%.2f\""
+      - "%f inches"
+      - "%.2fin"
   - header: NOV
     nouns: 
       - noun: "November NYC snowfall"
@@ -841,11 +818,10 @@
       - noun: "Nov. snowfall in Central Park"
         noun_number: 1
     type: numeric
-    units: 
-      - inches
-      - word: "in"
-        direction: "suffix"
-        include_space: false
+    template_string: 
+      - "%.2f\""
+      - "%f inches"
+      - "%.2fin"
 - notes: Central Park annual snowfall (and monthly) [Trace converted to 0 by me.] (using ENDYEAR)
   html_source: http://www.erh.noaa.gov/okx/climate_cms.html
   source: http://www.weather.gov/media/okx/Climate/CentralPark/monthlyseasonalsnowfall.pdf
@@ -867,11 +843,10 @@
       - noun: "Jan. snowfall in Central Park"
         noun_number: 1
     type: numeric
-    units: 
-      - inches
-      - word: "in"
-        direction: "suffix"
-        include_space: false
+    template_string: 
+      - "%.2f\""
+      - "%f inches"
+      - "%.2fin"
   - header: FEB
     nouns: 
       - noun: "February NYC snowfall"
@@ -887,11 +862,10 @@
       - noun: "Feb. snowfall in Central Park"
         noun_number: 1
     type: numeric
-    units: 
-      - inches
-      - word: "in"
-        direction: "suffix"
-        include_space: false
+    template_string: 
+      - "%.2f\""
+      - "%f inches"
+      - "%.2fin"
   - header: MAR
     nouns: 
       - noun: "March NYC snowfall"
@@ -907,11 +881,10 @@
       - noun: "Mar. snowfall in Central Park"
         noun_number: 1
     type: numeric
-    units: 
-      - inches
-      - word: "in"
-        direction: "suffix"
-        include_space: false
+    template_string: 
+      - "%.2f\""
+      - "%f inches"
+      - "%.2fin"
   - header: APR
     nouns: 
       - noun: "April NYC snowfall"
@@ -927,13 +900,10 @@
       - noun: "Apr. snowfall in Central Park"
         noun_number: 1
     type: numeric
-    units: 
-      - inches
-      - word: "in"
-        direction: "suffix"
-        include_space: false
-
-
+    template_string: 
+      - "%.2f\""
+      - "%f inches"
+      - "%.2fin"
 - filename: PCOFFROBUSDA.csv
   year_column_header: DATE
   source: "https://research.stlouisfed.org/fred2/series/PCOFFROBUSDA"
@@ -965,11 +935,9 @@
         - noun: the price per-pound of coffee
           noun_number: 1
       type: numeric
-      units: 
-        - dollars
-        - word: "$"
-          direction: "prefix"
-          include_space: false
+      template_string: 
+        - "$%.2f"
+        - "%.2f dollars"
 - filename: GOLDAMGBD228NLBM.csv
   year_column_header: DATE
   source: "https://research.stlouisfed.org/fred2/series/GOLDAMGBD228NLBM"
@@ -987,11 +955,9 @@
         - noun: the price of a troy ounce of gold
           noun_number: 1
       type: numeric
-      units: 
-        - dollars
-        - word: "$"
-          direction: "prefix"
-          include_space: false
+      template_string: 
+        - "$%.2f"
+        - "%.2f dollars"
 - filename: PSOYBUSDQ.csv
   year_column_header: DATE
   source: "https://research.stlouisfed.org/fred2/series/PSOYBUSDQ"
@@ -1005,11 +971,9 @@
         - noun: the cost of a ton of soybeans
           noun_number: 1
       type: numeric
-      units: 
-        - dollars
-        - word: "$"
-          direction: "prefix"
-          include_space: false
+      template_string: 
+        - "$%.2f"
+        - "%.2f dollars"
 - filename: PWHEAMTUSDA.csv
   year_column_header: DATE
   source: "https://research.stlouisfed.org/fred2/series/PWHEAMTUSDA"
@@ -1023,11 +987,9 @@
         - noun: the cost of a ton of wheat
           noun_number: 1
       type: numeric
-      units: 
-        - dollars
-        - word: "$"
-          direction: "prefix"
-          include_space: false
+      template_string: 
+        - "$%.2f"
+        - "%.2f dollars"
 - filename: PBEEFUSDA.csv
   year_column_header: DATE
   source: "https://research.stlouisfed.org/fred2/series/PBEEFUSDA"
@@ -1045,11 +1007,9 @@
         - noun: the cost of a lb of beef
           noun_number: 1
       type: numeric
-      units: 
-        - dollars
-        - word: "$"
-          direction: "prefix"
-          include_space: false
+      template_string: 
+        - "$%.2f"
+        - "%.2f dollars"
 - filename: PIORECRUSDM.csv
   year_column_header: DATE
   source: "https://research.stlouisfed.org/fred2/series/PIORECRUSDM"
@@ -1065,25 +1025,21 @@
         - noun: the price of a ton of iron ore
           noun_number: 1
       type: numeric
-      units: 
-        - dollars
-        - word: "$"
-          direction: "prefix"
-          include_space: false
-- filename: OILPRICE.csv
-  year_column_header: DATE
-  source: "https://research.stlouisfed.org/fred2/series/OILPRICE"
-  data_columns:
-    - header: VALUE
-      nouns: 
-        - noun: unemployment
-          noun_number: 1
-      type: numeric
-      units: 
-        - percent
-        - word: "%"
-          direction: "suffix"
-          include_space: false
+      template_string: 
+        - "$%.2f"
+        - "%.2f dollars"
+# - filename: OILPRICE.csv
+#   year_column_header: DATE
+#   source: "https://research.stlouisfed.org/fred2/series/OILPRICE"
+#   data_columns:
+#     - header: VALUE
+#       nouns: 
+#         - noun: the price of oil
+#           noun_number: 1
+#       type: numeric
+#       template_string: 
+#         - "$%.2f"
+#         - "%.2f dollars"
 - filename: HOUSTNSA.csv
   year_column_header: DATE
   source: "https://research.stlouisfed.org/fred2/series/HOUSTNSA"
@@ -1112,10 +1068,9 @@
         - noun: consumption expenditures
           noun_number: 2
       type: numeric
-      units: 
-        - billion dollars
-        - word: "B dollars"
-          include_space: false
+      template_string: 
+        - "$%.2B"
+        - "$%.2f billion"
 - filename: PSAVERT.csv
   year_column_header: DATE
   source: "https://research.stlouisfed.org/fred2/series/PSAVERT"
@@ -1127,11 +1082,9 @@
         - noun: the savings rate
           noun_number: 1
       type: numeric
-      units: 
-        - percent
-        - word: "%"
-          direction: "suffix"
-          include_space: false
+      template_string: 
+        - "%.1f%"
+        - "%.1f percent"
 - filename: RRVRUSQ156N.csv
   year_column_header: DATE
   source: "https://research.stlouisfed.org/fred2/series/RRVRUSQ156N"
@@ -1141,11 +1094,9 @@
         - noun: the rental vacancy rate
           noun_number: 1
       type: numeric
-      units: 
-        - percent
-        - word: "%"
-          direction: "suffix"
-          include_space: false
+      template_string: 
+        - "%.1f%"
+        - "%.1f percent"
 - filename: TRFVOLUSM227NFWA.csv
   year_column_header: DATE
   source: "https://research.stlouisfed.org/fred2/series/TRFVOLUSM227NFWA"
@@ -1154,12 +1105,12 @@
       nouns: 
         - noun: vehicle miles traveled
           noun_number: 1
-        - noun: miles cars traveled
+        - noun: miles that cars traveled
           noun_number: 1
-        - noun: miles traveled
+        - noun: miles traveled by cars
           noun_number: 1
       type: numeric
-      units: 
-        - word: "M"
-          direction: "suffix"
-          include_space: false
+      template_string: 
+        - "%.1fM mi"
+        - "%.1fM miles"
+        - "%.1f million miles"

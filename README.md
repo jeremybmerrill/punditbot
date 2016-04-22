@@ -7,22 +7,17 @@ PunditBot
 
 These claims are stupid. They have no predictive power. Let's mock them.
 
-TODO:
+### TODO:
 
-  DO NOW: 
+####  DO NOW: 
 
   - miles traveled (RITA file in data, http://www.rita.dot.gov/bts/sites/rita.dot.gov.bts/files/publications/national_transportation_statistics/html/table_01_40.html)
   - updated vegetable figures?
-  - just be careful to note SOMEWHERE that 2014 vegetable figures are a prediction
   - add airline delays, amtrak stations served, oil prices (http://www.eia.gov/dnav/pet/pet_pri_spt_s1_a.htm)
-fix Democrats, you need to hope that unemployment's digits add not up to an odd number this year.
 
-
-
-Leave this for later, focus on MVP:
+#### Leave this for later, focus on MVP:
 
     - add categorical data sets (how does this work??) {:s => "weather on election day", :v => 'is', :o => "rainy"} {:s => "the Super Bowl winner", :v => 'is', :o => "the Patriots"}
-    - commas and dashes (fixed, but for bugs, e.g. https://github.com/simplenlg/simplenlg/issues/13 )
     - state based "without winning Iowa or Pennsylvania"
     - MAYBE: add support for candidate based exceptions ("Without a Clinton on the ballot, ")
     - boolean type (e.g. "had a trade deficit", "was warmer than usual")?? ( already in correlates.yml )
@@ -32,7 +27,7 @@ Leave this for later, focus on MVP:
   - replace units prefix/suffix thing with a template string, to allow to specify something like "$7.55/oz"
   - find or make a better oil price (Fred's is 1940s-2013, and another is 1986-pres, neither of which is great)
   - are prices truncated/rounded yet?
-
+  - TODO: readd commaification
 
 
 Fred is a great source for data to feed to PunditBot:
