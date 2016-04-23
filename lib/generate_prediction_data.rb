@@ -690,7 +690,7 @@ module PunditBot
       prediction.prediction_meta[:data_claim_template] = correlating_time_series[:data_claim].template
       prediction.prediction_meta[:exceptional_year]  =   correlating_time_series[:exceptional_year]
       prediction.prediction_meta[:politics_condition] =  politics_condition
-      prediction.prediction_meta[:correlate_noun] =      correlating_time_series[:correlate_noun].map{|n| n.respond_to?(:word) ? n.word : n}
+      prediction.prediction_meta[:correlate_noun] =      correlating_time_series[:correlate_noun]
 
       # used for debug
       prediction.prediction_debug[:covered_years] =               correlating_time_series[:covered_years]

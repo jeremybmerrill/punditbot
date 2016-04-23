@@ -36,7 +36,6 @@ module PunditBot
         puts prediction.inspect
         prediction = nil if !prediction.nil? && prediction.column_type == "integral" && rand < 0.8
       end
-      puts prediction.exhortation
       return prediction
     else # counting prediction types, used to figure out some of these weights
       claim_types = Hash.new(0)
