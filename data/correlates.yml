@@ -912,25 +912,25 @@
       nouns: 
         - noun: the price of coffee
           noun_number: 1
-        - noun: the price of a lb of coffee
+        - noun: the price of a lb. of coffee
           noun_number: 1
         - noun: the price of a pound of coffee
           noun_number: 1
         - noun: the cost of a pound of coffee
           noun_number: 1
-        - noun: the cost of a lb of coffee
+        - noun: the cost of a lb. of coffee
           noun_number: 1
         - noun: the price of robusta coffee beans
           noun_number: 1
-        - noun: the price of a lb of robusta coffee beans
+        - noun: the price of a lb. of robusta coffee beans
           noun_number: 1
         - noun: the price of a pound of robusta coffee beans
           noun_number: 1
         - noun: the cost of a pound of robusta coffee beans
           noun_number: 1
-        - noun: the cost of a lb of robusta coffee beans
+        - noun: the cost of a lb. of robusta coffee beans
           noun_number: 1
-        - noun: the price per-lb of coffee
+        - noun: the price per-lb. of coffee
           noun_number: 1
         - noun: the price per-pound of coffee
           noun_number: 1
@@ -998,13 +998,13 @@
       nouns: 
         - noun: the price of beef
           noun_number: 1
-        - noun: the price of a lb of beef
+        - noun: the price of a lb. of beef
           noun_number: 1
         - noun: the price of a pound of beef
           noun_number: 1
         - noun: the cost of a pound of beef
           noun_number: 1
-        - noun: the cost of a lb of beef
+        - noun: the cost of a lb. of beef
           noun_number: 1
       type: numeric
       template_string: 
