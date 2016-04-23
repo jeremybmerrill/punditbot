@@ -10,15 +10,15 @@ if __FILE__ == $0
   end
   while 1
     prediction = PunditBot.generate_prediction
-    break unless prediction.nil? || prediction.prediction_text.nil?
+    break unless prediction.nil? || prediction.to_s.nil?
   end
   
-  if prediction.prediction_text.size > 140 && prediction.prediction_text[-1] == "."
-    prediction.prediction_text = prediction.prediction_text[0...-1]
+  if prediction.to_s.size > 140 && prediction.to_s[-1] == "."
+    prediction.to_s = prediction.to_s[0...-1]
   end
 
-  puts "trying to tweet `#{prediction.prediction_text}` (an attempt to solve the occasional missing status error from the Twitter gem.)"
-  tweet = client.update(prediction.prediction_text)
+  puts "trying to tweet `#{prediction.to_s}` (an attempt to solve the occasional missing status error from the Twitter gem.)"
+  tweet = client.update(prediction.to_s)
   # exhortation_tweet = client.update(prediction.exhortation + " #{tweet.url}")
   # a quoted tweet just appends at the end the link https://dev.twitter.com/rest/reference/post/statuses/update
 end

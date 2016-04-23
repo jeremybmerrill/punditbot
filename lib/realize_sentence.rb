@@ -248,7 +248,7 @@ class Prediction
 
 
   def to_s
-    @prediction_text ||  actually_make_the_sentence
+    @prediction_text || actually_make_the_sentence
   end
 
   # def old_exhortation
