@@ -60,6 +60,7 @@ class Prediction
     rephrased[:except] =                   ['except', 'besides', 'except in'] 
     rephrased[:year_or_election] =         ["year", "election year"]
     rephrased[:when] =                     ['when', 'in years when', 'whenever', 'in years']
+    rephrased[:since_pp_modified] =        [:main_clause, :year_pp]
     rephrased
   end
 
@@ -79,12 +80,6 @@ class Prediction
       :negation => !@prediction_meta[:claim_polarity],
       :prepositional_phrases => [ # these should be randomly assigned as modifiers
         {
-          :preposition => rephrased[:since_after],
-          :rest => @prediction_meta[:start_year],
-          :appositive => true, # maybe this should just check for whether it's a word or more than one word
-          :position => rephrased[:since_pp_position]
-        },
-        {
           :preposition => "in",
           :rest => {
                     :determiner => @prediction_meta[:claim_polarity] ? 'every' : 'any',
@@ -100,6 +95,24 @@ class Prediction
         }
       ]
     }
+    since_pp = {
+          # TODO: this should optionally also be allowed to attach to the "in every year" PP that's right below.
+          :preposition => rephrased[:since_after],
+          :rest => @prediction_meta[:start_year],
+          :appositive => true, # maybe this should just check for whether it's a word or more than one word
+          :position => rephrased[:since_pp_position]
+        }
+    if rephrased[:since_pp_modified ] == :main_clause || rephrased[:since_pp_position] == :front # for now, we can't allow this to be a frontmodifier if it's modifying the year_pp
+      puts "since_pp_modified is main_clause"
+      sentence_template[:prepositional_phrases] << since_pp
+    elsif rephrased[:since_pp_modified ] == :year_pp
+      puts "since_pp_modified is year_pp"
+      sentence_template[:prepositional_phrases].find{|pp| pp[:rest][:noun] == rephrased[:year_or_election]}[:prepositional_phrases] = [since_pp]
+    else
+      raise ArgumentError, "couldn't figure out where to put the since_pp"
+    end
+
+
     if @prediction_meta[:exceptional_year]
       sentence_template[:prepositional_phrases] <<  {
                                                       :preposition => rephrased[:except],
