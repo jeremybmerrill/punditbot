@@ -185,8 +185,8 @@ module PunditBot
     end
   end
   PARTIES = {
-    :dem => Party.new(["The Democratic Party", 1], [["The Dems", 2], ["The Democrats", 2], ["A Democrat", 1]], 'D', "Democrat"), 
-    :gop => Party.new(["The Republican Party", 1], [["The G.O.P.", 1], ["The Republicans", 2], ["A Republican", 1]], 'R', "Republican")
+    :dem => Party.new(["the Democratic Party", 1], [["the Dems", 2], ["the Democrats", 2], ["a Democrat", 1]], 'D', "Democrat"), 
+    :gop => Party.new(["the Republican Party", 1], [["the G.O.P.", 1], ["the Republicans", 2], ["a Republican", 1]], 'R', "Republican")
   }
 
   class DataClaim
