@@ -173,6 +173,10 @@ module PunditBot
       @member_name = member_name
     end
 
+    def allow_singular!
+      @alt_names << Noun.new("a #{@member_name}", 1)
+    end
+
     def rephrase
       @name = @alt_names.sample
       self
@@ -185,8 +189,8 @@ module PunditBot
     end
   end
   PARTIES = {
-    :dem => Party.new(["the Democratic Party", 1], [["the Dems", 2], ["the Democrats", 2], ["a Democrat", 1]], 'D', "Democrat"), 
-    :gop => Party.new(["the Republican Party", 1], [["the G.O.P.", 1], ["the Republicans", 2], ["a Republican", 1]], 'R', "Republican")
+    :dem => Party.new(["the Democratic Party", 1], [["the Dems", 2], ["the Democrats", 2]], 'D', "Democrat"), 
+    :gop => Party.new(["the Republican Party", 1], [["the G.O.P.", 1], ["the Republicans", 2]], 'R', "Republican")
   }
 
   class DataClaim
@@ -200,18 +204,19 @@ module PunditBot
       @year_buffer = year_buffer || 0
     end
 
+    # TODO: remove, I'm pretty sure this is totally obsolete, having been moved into realize_sentence.rb per note below.
     # refactor: move this into realize_sentence.rb
-    def phrase(complement_subject_noun)
-      if !@template[:n].nil?
-        complement_subject = @template[:n].call(complement_subject_noun)
-      else
-        complement_subject = NLG.factory.create_noun_phrase(complement_subject_noun.word)
-        complement_subject.set_feature NLG::Feature::NUMBER, complement_subject_noun.singular? ? NLG::NumberAgreement::SINGULAR : NLG::NumberAgreement::PLURAL
-      end
-      NLG.phrase(@template.merge({
-          :s => complement_subject,
-      }))
-    end
+    # def phrase(complement_subject_noun)
+    #   if !@template[:n].nil?
+    #     complement_subject = @template[:n].call(complement_subject_noun)
+    #   else
+    #     complement_subject = NLG.factory.create_noun_phrase(complement_subject_noun.word)
+    #     complement_subject.set_feature NLG::Feature::NUMBER, complement_subject_noun.singular? ? NLG::NumberAgreement::SINGULAR : NLG::NumberAgreement::PLURAL
+    #   end
+    #   NLG.phrase(@template.merge({
+    #       :s => complement_subject,
+    #   }))
+    # end
   end
 
 
@@ -683,6 +688,8 @@ module PunditBot
       correlating_time_series = find_correlating_time_series(politics_claim_truth_vector, politics_condition)
       return nil if correlating_time_series.nil?
 
+      party.allow_singular! if politics_condition.race == :pres
+
       # used in the actual template
       prediction.prediction_meta[:party] =               party
       prediction.prediction_meta[:claim_polarity] =      correlating_time_series[:polarity]
@@ -691,7 +698,7 @@ module PunditBot
       prediction.prediction_meta[:exceptional_year]  =   correlating_time_series[:exceptional_year]
       prediction.prediction_meta[:politics_condition] =  politics_condition
       prediction.prediction_meta[:correlate_noun] =      correlating_time_series[:correlate_noun]
-
+      
       # used for debug
       prediction.prediction_debug[:covered_years] =               correlating_time_series[:covered_years]
       prediction.prediction_debug[:data] =                        @dataset.data
