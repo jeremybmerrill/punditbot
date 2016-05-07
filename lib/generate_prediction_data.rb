@@ -203,20 +203,6 @@ module PunditBot
       @condition = condition
       @year_buffer = year_buffer || 0
     end
-
-    # TODO: remove, I'm pretty sure this is totally obsolete, having been moved into realize_sentence.rb per note below.
-    # refactor: move this into realize_sentence.rb
-    # def phrase(complement_subject_noun)
-    #   if !@template[:n].nil?
-    #     complement_subject = @template[:n].call(complement_subject_noun)
-    #   else
-    #     complement_subject = NLG.factory.create_noun_phrase(complement_subject_noun.word)
-    #     complement_subject.set_feature NLG::Feature::NUMBER, complement_subject_noun.singular? ? NLG::NumberAgreement::SINGULAR : NLG::NumberAgreement::PLURAL
-    #   end
-    #   NLG.phrase(@template.merge({
-    #       :s => complement_subject,
-    #   }))
-    # end
   end
 
 
@@ -275,24 +261,6 @@ module PunditBot
         end
       ] }.flatten]
     end
-    # def commaify(number)
-    #   # http://stackoverflow.com/questions/1078347/is-there-a-rails-trick-to-adding-commas-to-large-numbers
-    #   number.to_s.reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse
-    # end
-    # def add_units(intro, number)
-    #   return ["#{intro} #{number}"] if @units.size == 0
-    #   @units.map do |unit|
-    #     unit = {"word" => unit} unless unit.respond_to?(:has_key?) && unit.has_key?("word")
-    #     rounded = commaify(number.to_s.include?(".") ? number.round(1) : number)
-    #     if unit["direction"] == "prefix"
-    #       intro + " " + (unit["include_space"] == false ? '' : " ") + unit["word"] + rounded.to_s
-    #     else # suffix
-    #       intro + " " + rounded.to_s + (unit["include_space"] == false ? '' : " ") + unit["word"]
-    #     end
-    #   end
-    # end
-
-
   end
 
   class PunditBot
