@@ -13,9 +13,10 @@ end
 module PunditBot
 
 
-# post refactor, "except in YR", attached to the main phrase should be acceptable
-# post refactor, party rephrase options should include "a Democrat"
-# post refactor: rename @sentence_digram and @final_sentence_diagram
+# TODO, "except in YR", attached to the main phrase should be acceptable
+# TODO: rename @sentence_diagram and @final_sentence_diagram
+# too many commas here: "Since 1992, a Republican has not won the the presidency, in any year that the price of a ton of iron ore declined year over year."
+
 
 class Prediction
   attr_accessor :prediction_meta, :prediction_debug
@@ -36,7 +37,7 @@ class Prediction
   end
 
   def actually_make_the_sentence
-    rephrased = rephrase(rephraseables)
+    rephrased = rephrase(rephraseables.dup) # `dup` b/c we need to be able to remove things from this list without it causing a problem later.
     @prediction_text = _realize_sentence(rephrased)
     @prediction_text
   end
@@ -106,7 +107,7 @@ class Prediction
       puts "since_pp_modified is main_clause"
       sentence_template[:prepositional_phrases] << since_pp
     elsif rephrased[:since_pp_modified ] == :year_pp
-      puts "since_pp_modified is year_pp"
+      puts "since_pp_modified is year_pp" # tROUBLE
       sentence_template[:prepositional_phrases].find{|pp| pp[:rest][:noun] == rephrased[:year_or_election]}[:prepositional_phrases] = [since_pp]
     else
       raise ArgumentError, "couldn't figure out where to put the since_pp"
