@@ -166,7 +166,7 @@ class Prediction
     end
     puts shortest_rephrase_options.inspect
     shortest_possible_sentence_length = _realize_sentence(shortest_rephrase_options).size
-    puts "way too long: #{_realize_sentence(shortest_rephrase_options)}" if MAX_OUTPUT_LENGTH < shortest_possible_sentence_length
+    puts "way too long (#{shortest_possible_sentence_length}) : #{_realize_sentence(shortest_rephrase_options)}" if MAX_OUTPUT_LENGTH < shortest_possible_sentence_length
     return nil if MAX_OUTPUT_LENGTH < shortest_possible_sentence_length
     buffer = MAX_OUTPUT_LENGTH - shortest_possible_sentence_length # [max_rephraseable_length - min_rephraseable_length, MAX_OUTPUT_LENGTH - shortest_possible_sentence_length].min
     # puts "Buffer: #{buffer}"

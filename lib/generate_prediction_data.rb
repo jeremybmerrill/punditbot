@@ -84,42 +84,42 @@ module PunditBot
         race: :pres, 
         control: false, # if after the election, the chosen party/person controls the object
         change: false,  # if the election caused a change in control of the object
-        objects: [Noun.new("the White House", 1), Noun.new("the presidency", 1)],
+        objects: [Noun.new("White House", 1), Noun.new("presidency", 1)], # N.B. removed "the" from "the White House" 5/30/2016 to fix https://twitter.com/PunditBot/status/737295983533535232's double the.
         election_interval: 4
     ),
     :sen_lost => PoliticsCondition.new(
         race: :senate, 
         control: false, # if after the election, the chosen party/person controls the object
         change: false,  # if the election caused a change in control of the object
-        objects: [Noun.new("the Senate", 1)],
+        objects: [Noun.new("Senate", 1)],
         election_interval: 2
     ),
     :house_lost => PoliticsCondition.new(
         race: :house, 
         control: false, # if after the election, the chosen party/person controls the object
         change: false,  # if the election caused a change in control of the object
-        objects: [Noun.new("the House", 1)],
+        objects: [Noun.new("House", 1)],
         election_interval: 2
     ),
     :pres_won => PoliticsCondition.new(
         race: :pres, 
         control: true, # if after the election, the chosen party/person controls the object
         change: false,  # if the election caused a change in control of the object
-        objects: [Noun.new("the White House", 1), Noun.new("the presidency", 1)],
+        objects: [Noun.new("White House", 1), Noun.new("presidency", 1)],
         election_interval: 4
     ),
     :sen_won => PoliticsCondition.new(
         race: :senate, 
         control: true, # if after the election, the chosen party/person controls the object
         change: false,  # if the election caused a change in control of the object
-        objects: [Noun.new("the Senate", 1)],
+        objects: [Noun.new("Senate", 1)],
         election_interval: 2
     ),
     :house_won => PoliticsCondition.new(
         race: :house, 
         control: true, # if after the election, the chosen party/person controls the object
         change: false,  # if the election caused a change in control of the object
-        objects: [Noun.new("the House", 1)],
+        objects: [Noun.new("House", 1)],
         election_interval: 2
     ),
     # TODO: what, if anything, does 'control' do?
@@ -135,7 +135,7 @@ module PunditBot
     #     race: :congress, 
     #     control: false, # if after the election, the chosen party/person controls the object
     #     change: false,  # if the election caused a change in control of the object
-    #     objects: [Noun.new("both houses of Congress", 1), Noun.new("the House and the Senate", 1), Noun.new("Congress", 1),],
+    #     objects: [Noun.new("both houses of Congress", 1), Noun.new("House and the Senate", 1), Noun.new("Congress", 1),],
     #     election_interval: 2
     # ),
     # :pres_gain_control => PoliticsCondition.new(
@@ -657,6 +657,8 @@ module PunditBot
       return nil if correlating_time_series.nil?
 
       party.allow_singular! if politics_condition.race == :pres
+
+      raise IOError, "correlating_time_series[:data_claim].template was nil" if correlating_time_series[:data_claim].template.nil?
 
       # used in the actual template
       prediction.prediction_meta[:party] =               party
