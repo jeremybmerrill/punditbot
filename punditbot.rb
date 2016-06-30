@@ -34,7 +34,7 @@ module PunditBot
         prediction = pundit.generate_prediction
         puts prediction.to_s
         puts prediction.inspect
-        prediction = nil if !prediction.nil? && prediction.column_type == "integral" && rand < 0.8
+        prediction = nil if !prediction.nil? && prediction.column_type == "integral" && rand < 0.9
       end
       return prediction
     else # counting prediction types, used to figure out some of these weights
