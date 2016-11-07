@@ -46,7 +46,7 @@ module PunditBot
         prediction = pundit.generate_prediction
         next if prediction.nil?
                                                                    #0.80 ==> {:integral=>834, :numeric=>290}
-        next if prediction.column_type == :integral && rand < 0.80 # exclude 80% of integral claims
+        next if prediction.column_type == :integral && rand < 0.93 # exclude 80% of integral claims
         # available methods: dataset, column, column_type
         next if data_claim_counts[prediction.metadata[:data_claim]] > (data_claim_counts.values.reduce(&:+) || 0) / 5.0
         claim_types[prediction.column_type] += 1
